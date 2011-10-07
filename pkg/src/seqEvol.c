@@ -14,26 +14,26 @@
 #include <stdio.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
-    
+
 #include "seqEvol.h"
 
+/*
+   ========================
+   === GLOBAL VARIABLES ===
+   ========================
+*/
+
+/* Initialize random number generators */
 const gsl_rng *gBaseRand;
 
 /* specifying to use Mersenne twister MT-19937 as the uniform PRNG */
 gBaseRand = gsl_rng_alloc(gsl_rng_mt19937);
-  
+
 srand(time(NULL));                    /* initialization for rand() */
 randSeed = rand();                    /* returns a non-negative integer */
 gsl_rng_set(gBaseRand, randSeed);    /* seed the PRNG */
 
 randomize(); /* seeds the basic function random() from sdlib.h*/
-
-
-/*
-   =============================
-   === STRUCTURES DEFINITION ===
-   =============================
-*/
 
 
 
@@ -45,24 +45,22 @@ randomize(); /* seeds the basic function random() from sdlib.h*/
 */
 
 /* Function to generate one mutation */
-int create_mutation(int *L){
-	randomize(); /* seeds the basic function random() from sdlib.h*/
+int create_mutation(int L){
 	int out;
-	out = random(*L)+1;
+	out = random(L)+1;
 	return out;
 }
 
 
 /* Function replicating a genome, with mutations and back-mutations */
-void replication(struct pathogen *in, int nbmut, int nbbackmut, int *L){
+void replication(struct pathogen *in, struct pathogen *out, int nbmut, int nbbackmut, int L){
 	int i;
-	randomize(); /* seeds the basic function random() from sdlib.h*/
-		
+
 	for(i=0;i<nbmut;i++){
-		if(random(*L)<get_nb_snps(in)){ /* back mutation */
+		if(random(L)+1 < get_nb_snps(in)){ /* back mutation */
 			
 		} else {
-		
+
 		}
 	}
 }
@@ -77,18 +75,22 @@ void replication(struct pathogen *in, int nbmut, int nbbackmut, int *L){
 /* Basic accessors for pathogen objects */
 /* Returns the number of mutated SNPs, i.e. length of in->snps array */
 int get_nb_snps(struct pathogen *in){
-	return pathogen->length;
+	return in->length;
 }
 
 /* Returns the ID of the host, i.e. in->host array */
-long long int get_host(struct pathogen *in){
-	return pathogen->host;
+long long unsigned int get_host(struct pathogen *in){
+	return in->host;
+}
+
+/* Returns SNP vector */
+unsigned int * get_snps(struct pathogen *in){
+	return in->snps;
 }
 
 
-
 /* Create empty pathogen */
-struct pathogen * create_initial_pathogen(){
+struct pathogen * create_pathogen(){
 	struct pathogen *out;
 	out = (struct pathogen *) calloc(1, sizeof(struct pathogen));
 	if(out == NULL){
@@ -103,10 +105,45 @@ struct pathogen * create_initial_pathogen(){
 }
 
 
+/* Copy pathogen */
+/*  - memory allocation made outside the function */
+void copy_pathogen(struct pathogen *in, struct pathogen *out){
+	int i;
 
-/* Create a pathogen from an existant isolate */
+	out->snps = (unsigned int *) calloc(get_nb_snps(in), sizeof(unsigned int)); /* allocate memory for snps vector*/
+	if(out->snps == NULL){
+		fprintf(stderr, "No memory left for copying pathogen genome. Exiting.\n");
+		exit(1);
+	}
+
+	for(i=0;i<get_nb_snps(in);i++){ /* copy snps */
+		(out->snps)[i] = (in->snps[i]);
+	}
+	out->length = get_nb_snps(in);
+	out->host = 0; /* this will have to be replaced */
+}
+
+
+/* Free pathogen */
+void free_pathogen(struct pathogen *in){
+	free(in->snps);
+	free(in);
+}
+
+
+/* Print pathogen content */
+void print_pathogen(struct pathogen *in){
+	int i;
+	printf("snps: ");
+	for(i=0;i<get_nb_snps(in);i++) printf("%d", get_snps(in)[i]);
+	printf("\nhost: %d", get_host(in));
+}
+
+
+
+/* Replicate an isolate - mutation possible */
 /* */
-struct pathogen * create_new_pathogen(struct pathogen *in){
+struct pathogen * replicate_pathogen(struct pathogen *in){
 	int i, nbmut=0, nbbackmut=0, *newmut;
 	struct pathogen *out;
 	out = (struct pathogen *) calloc(1, sizeof(struct pathogen));
@@ -114,7 +151,7 @@ struct pathogen * create_new_pathogen(struct pathogen *in){
 		fprintf(stderr, "No memory left for creating new pathogen. Exiting.\n");
 		exit(1);
 	}
-	
+
 	/* determine nb of mutations */
 	/* has to take into account possible back-mutations */
 	/* TODO */
@@ -124,12 +161,12 @@ struct pathogen * create_new_pathogen(struct pathogen *in){
 
 	/* allocate new snps vector */
 	out->snps = calloc(get_nb_snps(in)+nbmut, sizeof(int));
-	
+
 	/* inherite SNPs of the ancestor, but skip the last nbbackmut */
 	for(i=0; i<(get_nb_snps(in)-nbbackmut); i++){
 		out->snps[i] = in->snps[i];
 	}
-	
+
 	/* add new mutations*/
 	for(i=0; i<nbmut;i++){
 		out->snps[i+get_nb_snps(in)] = create_mutation();

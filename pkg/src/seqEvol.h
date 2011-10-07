@@ -11,7 +11,7 @@
 
 typedef short bool;
 
-long long int LAST_HOST=0;
+long long unsigned int LAST_HOST=0;
 
 /*
    =============================
@@ -29,7 +29,7 @@ long long int LAST_HOST=0;
 struct pathogen{
 	unsigned int *snps;
 	int length;
-	long long int host;
+	long long unsigned int host;
 };
 
 
