@@ -65,8 +65,13 @@ struct pathogen * create_pathogen(){
 	}
 	out->snps = NULL;
 	out->length = 0;
-	/* out->host = 1; /\* new infection starts with host 1 *\/ */
-	/* LAST_HOST = 1; /\* update host pool *\/ */
+	return out;
+}
+
+struct pathogen create_pathogen_content(){
+	struct pathogen out;
+	out.snps = NULL;
+	out.length = 0;
 	return out;
 }
 
@@ -94,24 +99,43 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 
 
 
+int make_unique_mutation(struct pathogen *in, struct param *par){
+	int x, i, N=get_nb_snps(in);
+
+	if(N==0) return gsl_rng_uniform_int(par->rng,par->L)+1;
+	do{
+		i = 0;
+		x = gsl_rng_uniform_int(par->rng,par->L)+1; /*generate mutation*/
+		printf("\nmutation: %d",x);
+		while(i<N && x!=get_snps(in)[i]){ /* check if it exists */
+			printf("\ncheck against: %d",get_snps(in)[i]);
+			i++;
+		}
+		printf("final value of i: %d N:%d",i,N);
+	} while (i != N);
+
+	return x;
+}
+
+
 
 /* Function replicating a genome, with mutations and back-mutations */
 void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 	int i, nbmut=0, nbbackmut=0, newsize, N, checkback;
-	
+	double lambda;
+
 	nbmut = gsl_ran_poisson(par->rng, par->muL);
+	lambda = (((double) nbmut)*((double) get_nb_snps(in))) / ((double) par->L);
+	/* determine the number of reverse mutations */
+	if(nbmut>0){
+		nbbackmut =  gsl_ran_poisson(par->rng, lambda);
+	}
+
 	printf("mutation rate %.2f\n", par->mu);
 	printf("length %d\n", par->L);
 	printf("number of mutations %d\n", nbmut);
-	
-	/* determine the number of reverse mutations */
-	if(nbmut>0){
-		for(i=0;i<nbmut;i++){
-			checkback = gsl_rng_uniform_int(par->rng, par->L)+1;
-			if(checkback <= get_nb_snps(in)) nbbackmut++;
-		}
-	}
-	
+	printf("number of reverse mutations %d\n", nbbackmut);
+
 	nbmut -= nbbackmut; /* remove back mutations from new mutations */
 	newsize = get_nb_snps(in) + nbmut - nbbackmut;
 
@@ -128,14 +152,16 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 		out->snps[i] = get_snps(in)[i];
 	}
 
+	out->length=N;
+
 	/* add new mutations */
 	for(i=0;i<nbmut;i++){
 /*careful: in theory, here it is possible to get twice the same mutation (albeit highly unprobably)*/
-		(out->snps)[N+i] = gsl_rng_uniform_int(par->rng,par->L)+1;
+		(out->snps)[N+i] = make_unique_mutation(out, par);
+		out->length += 1;
 	}
 
 	/* finish to update new patogen data */
-	out->length = newsize;
 	par->lasthost += 1;
 	out->host = par->lasthost;
 
@@ -182,37 +208,57 @@ void main(){
 	rng=gsl_rng_alloc(typ);
 	gsl_rng_set(rng,t); // changes the seed of the random generator
 
+	int i;
 
 	/* simulation parameters */
 	struct param * par;
 	par = (struct param *) calloc(1, sizeof(struct param));
-	par->L = 50;
-	par->mu = 0.1;
+	par->L = 100;
+	par->mu = 0.02;
 	par->muL = par->mu * par->L;
 	par->rng = rng;
 
-	/* Test pathogen creation, copy */
-	struct pathogen * ppat1, * ppat2;
-	ppat1 = create_pathogen();
-	ppat2 = create_pathogen();
-	copy_pathogen(ppat1,ppat2,par);
+	/* Test pathogen creation, copy, replication */
+	/* struct pathogen *ppat1, *ppat2, *ppat3; */
+	/* ppat1 = create_pathogen(); */
+	/* ppat2 = create_pathogen(); */
+	/* ppat3 = create_pathogen(); */
 
-	printf("\nppat 1");
-	print_pathogen(ppat1);
+	/* replicate(ppat1, ppat2, par); */
+	/* replicate(ppat2,ppat3, par); */
 
-	printf("\nppat 2");
-	print_pathogen(ppat2);
+	/* printf("\npathogen 1"); */
+	/* print_pathogen(ppat1); */
+	/* printf("\npathogen 2"); */
+	/* print_pathogen(ppat2); */
+	/* printf("\npathogen 3"); */
+	/* print_pathogen(ppat3); */
 
-	replicate(ppat1,ppat2,par);
 
-	printf("\nppat 1");
-	print_pathogen(ppat1);
+	/* /\* test autocorrelation in uniform nb generator *\/  */
+	/* printf("\nUniform number generator:\n"); */
+	/* for(i=0;i<200;i++) printf("%lu-",gsl_rng_uniform_int(par->rng, par->L)+1); */
 
-	printf("\nppat 2");
-	print_pathogen(ppat2);
+	int NREPLI = 50;
 
-	free_pathogen(ppat1);
-	free_pathogen(ppat2);
+	struct pathogen ** ppat;
+	ppat = (struct pathogen **) calloc(NREPLI, sizeof(struct pathogen *));
+	for(i=1;i<NREPLI;i++){
+		ppat[i] = (struct pathogen *) calloc(1, sizeof(struct pathogen));
+	}
+	ppat[0] = create_pathogen();
+
+	for(i=0;i<(NREPLI-1);i++){
+		replicate(ppat[i],ppat[i+1],par);
+	}
+
+	for(i=0;i<NREPLI;i++){
+		printf("\npathogen %d",i);
+		print_pathogen(ppat[i]);
+	}
+
+	for(i=0;i<NREPLI;i++) free_pathogen(ppat[i]);
+	free(ppat);
 
 }
 
