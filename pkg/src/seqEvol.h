@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <gsl/gsl_rng.h> /* GSL random number generator & distributions */
+#include <gsl/gsl_randist.h> /* GSL random number generator & distributions */
+
 
 #define NEARZERO 0.0000000001
 #define TRUE 1
@@ -11,7 +14,7 @@
 
 typedef short bool;
 
-long long unsigned int LAST_HOST=0;
+
 
 /*
    =============================
@@ -30,6 +33,16 @@ struct pathogen{
 	unsigned int *snps;
 	int length;
 	long long unsigned int host;
+};
+
+
+/* L: length of the genomes */
+/* mu: mutation rate per site and generation */
+struct param{
+	int L;
+	double mu, muL;
+	gsl_rng * rng;
+	long long unsigned int lasthost;
 };
 
 
