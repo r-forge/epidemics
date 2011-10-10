@@ -48,10 +48,6 @@ struct pathogen{
    ===============================
 */
 /* Update once sorted out*/
-struct pathogen * create_new_pathogen(unsigned int *snps, int *length, int *host);
-void create_initial_pathogen(struct pathogen *out, unsigned int *snps, int *length, int *host);
-int get_nb_snps(struct pathogen *in);
-long long int get_host(struct pathogen *in);
 
 
 
