@@ -60,7 +60,7 @@ struct pathogen * create_pathogen(){
 	struct pathogen *out;
 	out = (struct pathogen *) calloc(1, sizeof(struct pathogen));
 	if(out == NULL){
-		fprintf(stderr, "No memory left for creating initial pathogen. Exiting.\n");
+		fprintf(stderr, "\nNo memory left for creating initial pathogen. Exiting.\n");
 		exit(1);
 	}
 	out->snps = NULL;
@@ -85,7 +85,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 
 	out->snps = (unsigned int *) calloc(N, sizeof(unsigned int)); /* allocate memory for snps vector*/
 	if(get_snps(out) == NULL){
-		fprintf(stderr, "No memory left for copying pathogen genome. Exiting.\n");
+		fprintf(stderr, "\nNo memory left for copying pathogen genome. Exiting.\n");
 		exit(1);
 	}
 
@@ -106,12 +106,12 @@ int make_unique_mutation(struct pathogen *in, struct param *par){
 	do{
 		i = 0;
 		x = gsl_rng_uniform_int(par->rng,par->L)+1; /*generate mutation*/
-		printf("\nmutation: %d",x);
+		/* printf("\nmutation: %d",x); */
 		while(i<N && x!=get_snps(in)[i]){ /* check if it exists */
-			printf("\ncheck against: %d",get_snps(in)[i]);
+			/* printf("\ncheck against: %d",get_snps(in)[i]); */
 			i++;
 		}
-		printf("final value of i: %d N:%d",i,N);
+		/* printf("final value of i: %d N:%d",i,N); */
 	} while (i != N);
 
 	return x;
@@ -122,44 +122,58 @@ int make_unique_mutation(struct pathogen *in, struct param *par){
 /* Function replicating a genome, with mutations and back-mutations */
 void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 	int i, nbmut=0, nbbackmut=0, newsize, N, checkback;
-	double lambda;
+	double p;
 
 	nbmut = gsl_ran_poisson(par->rng, par->muL);
-	lambda = (((double) nbmut)*((double) get_nb_snps(in))) / ((double) par->L);
+
 	/* determine the number of reverse mutations */
-	if(nbmut>0){
-		nbbackmut =  gsl_ran_poisson(par->rng, lambda);
+	if(nbmut>0 && get_nb_snps(in)>0){
+		p = ((double) get_nb_snps(in)) / ((double) par->L);
+		nbbackmut =  gsl_ran_binomial(par->rng,p,nbmut);
+		if(nbbackmut > get_nb_snps(in)) nbbackmut = get_nb_snps(in); /* can revert more than to wild genotype */
 	}
 
-	printf("mutation rate %.2f\n", par->mu);
-	printf("length %d\n", par->L);
-	printf("number of mutations %d\n", nbmut);
-	printf("number of reverse mutations %d\n", nbbackmut);
+	/* printf("mutation rate %.2f\n", par->mu); */
+	/* printf("\n\nnb mutated sites %d\n", get_nb_snps(in)); */
+	/* printf("number of mutations %d\n", nbmut); */
+	/* printf("total nb of sites %d\n", par->L); */
+	/* printf("lambda %f\n", lambda); */
+	/* printf("number of reverse mutations %d\n", nbbackmut); */
 
 	nbmut -= nbbackmut; /* remove back mutations from new mutations */
 	newsize = get_nb_snps(in) + nbmut - nbbackmut;
 
-	/* reallocate memory for new vector */
-	out->snps = (unsigned int *) calloc(newsize, sizeof(unsigned int));
-	if(get_snps(out) == NULL){
-		fprintf(stderr, "No memory left for replicating pathogen genome. Exiting.\n");
-		exit(1);
-	}
+	/* check that new size is not negative */
+	if(newsize < 1){ /* go back to wild type */
+		out->snps = NULL;
+		out->length = 0;
+	} else { /* new genotype */
+		/* reallocate memory for new vector */
+		out->snps = (unsigned int *) calloc(newsize, sizeof(unsigned int));
+		if(get_snps(out) == NULL){
+			fprintf(stderr, "\nNo memory left for replicating pathogen genome. Exiting.\n");
+			exit(1);
+		}
 
-	/* inherit parental snps vector (except back mutations) */
-	N = get_nb_snps(in)-nbbackmut; /* indices<N, ancestral snps; indices>=N, new snps */
-	for(i=0;i<N;i++){ /* copy snps */
-		out->snps[i] = get_snps(in)[i];
-	}
+		/* inherit parental snps vector (except back mutations) */
+		N = get_nb_snps(in)-nbbackmut; /* indices<N, ancestral snps; indices>=N, new snps */
+		for(i=0;i<N;i++){ /* copy snps */
+			out->snps[i] = get_snps(in)[i];
+		}
 
-	out->length=N;
+		out->length=N;
 
-	/* add new mutations */
-	for(i=0;i<nbmut;i++){
-/*careful: in theory, here it is possible to get twice the same mutation (albeit highly unprobably)*/
-		(out->snps)[N+i] = make_unique_mutation(out, par);
-		out->length += 1;
-	}
+		/* add new mutations */
+		for(i=0;i<nbmut;i++){
+			(out->snps)[N+i] = make_unique_mutation(out, par);
+			out->length += 1;
+		}
+	} /* the genotype has been handled at this point */
+
+	/* printf("\nold nb of mutations: %d", get_nb_snps(in)); */
+	/* printf("\nnew mutations: %d", nbmut); */
+	/* printf("\nback mutations: %d", nbbackmut); */
+	/* printf("\nnew size: %d", out->length); */
 
 	/* finish to update new patogen data */
 	par->lasthost += 1;
@@ -177,12 +191,18 @@ void free_pathogen(struct pathogen *in){
 	free(in);
 }
 
+/* Free pathogen */
+void free_param(struct param *in){
+	gsl_rng_free(in->rng);
+}
 
 /* Print pathogen content */
 void print_pathogen(struct pathogen *in){
 	int i, N=get_nb_snps(in);
 	printf("\n%d snps: ", N);
-	for(i=0;i<N;i++) printf("%d ", get_snps(in)[i]);
+	if(N>0) {
+		for(i=0;i<N;i++) printf("%d ", get_snps(in)[i]);
+	}
 	printf("\nhost: %llu \n", get_host(in));
 }
 
@@ -213,8 +233,8 @@ void main(){
 	/* simulation parameters */
 	struct param * par;
 	par = (struct param *) calloc(1, sizeof(struct param));
-	par->L = 100;
-	par->mu = 0.02;
+	par->L = 50;
+	par->mu = 0.05;
 	par->muL = par->mu * par->L;
 	par->rng = rng;
 
@@ -239,15 +259,28 @@ void main(){
 	/* printf("\nUniform number generator:\n"); */
 	/* for(i=0;i<200;i++) printf("%lu-",gsl_rng_uniform_int(par->rng, par->L)+1); */
 
-	int NREPLI = 50;
+	int NREPLI = 30;
 
 	struct pathogen ** ppat;
+
+	/* allocate memory */
 	ppat = (struct pathogen **) calloc(NREPLI, sizeof(struct pathogen *));
+	if(ppat==NULL){
+			fprintf(stderr, "\nNo memory left for creating new array of pathogens. Exiting.\n");
+			exit(1);
+	}
 	for(i=1;i<NREPLI;i++){
 		ppat[i] = (struct pathogen *) calloc(1, sizeof(struct pathogen));
+		if(ppat[i]==NULL){
+			fprintf(stderr, "\nNo memory left for expanding the array of pathogens. Exiting.\n");
+			exit(1);
+		}
 	}
+
+	/* initiate array of pathogens */
 	ppat[0] = create_pathogen();
 
+	/* replications */
 	for(i=0;i<(NREPLI-1);i++){
 		replicate(ppat[i],ppat[i+1],par);
 	}
@@ -257,9 +290,11 @@ void main(){
 		print_pathogen(ppat[i]);
 	}
 
+	/* free memory */
 	for(i=0;i<NREPLI;i++) free_pathogen(ppat[i]);
 	free(ppat);
-
+	free_param(par);
+	free(par);
 }
 
 
