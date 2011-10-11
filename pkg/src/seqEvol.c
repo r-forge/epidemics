@@ -12,10 +12,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-/* #include "gsl/gsl_rng.h" */
-/* #include "gsl/gsl_randist.h" */
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
+/* Calls to GNU Scientific Library */
+#include <gsl/gsl_rng.h> /* random nb generators */
+#include <gsl/gsl_randist.h> /* rng with specific distributions */
 
 #include "seqEvol.h"
 
@@ -24,36 +23,44 @@
 
 
 /*
-   =================================
-   === LOCAL AUXILIARY FUNCTIONS ===
-   =================================
+   =================
+   === ACCESSORS ===
+   =================
 */
 
-
-
-
-/*
-   ===============================
-   === MAIN EXTERNAL FUNCTIONS ===
-   ===============================
-*/
-
-/* Basic accessors for pathogen objects */
 /* Returns the number of mutated SNPs, i.e. length of in->snps array */
 int get_nb_snps(struct pathogen *in){
 	return in->length;
 }
+
+
+
 
 /* Returns the ID of the host, i.e. in->host array */
 long long unsigned int get_host(struct pathogen *in){
 	return in->host;
 }
 
+
+
+
 /* Returns SNP vector */
 unsigned int * get_snps(struct pathogen *in){
 	return in->snps;
 }
 
+
+
+
+
+
+
+
+/*
+   ====================
+   === CONSTRUCTORS ===
+   ====================
+*/
 
 /* Create empty pathogen */
 struct pathogen * create_pathogen(){
@@ -68,16 +75,59 @@ struct pathogen * create_pathogen(){
 	return out;
 }
 
-struct pathogen create_pathogen_content(){
-	struct pathogen out;
-	out.snps = NULL;
-	out.length = 0;
-	return out;
+
+
+
+/* Variant: return a pathogen rather than a pointer to a pathogen */
+/* struct pathogen create_pathogen_content(){ */
+/* 	struct pathogen out; */
+/* 	out.snps = NULL; */
+/* 	out.length = 0; */
+/* 	return out; */
+/* } */
+
+
+
+
+
+
+
+
+/*
+   ===================
+   === DESTRUCTORS ===
+   ===================
+*/
+
+/* Free pathogen */
+void free_pathogen(struct pathogen *in){
+	free(in->snps);
+	free(in);
 }
 
 
+
+
+/* Free param */
+void free_param(struct param *in){
+	gsl_rng_free(in->rng);
+}
+
+
+
+
+
+
+
+
+/*
+   ===========================
+   === AUXILIARY FUNCTIONS ===
+   ===========================
+*/
+
 /* Copy pathogen */
-/*  - memory allocation made outside the function */
+/*  (memory allocation for in/out made outside the function) */
 void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par){
 	int i, N;
 
@@ -99,6 +149,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 
 
 
+/* generate a new, unique mutation (i.e., not a reverse mutation) */
 int make_unique_mutation(struct pathogen *in, struct param *par){
 	int x, i, N=get_nb_snps(in);
 
@@ -119,6 +170,29 @@ int make_unique_mutation(struct pathogen *in, struct param *par){
 
 
 
+
+/* Print pathogen content */
+void print_pathogen(struct pathogen *in){
+	int i, N=get_nb_snps(in);
+	printf("\n%d snps: ", N);
+	if(N>0) {
+		for(i=0;i<N;i++) printf("%d ", get_snps(in)[i]);
+	}
+	printf("\nhost: %llu \n", get_host(in));
+}
+
+
+
+
+
+
+
+
+/*
+   ===============================
+   === MAIN EXTERNAL FUNCTIONS ===
+   ===============================
+*/
 /* Function replicating a genome, with mutations and back-mutations */
 void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 	int i, nbmut=0, nbbackmut=0, newsize, N, checkback;
@@ -132,13 +206,6 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 		nbbackmut =  gsl_ran_binomial(par->rng,p,nbmut);
 		if(nbbackmut > get_nb_snps(in)) nbbackmut = get_nb_snps(in); /* can revert more than to wild genotype */
 	}
-
-	/* printf("mutation rate %.2f\n", par->mu); */
-	/* printf("\n\nnb mutated sites %d\n", get_nb_snps(in)); */
-	/* printf("number of mutations %d\n", nbmut); */
-	/* printf("total nb of sites %d\n", par->L); */
-	/* printf("lambda %f\n", lambda); */
-	/* printf("number of reverse mutations %d\n", nbbackmut); */
 
 	nbmut -= nbbackmut; /* remove back mutations from new mutations */
 	newsize = get_nb_snps(in) + nbmut - nbbackmut;
@@ -170,11 +237,6 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 		}
 	} /* the genotype has been handled at this point */
 
-	/* printf("\nold nb of mutations: %d", get_nb_snps(in)); */
-	/* printf("\nnew mutations: %d", nbmut); */
-	/* printf("\nback mutations: %d", nbbackmut); */
-	/* printf("\nnew size: %d", out->length); */
-
 	/* finish to update new patogen data */
 	par->lasthost += 1;
 	out->host = par->lasthost;
@@ -182,29 +244,6 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 } /*end replicate*/
 
 
-
-
-
-/* Free pathogen */
-void free_pathogen(struct pathogen *in){
-	free(in->snps);
-	free(in);
-}
-
-/* Free pathogen */
-void free_param(struct param *in){
-	gsl_rng_free(in->rng);
-}
-
-/* Print pathogen content */
-void print_pathogen(struct pathogen *in){
-	int i, N=get_nb_snps(in);
-	printf("\n%d snps: ", N);
-	if(N>0) {
-		for(i=0;i<N;i++) printf("%d ", get_snps(in)[i]);
-	}
-	printf("\nhost: %llu \n", get_host(in));
-}
 
 
 
@@ -233,33 +272,13 @@ void main(){
 	/* simulation parameters */
 	struct param * par;
 	par = (struct param *) calloc(1, sizeof(struct param));
-	par->L = 50;
-	par->mu = 0.05;
+	par->L = 1e6;
+	par->mu = 1e-6;
 	par->muL = par->mu * par->L;
 	par->rng = rng;
 
-	/* Test pathogen creation, copy, replication */
-	/* struct pathogen *ppat1, *ppat2, *ppat3; */
-	/* ppat1 = create_pathogen(); */
-	/* ppat2 = create_pathogen(); */
-	/* ppat3 = create_pathogen(); */
 
-	/* replicate(ppat1, ppat2, par); */
-	/* replicate(ppat2,ppat3, par); */
-
-	/* printf("\npathogen 1"); */
-	/* print_pathogen(ppat1); */
-	/* printf("\npathogen 2"); */
-	/* print_pathogen(ppat2); */
-	/* printf("\npathogen 3"); */
-	/* print_pathogen(ppat3); */
-
-
-	/* /\* test autocorrelation in uniform nb generator *\/  */
-	/* printf("\nUniform number generator:\n"); */
-	/* for(i=0;i<200;i++) printf("%lu-",gsl_rng_uniform_int(par->rng, par->L)+1); */
-
-	int NREPLI = 30;
+	int NREPLI = 3e4;
 
 	struct pathogen ** ppat;
 
@@ -285,10 +304,10 @@ void main(){
 		replicate(ppat[i],ppat[i+1],par);
 	}
 
-	for(i=0;i<NREPLI;i++){
-		printf("\npathogen %d",i);
-		print_pathogen(ppat[i]);
-	}
+	/* for(i=0;i<NREPLI;i++){ */
+	/* 	printf("\npathogen %d",i); */
+	/* 	print_pathogen(ppat[i]); */
+	/* } */
 
 	/* free memory */
 	for(i=0;i<NREPLI;i++) free_pathogen(ppat[i]);
@@ -298,11 +317,17 @@ void main(){
 }
 
 
+
+
+
+
+
+
 /* TESTING in R */
 
 /*
 ## test raw conversion
-.C("testRaw", raw(256), 256L, PACKAGE="adegenet")
+.C("myCfunction", arg1, arg2, ..., PACKAGE="epidemics")
 
 
 */
