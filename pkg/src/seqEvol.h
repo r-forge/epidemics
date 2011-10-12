@@ -7,6 +7,7 @@
 #include <gsl/gsl_rng.h> /* GSL random number generator & distributions */
 #include <gsl/gsl_randist.h> /* GSL random number generator & distributions */
 
+#include "hosts.h"
 
 #define NEARZERO 0.0000000001
 #define TRUE 1
@@ -32,7 +33,7 @@ typedef short bool;
 struct pathogen{
 	unsigned int *snps;
 	int length;
-	long long unsigned int host;
+	struct host *host;
 };
 
 
@@ -44,7 +45,6 @@ struct param{
 	int L;
 	double mu, muL;
 	gsl_rng * rng;
-	long long unsigned int lasthost;
 };
 
 

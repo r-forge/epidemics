@@ -16,6 +16,7 @@
 #include <gsl/gsl_rng.h> /* random nb generators */
 #include <gsl/gsl_randist.h> /* rng with specific distributions */
 
+#include "hosts.h"
 #include "seqEvol.h"
 
 
@@ -37,7 +38,7 @@ int get_nb_snps(struct pathogen *in){
 
 
 /* Returns the ID of the host, i.e. in->host array */
-long long unsigned int get_host(struct pathogen *in){
+struct host * get_host(struct pathogen *in){
 	return in->host;
 }
 
@@ -102,6 +103,7 @@ struct pathogen * create_pathogen(){
 /* Free pathogen */
 void free_pathogen(struct pathogen *in){
 	free(in->snps);
+	free(in->host);
 	free(in);
 }
 
@@ -178,7 +180,7 @@ void print_pathogen(struct pathogen *in){
 	if(N>0) {
 		for(i=0;i<N;i++) printf("%d ", get_snps(in)[i]);
 	}
-	printf("\nhost: %llu \n", get_host(in));
+	/* printf("\nhost: %llu \n", get_host(in)); */
 }
 
 
