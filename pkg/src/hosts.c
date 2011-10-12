@@ -24,49 +24,49 @@ unsigned int get_host_id(struct host *in){
 
 
 
-unsigned int get_host_pop(struct host *in){
-	return in->pop;
+unsigned int get_host_population(struct host *in){
+	return in->population;
 }
 
 
 
 
-struct host * get_s(struct pop *in){
+struct host * get_s(struct population *in){
 	return in->s;
 }
 
 
 
 
-struct host * get_i(struct pop *in){
+struct host * get_i(struct population *in){
 	return in->i;
 }
 
 
 
 
-struct host * get_r(struct pop *in){
+struct host * get_r(struct population *in){
 	return in->r;
 }
 
 
 
 
-unsigned int * get_ns(struct pop *in){
+unsigned int * get_ns(struct population *in){
 	return in->ns;
 }
 
 
 
 
-unsigned int * get_ni(struct pop *in){
+unsigned int * get_ni(struct population *in){
 	return in->ni;
 }
 
 
 
 
-unsigned int * get_nr(struct pop *in){
+unsigned int * get_nr(struct population *in){
 	return in->nr;
 }
 
@@ -99,10 +99,10 @@ struct host * create_host(){
 
 
 /* Create new population */
-struct pop * create_pop(unsigned int ns, unsigned int ni, unsigned int nr){
-	/* create pointer to pop */
-	struct pop *out;
-	out = (struct pop *) calloc(1, sizeof(struct pop));
+struct population * create_population(unsigned int ns, unsigned int ni, unsigned int nr){
+	/* create pointer to population */
+	struct population *out;
+	out = (struct population *) calloc(1, sizeof(struct population));
 	if(out == NULL){
 		fprintf(stderr, "\nNo memory left for creating new population. Exiting.\n");
 		exit(1);
@@ -168,7 +168,7 @@ void free_host(struct host *in){
 
 
 /* Free population */
-void free_pop(struct pop *in){
+void free_population(struct population *in){
 	free(in->s);
 	free(in->i);
 	free(in->r);
@@ -198,7 +198,7 @@ void print_host(struct host *in){
 
 
 /* Print population content */
-void print_pop(struct pop *in){
+void print_population(struct population *in){
 	printf("\nnb susceptible: %d", get_ns(in));
 	printf("\nnb infected: %d", get_ni(in));
 	printf("\nnb recovered: %d", get_nr(in));

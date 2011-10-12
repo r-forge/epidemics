@@ -19,7 +19,7 @@ struct host{
 };
 
 
-struct pop{
+struct population{
 	struct host *s, *i, *r; /* arrays */
 	unsigned int ns, ni, nr; /* size of each array */
 }
