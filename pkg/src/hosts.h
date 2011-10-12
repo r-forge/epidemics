@@ -18,8 +18,19 @@
 
 #include "seqEvol.h"
 
-
+/*
+# status legend # 
+- s: susceptible
+- i: infected
+- r: removed
+*/
 struct host{
-	unsigned int host;
-	unsigned int pop;
+	unsigned int id;
 };
+
+
+struct pop{
+	struct host *s, *i, *r; /* arrays */
+	unsigned int ns, ni, nr; /* size of each array */
+}
+
