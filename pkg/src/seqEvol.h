@@ -36,6 +36,8 @@ struct pathogen{
 };
 
 
+
+
 /* L: length of the genomes */
 /* mu: mutation rate per site and generation */
 struct param{
@@ -46,11 +48,93 @@ struct param{
 };
 
 
+
+
+
+
+
+
 /*
-   =================================
-   === LOCAL AUXILIARY FUNCTIONS ===
-   =================================
+   =================
+   === ACCESSORS ===
+   =================
 */
+
+/* Returns the number of mutated SNPs, i.e. length of in->snps array */
+int get_nb_snps(struct pathogen *in);
+
+
+/* Returns the ID of the host, i.e. in->host array */
+long long unsigned int get_host(struct pathogen *in);
+
+
+/* Returns SNP vector */
+unsigned int * get_snps(struct pathogen *in);
+
+
+
+
+
+
+
+
+/*
+   ====================
+   === CONSTRUCTORS ===
+   ====================
+*/
+
+/* Create empty pathogen */
+struct pathogen * create_pathogen();
+
+
+
+
+
+
+
+
+/*
+   ===================
+   === DESTRUCTORS ===
+   ===================
+*/
+
+/* Free pathogen */
+void free_pathogen(struct pathogen *in);
+
+
+/* Free param */
+void free_param(struct param *in);
+
+
+
+
+
+
+
+
+/*
+   ===========================
+   === AUXILIARY FUNCTIONS ===
+   ===========================
+*/
+
+/* Copy pathogen */
+/*  (memory allocation for in/out made outside the function) */
+void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par);
+
+
+/* generate a new, unique mutation (i.e., not a reverse mutation) */
+int make_unique_mutation(struct pathogen *in, struct param *par);
+
+
+/* Print pathogen content */
+void print_pathogen(struct pathogen *in);
+
+
+
+
 
 
 
@@ -60,17 +144,5 @@ struct param{
    === MAIN EXTERNAL FUNCTIONS ===
    ===============================
 */
-/* Update once sorted out*/
-
-
-
-
-
-
-
-/*
-   =========================
-   === TESTING FUNCTIONS ===
-   =========================
-*/
-
+/* Function replicating a genome, with mutations and back-mutations */
+void replicate(struct pathogen *in, struct pathogen *out, struct param *par);
