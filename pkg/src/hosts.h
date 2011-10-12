@@ -7,16 +7,6 @@
 */
 
 
-#include <math.h>
-#include <time.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-/* Calls to GNU Scientific Library */
-#include <gsl/gsl_rng.h> /* random nb generators */
-#include <gsl/gsl_randist.h> /* rng with specific distributions */
-
-#include "seqEvol.h"
 
 /*
 # status legend # 
