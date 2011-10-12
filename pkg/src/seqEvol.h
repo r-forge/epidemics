@@ -6,7 +6,7 @@
   These functions are basic routines for simulating sequence evolution.
 */
 
-
+#include "param.h"
 
 
 /*
@@ -26,17 +26,6 @@ struct pathogen{
 	unsigned int *snps;
 	int length;
 	struct host *host;
-};
-
-
-
-
-/* L: length of the genomes */
-/* mu: mutation rate per site and generation */
-struct param{
-	int L;
-	double mu, muL;
-	gsl_rng * rng;
 };
 
 
@@ -94,10 +83,6 @@ struct pathogen * create_pathogen();
 
 /* Free pathogen */
 void free_pathogen(struct pathogen *in);
-
-
-/* Free param */
-void free_param(struct param *in);
 
 
 
