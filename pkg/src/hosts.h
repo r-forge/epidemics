@@ -16,11 +16,13 @@
 */
 struct host{
 	unsigned int id;
+	unsigned short int ninf;
+	struct pathogen **infections;
 };
 
 
 struct population{
-	struct host *s, *i, *r; /* arrays */
-	unsigned int ns, ni, nr; /* size of each array */
+	struct host **sus, **inf, **rec; /* arrays */
+	unsigned int nsus, ninf, nrec; /* size of each array */
 }
 

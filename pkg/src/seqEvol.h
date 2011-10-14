@@ -25,7 +25,7 @@
 struct pathogen{
 	unsigned int *snps;
 	int length;
-	struct host *host;
+	/*struct host *host;*/
 };
 
 
@@ -46,7 +46,9 @@ int get_nb_snps(struct pathogen *in);
 
 
 /* Returns the ID of the host, i.e. in->host array */
+/*
 struct host * get_host(struct pathogen *in);
+*/
 
 
 /* Returns SNP vector */

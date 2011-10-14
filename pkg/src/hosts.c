@@ -7,6 +7,7 @@
 */
 
 #include "common.h"
+#include "hosts.h"
 #include "seqEvol.h"
 
 
@@ -24,50 +25,62 @@ unsigned int get_host_id(struct host *in){
 
 
 
-unsigned int get_host_population(struct host *in){
+unsigned short int get_host_ninf(struct host *in){
+	return in->ninf;
+}
+
+
+
+
+struct pathogen ** get_host_inf(struct host *in){
+	return in->infections;
+}
+
+
+/*unsigned int get_host_population(struct host *in){
 	return in->population;
 }
+*/
 
 
 
-
-struct host * get_s(struct population *in){
-	return in->s;
+struct host * get_sus(struct population *in){
+	return in->sus;
 }
 
 
 
 
-struct host * get_i(struct population *in){
-	return in->i;
+struct host * get_inf(struct population *in){
+	return in->inf;
 }
 
 
 
 
-struct host * get_r(struct population *in){
-	return in->r;
+struct host * get_rec(struct population *in){
+	return in->rec;
 }
 
 
 
 
-unsigned int * get_ns(struct population *in){
-	return in->ns;
+unsigned int * get_nsus(struct population *in){
+	return in->nsus;
 }
 
 
 
 
-unsigned int * get_ni(struct population *in){
-	return in->ni;
+unsigned int * get_ninf(struct population *in){
+	return in->ninf;
 }
 
 
 
 
-unsigned int * get_nr(struct population *in){
-	return in->nr;
+unsigned int * get_nrec(struct population *in){
+	return in->nrec;
 }
 
 
@@ -88,10 +101,11 @@ struct host * create_host(){
 	struct host *out;
 	out = (struct host *) calloc(1, sizeof(struct host));
 	if(out == NULL){
-		fprintf(stderr, "\nNo memory left for creating initial host. Exiting.\n");
+		fprintf(stderr, "\nNo memory left for creating new host. Exiting.\n");
 		exit(1);
 	}
 	out->id = 1;
+	out->infections = NULL; /* new host created without infections */
 	return out;
 }
 
@@ -100,6 +114,7 @@ struct host * create_host(){
 
 /* Create new population */
 struct population * create_population(unsigned int ns, unsigned int ni, unsigned int nr){
+	int i;
 	/* create pointer to population */
 	struct population *out;
 	out = (struct population *) calloc(1, sizeof(struct population));
@@ -109,38 +124,63 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 	}
 
 	/* create the content */
+	out->nsus = ns;
+	out->ninf = ni;
+	out->nrec = nrec;	
+	
 	/* susceptibles */
 	if(ns==0){
-		out->s = NULL;
+		out->sus = NULL;
 	} else {
-		out->s = (struct host *) calloc(ns, sizeof(struct host));
-		if(out->s == NULL){
+		out->sus = (struct host **) calloc(nsus, sizeof(struct host *));
+		if(out->sus == NULL){
 			fprintf(stderr, "\nNo memory left for creating susceptibles in new population. Exiting.\n");
 			exit(1);
 		}
+		for(i=0;i<nsus;i++){
+			(out->sus)[i] = (struct host*) calloc(1, sizeof(struct host));
+			if((out->sus)[i]==NULL){
+				fprintf(stderr, "\nNo memory left for creating susceptibles in new population. Exiting.\n");
+				exit(1);
+			}
+		}
 
 	}
+	
 	/* infected */
-	if(ni==0){
-		out->i = NULL;
+	if(ninf==0){
+		out->inf = NULL;
 	} else {
-		out->i = (struct host *) calloc(ni, sizeof(struct host));
-		if(out->i == NULL){
+		out->inf = (struct host *) calloc(ninf, sizeof(struct host));
+		if(out->inf == NULL){
 			fprintf(stderr, "\nNo memory left for creating infected in new population. Exiting.\n");
 			exit(1);
 		}
-
+		for(i=0;i<ninf;i++){
+			(out->inf)[i] = (struct host*) calloc(1, sizeof(struct host));
+			if((out->inf)[i]==NULL){
+				fprintf(stderr, "\nNo memory left for creating infected in new population. Exiting.\n");
+				exit(1);
+			}
+		}
 	}
+
 	/* recovered */
-	if(nr==0){
-		out->r = NULL;
+	if(nrec==0){
+		out->rec = NULL;
 	} else {
-		out->r = (struct host *) calloc(nr, sizeof(struct host));
-		if(out->r == NULL){
+		out->rec = (struct host *) calloc(nrec, sizeof(struct host));
+		if(out->rec == NULL){
 			fprintf(stderr, "\nNo memory left for creating recovered in new population. Exiting.\n");
 			exit(1);
 		}
-
+		for(i=0;i<nrec;i++){
+			(out->rec)[i] = (struct host*) calloc(1, sizeof(struct host));
+			if((out->rec)[i]==NULL){
+				fprintf(stderr, "\nNo memory left for creating recovered in new population. Exiting.\n");
+				exit(1);
+			}
+		}
 	}
 
 	return out;
@@ -161,6 +201,11 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 
 /* Free host */
 void free_host(struct host *in){
+	int i;
+	for(i=0;i<get_host_ninf(in);i++){
+		free_pathogen((in->infections)[i]);
+	}
+	free(in->infections);
 	free(in);
 }
 
@@ -169,9 +214,19 @@ void free_host(struct host *in){
 
 /* Free population */
 void free_population(struct population *in){
-	free(in->s);
-	free(in->i);
-	free(in->r);
+	int i;
+	for(i=0;i<get_nsus(in);i++){
+		free_host(in->sus);
+	}
+	for(i=0;i<get_ninf(in);i++){
+		free_host(in->inf);
+	}
+	for(i=0;i<get_nrec(in);i++){
+		free_host(in->rec);
+	}
+	free(in->sus);
+	free(in->inf);
+	free(in->rec);
 	free(in);
 }
 
@@ -192,6 +247,7 @@ void free_population(struct population *in){
 /* Print host content */
 void print_host(struct host *in){
 	printf("\nhost %d", get_host_id(in));
+	printf("\n%d infections",get_host_ninf(in));
 }
 
 
@@ -199,9 +255,16 @@ void print_host(struct host *in){
 
 /* Print population content */
 void print_population(struct population *in){
-	printf("\nnb susceptible: %d", get_ns(in));
-	printf("\nnb infected: %d", get_ni(in));
-	printf("\nnb recovered: %d", get_nr(in));
+	printf("\nnb susceptible: %d", get_nsus(in));
+	printf("\nnb infected: %d", get_ninf(in));
+	printf("\nnb recovered: %d", get_nrec(in));
+}
+
+
+
+
+bool is_infected(struct host * in){
+	return get_host_ninf(in)==0;
 }
 
 
@@ -216,6 +279,13 @@ void print_population(struct population *in){
    === MAIN EXTERNAL FUNCTIONS ===
    ===============================
 */
+void infect_new_host(struct host *host1, struct host *host2){
+	/* create new infection vector in host */
+	/* make pathogen replication */
+}
+
+
+
 
 void main(){
 	/* Initialize random number generator */

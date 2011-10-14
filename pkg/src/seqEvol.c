@@ -29,10 +29,11 @@ int get_nb_snps(struct pathogen *in){
 
 
 /* Returns the ID of the host, i.e. in->host array */
+/*
 struct host * get_host(struct pathogen *in){
 	return in->host;
 }
-
+*/
 
 
 
@@ -94,7 +95,7 @@ struct pathogen * create_pathogen(){
 /* Free pathogen */
 void free_pathogen(struct pathogen *in){
 	free(in->snps);
-	free(in->host);
+	/*free(in->host);*/
 	free(in);
 }
 
@@ -136,7 +137,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 		(out->snps)[i] = get_snps(in)[i];
 	}
 	out->length = N;
-	out->host = get_host(in);
+	/*out->host = get_host(in);*/
 }
 
 
