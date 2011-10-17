@@ -14,9 +14,10 @@
 - i: infected
 - r: removed
 */
-struct host{
-	unsigned int id;
-	unsigned short int ninf;
-	struct pathogen **infections;
-};
+
+
+struct population{
+	/*struct host **sus, **inf, **rec;*/ /* arrays */
+	unsigned int nsus, ninf, nrec; /* size of each array */
+}
 
