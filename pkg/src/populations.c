@@ -7,8 +7,9 @@
 */
 
 #include "common.h"
-#include "hosts.h"
+#include "param.h"
 #include "seqEvol.h"
+#include "populations.h"
 
 
 
@@ -18,17 +19,17 @@
    =================
 */
 
-unsigned int * get_nsus(struct population *in){
+unsigned int get_nsus(struct population *in){
 	return in->nsus;
 }
 
 
-unsigned int * get_ninf(struct population *in){
+unsigned int get_ninf(struct population *in){
 	return in->ninf;
 }
 
 
-unsigned int * get_nrec(struct population *in){
+unsigned int get_nrec(struct population *in){
 	return in->nrec;
 }
 
@@ -45,7 +46,7 @@ unsigned int * get_nrec(struct population *in){
 
 /* Create new population */
 struct population * create_population(unsigned int ns, unsigned int ni, unsigned int nr){
-	int i;
+	
 	/* create pointer to population */
 	struct population *out;
 	out = (struct population *) calloc(1, sizeof(struct population));
@@ -57,8 +58,8 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 	/* create the content */
 	out->nsus = ns;
 	out->ninf = ni;
-	out->nrec = nrec;	
-	
+	out->nrec = nr;
+
 	/* susceptibles */
 	/*if(ns==0){
 		out->sus = NULL;
@@ -165,7 +166,7 @@ void free_population(struct population *in){
 void print_population(struct population *in){
 	printf("\nnb susceptible: %d", get_nsus(in));
 	printf("\nnb infected: %d", get_ninf(in));
-	printf("\nnb recovered: %d", get_nrec(in));
+	printf("\nnb recovered: %d\n", get_nrec(in));
 }
 
 
@@ -178,41 +179,36 @@ void print_population(struct population *in){
    ===============================
 */
 
-void main(){
-	/* Initialize random number generator */
-	time_t t;
-	t = time(NULL); // time in seconds, used to change the seed of the random generator
-	gsl_rng * rng;
-	const gsl_rng_type *typ;
-	gsl_rng_env_setup();
-	typ=gsl_rng_default;
-	rng=gsl_rng_alloc(typ);
-	gsl_rng_set(rng,t); // changes the seed of the random generator
+/* int main(){ */
+/* 	/\* Initialize random number generator *\/ */
+/* 	time_t t; */
+/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
+/* 	gsl_rng * rng; */
+/* 	const gsl_rng_type *typ; */
+/* 	gsl_rng_env_setup(); */
+/* 	typ=gsl_rng_default; */
+/* 	rng=gsl_rng_alloc(typ); */
+/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
 
-	int i;
+	
+/* 	/\* simulation parameters *\/ */
+/* 	/\* struct param * par; *\/ */
+/* 	/\* par = (struct param *) calloc(1, sizeof(struct param)); *\/ */
+/* 	/\* par->L = 100; *\/ */
+/* 	/\* par->mu = 0.01; *\/ */
+/* 	/\* par->muL = par->mu * par->L; *\/ */
+/* 	/\* par->rng = rng; *\/ */
 
-	/* simulation parameters */
-	/* struct param * par; */
-	/* par = (struct param *) calloc(1, sizeof(struct param)); */
-	/* par->L = 100; */
-	/* par->mu = 0.01; */
-	/* par->muL = par->mu * par->L; */
-	/* par->rng = rng; */
 
+/* 	struct population * pop; */
 
-	struct population * pop;
+/* 	pop = create_population(1000,10,0); */
 
-	/* allocate memory */
-	pop = (struct population *) calloc(1, sizeof(struct population *));
-	if(pop==NULL){
-			fprintf(stderr, "\nNo memory left for creating new population. Exiting.\n");
-			exit(1);
-	}
+/* 	print_population(pop); */
 
-	pop = create_population(1000,10,0);
+/* 	/\* free memory *\/ */
+/* 	free_population(pop); */
+/* 	gsl_rng_free(rng); */
 
-	print_population(pop);
-
-	/* free memory */
-	free_population(pop);
-}
+/* 	return 0; */
+/* } */

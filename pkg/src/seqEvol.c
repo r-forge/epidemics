@@ -8,6 +8,7 @@
 
 
 #include "common.h"
+#include "param.h"
 #include "seqEvol.h"
 
 
@@ -189,7 +190,7 @@ void print_pathogen(struct pathogen *in){
 */
 /* Function replicating a genome, with mutations and back-mutations */
 void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
-	int i, nbmut=0, nbbackmut=0, newsize, N, checkback;
+	int i, nbmut=0, nbbackmut=0, newsize, N;
 	double p;
 
 	nbmut = gsl_ran_poisson(par->rng, par->muL);
@@ -250,7 +251,8 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
    =========================
 */
 
-void main(){
+int main(){
+	return 0;
 }
 
 /* void main(){ */

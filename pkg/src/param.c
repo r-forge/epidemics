@@ -12,4 +12,5 @@
 /* Free param */
 void free_param(struct param *in){
 	gsl_rng_free(in->rng);
+	free(in);
 }

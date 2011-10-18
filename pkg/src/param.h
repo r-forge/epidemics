@@ -12,6 +12,7 @@
 /* L: length of the genomes */
 /* mu: mutation rate per site and generation */
 /* muL = mu*L */
+/* rng: random number generator */
 struct param{
 	int L;
 	double mu, muL;

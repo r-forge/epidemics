@@ -6,7 +6,6 @@
   These functions are basic routines for simulating sequence evolution.
 */
 
-#include "param.h"
 
 
 /*
