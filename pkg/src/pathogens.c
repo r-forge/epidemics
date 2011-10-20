@@ -68,17 +68,6 @@ struct pathogen * create_pathogen(){
 
 
 
-/* Variant: return a pathogen rather than a pointer to a pathogen */
-/* struct pathogen create_pathogen_content(){ */
-/* 	struct pathogen out; */
-/* 	out.snps = NULL; */
-/* 	out.length = 0; */
-/* 	return out; */
-/* } */
-
-
-
-
 
 
 
@@ -91,18 +80,11 @@ struct pathogen * create_pathogen(){
 
 /* Free pathogen */
 void free_pathogen(struct pathogen *in){
-	if(in !=NULL) free(in->snps);
+	if(in != NULL){
+		free(in->snps);
+		/*free(in->host);*/
+		free(in);
 	}
-	/*free(in->host);*/
-	free(in);
-}
-
-
-
-
-/* Free param */
-void free_param(struct param *in){
-	gsl_rng_free(in->rng);
 }
 
 
@@ -231,9 +213,6 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 	} /* the genotype has been handled at this point */
 
 	out->age = 0;
-	/* /\* finish to update new patogen data *\/ */
-	/* par->lasthost += 1; */
-	/* out->host = par->lasthost; */
 
 } /*end replicate*/
 

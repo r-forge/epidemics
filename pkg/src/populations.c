@@ -44,6 +44,12 @@ unsigned int get_ninfcum(struct population *in){
 }
 
 
+unsigned int get_orinsus(struct population *in){
+	return in->orinsus;
+}
+
+
+
 
 
 
@@ -65,27 +71,33 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 	}
 
 	/* create the content */
-	out->nsus = ns;
+	out->orinsus = 	out->nsus = ns;
 	out->ninf = ni;
 	out->nrec = nr;
-	out->ninfcum = ni; 
+	out->ninfcum = ni;
 
 	/* infected */
 	if(ni==0){
 		out->pathogens = NULL;
 	} else {
-		out->pathogens = (struct pathogen **) calloc(ni, sizeof(struct pathogen *));
+		out->pathogens = (struct pathogen **) calloc(ns, sizeof(struct pathogen *));
 		if(out->pathogens == NULL){
 			fprintf(stderr, "\nNo memory left for creating pathogen array in the population. Exiting.\n");
 			exit(1);
 		}
+
 		for(i=0;i<ni;i++){
 			(out->pathogens)[i] = create_pathogen();
+		}
+		
+		for(i=ni;i<ns;i++){
+			/* out->pathogens)[i] = create_pathogen(); */
+			(out->pathogens[i]) = NULL;
 		}
 	}
 
 
-	return out;
+return out;
 }
 
 
@@ -103,8 +115,8 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 /* Free population */
 void free_population(struct population *in){
 	int i;
-	for(i=0;i<get_ninfcum(in);i++){
-		free_pathogen(in->pathogens[i]);
+	for(i=0;i<get_orinsus(in);i++){
+		free_pathogen((in->pathogens)[i]);
 	}
 
 	free(in->pathogens);
@@ -131,7 +143,19 @@ void print_population(struct population *in){
 	printf("\nnb susceptible: %d", get_nsus(in));
 	printf("\nnb infected: %d", get_ninf(in));
 	printf("\nnb recovered: %d\n", get_nrec(in));
-	for(i=0;i<get_ninf(in);i++) print_pathogen(get_pathogens(in)[i]);
+	if(get_orinsus(in)>6){
+		for(i=0;i<2;i++) {
+			if(get_pathogens(in)[i] != NULL )print_pathogen(get_pathogens(in)[i]);
+		}
+		printf("\n...");
+		for(i=(get_orinsus(in)-2);i<get_orinsus(in);i++) {
+			if(get_pathogens(in)[i] != NULL )print_pathogen(get_pathogens(in)[i]);
+		}
+	} else {
+		for(i=0;i<get_orinsus(in);i++) {
+			if(get_pathogens(in)[i] != NULL )print_pathogen(get_pathogens(in)[i]);
+		}
+	}
 }
 
 

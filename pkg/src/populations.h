@@ -18,7 +18,7 @@
 struct population{
 	struct pathogen ** pathogens;
 	/* nb of item; ninf is the length of **pathogens */
-	unsigned int nsus, ninf, nrec, ninfcum;
+	unsigned int nsus, ninf, nrec, ninfcum, orinsus;
 };
 
 
@@ -44,6 +44,8 @@ unsigned int get_nrec(struct population *in);
 
 unsigned int get_ninfcum(struct population *in);
 
+
+unsigned int get_orinsus(struct population *in);
 
 
 

@@ -8,7 +8,7 @@
 
 #include "common.h"
 #include "param.h"
-#include "seqEvol.h"
+#include "pathogens.h"
 #include "populations.h"
 
 
@@ -19,40 +19,42 @@
    === AUXILIARY FUNCTIONS ===
    ===========================
 */
-void process_infection(struct * pathogen pat, struct *population pop, struct param * par){
-	int nbnewinf=0, orinsus=get_nsus(pop), orininf=get_ninf(pop), orininfcum=get_ninfcum(pop);
+void process_infection(struct pathogen * pat, struct population * pop, struct param * par){
+	int i, nbnewinf=0, orinsus=get_nsus(pop), orininfcum=get_ninfcum(pop);
 
-	/* determine the number of descendents */
-	if(get_age(pat) > par->t1){
-		nbnewinf = gsl_ran_poisson(par->rng, par->R);
-	}
-
-	/* adjust number of new infections to number of susceptibles */
-	if(nbnewinf > orinsus) nbnewinf = orinsus;
-
-	/* reallocate the pathogen vector */
-	if(nbnewinf>0){
-		pop->pathogens = realloc(pop->pathogens, (orininfcum+nbnewinf) * sizeof(struct pathogen *));
-		/* for each new infection, add new pathogen */
-		for(i=0;i<nbnewinf,i++){
-			replicate(pat, get_pathogens(pop)[orininfcum+i], par);
+	if(pat != NULL){ /* if infection is not a gost */
+		/* determine the number of descendents */
+		if(get_age(pat) > par->t1){
+			nbnewinf = gsl_ran_poisson(par->rng, par->R);
 		}
-	}
 
-	/* pathogen ages */
-	pat->age = pat->age + 1;
-	if(get_age(pat) >= par->t2){
-		/* pathogen dies: content freed and pointer turned to NULL */
-		free_pathogen(pat);
-		pat = NULL;
-		pop->nrec = pop->nrec+1;
-		nbnewinf--;
-	}
+		/* adjust number of new infections to number of susceptibles */
+		if(nbnewinf > orinsus) nbnewinf = orinsus;
 
-	/* update number of susceptibles and infected */
-	pop->sus = orinsus - nbnewinf;
-	pop->ninfcum = orininfcum + nbnewinf;
-	pop->ninf = orininf + nbnewinf;
+		/* reallocate the pathogen vector */
+		if(nbnewinf>0){
+			/*pop->pathogens = realloc(pop->pathogens, (orininfcum+nbnewinf) * sizeof(struct pathogen *));*/
+
+			/* for each new infection, add new pathogen */
+			for(i=orininfcum;i<(orininfcum+nbnewinf);i++){
+				replicate(pat, get_pathogens(pop)[i], par);
+			}
+		}
+
+		/* pathogen ages */
+		pat->age = pat->age + 1;
+		if(get_age(pat) >= par->t2){
+			/* pathogen dies: pointer turned to NULL */
+			pat = NULL;
+			pop->nrec = pop->nrec + 1;
+			pop->ninf = pop->ninf - 1;
+		}
+
+		/* update number of susceptibles and infected */
+		pop->nsus = orinsus - nbnewinf;
+		pop->ninfcum = orininfcum + nbnewinf;
+		pop->ninf = pop->ninf + nbnewinf;
+	}
 }
 
 
@@ -65,7 +67,9 @@ void process_infection(struct * pathogen pat, struct *population pop, struct par
    ===============================
 */
 
-void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int nStart){
+void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int nStart, int t1, int t2){
+	int i, nstep=0;
+
 	/* Initialize random number generator */
 	time_t t;
 	t = time(NULL); // time in seconds, used to change the seed of the random generator
@@ -80,24 +84,28 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	/* simulation parameters */
 	struct param * par;
 	par = (struct param *) calloc(1, sizeof(struct param));
-	par->L = seqLenth;
-	par->mu = 0.mutRate;
+	par->L = seqLength;
+	par->mu = mutRate;
 	par->muL = par->mu * par->L;
 	par->rng = rng;
 	par->K = nHost;
 	par->R = Rzero;
 	par->nstart = nStart;
-	
+	par->t1 = t1;
+	par->t2 = t2;
 
 	/* initiate population */
 	struct population * pop;
 	pop = create_population(par->K, par->nstart, 0);
 
 	/* make population evolve */
-	while(get_nsus(pop)>0 && get_ninf(pop)>0){
-		for(i=0;i<get_ninfcum(pop);i++)
-			process_infection(get_pathogens(pop)[i], pop, par);
-	}
+	/* while(get_nsus(pop)>0 && get_ninf(pop)>0){ */
+	/* 	printf("\n-- population a step %d",++nstep); */
+	/* 	print_population(pop); */
+	/* 	for(i=0;i<get_orinsus(pop);i++){ */
+	/* 		process_infection(get_pathogens(pop)[i], pop, par); */
+	/* 	} */
+	/* } */
 
 	/* free memory */
 	free_population(pop);
@@ -109,7 +117,7 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 int main(){
 
-	run_epidemics(100, 0.01, 1000, 3.5, 10);
+	run_epidemics(100, 0.01, 50, 3.5, 10, 1,3);
 
 	return 0;
 }

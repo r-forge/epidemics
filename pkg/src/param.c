@@ -6,7 +6,8 @@
   These functions handle simulation parameters.
 */
 
-
+#include "common.h"
+#include "param.h"
 
 
 /* Free param */
