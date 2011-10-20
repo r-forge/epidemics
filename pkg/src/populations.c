@@ -19,6 +19,11 @@
    =================
 */
 
+struct pathogen ** get_pathogen(struct population *in){
+	return in->pathogens;
+}
+
+
 unsigned int get_nsus(struct population *in){
 	return in->nsus;
 }
@@ -46,7 +51,7 @@ unsigned int get_nrec(struct population *in){
 
 /* Create new population */
 struct population * create_population(unsigned int ns, unsigned int ni, unsigned int nr){
-	
+
 	/* create pointer to population */
 	struct population *out;
 	out = (struct population *) calloc(1, sizeof(struct population));
@@ -60,60 +65,21 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 	out->ninf = ni;
 	out->nrec = nr;
 
-	/* susceptibles */
-	/*if(ns==0){
-		out->sus = NULL;
-	} else {
-		out->sus = (struct host **) calloc(nsus, sizeof(struct host *));
-		if(out->sus == NULL){
-			fprintf(stderr, "\nNo memory left for creating susceptibles in new population. Exiting.\n");
-			exit(1);
-		}
-		for(i=0;i<nsus;i++){
-			(out->sus)[i] = (struct host*) calloc(1, sizeof(struct host));
-			if((out->sus)[i]==NULL){
-				fprintf(stderr, "\nNo memory left for creating susceptibles in new population. Exiting.\n");
-				exit(1);
-			}
-		}
 
-	}*/
-	
 	/* infected */
-	/*if(ninf==0){
-		out->inf = NULL;
+	if(ni==0){
+		out->pathogens = NULL;
 	} else {
-		out->inf = (struct host *) calloc(ninf, sizeof(struct host));
-		if(out->inf == NULL){
-			fprintf(stderr, "\nNo memory left for creating infected in new population. Exiting.\n");
+		out->pathogens = (struct pathogen *) calloc(ni, sizeof(struct pathogen *));
+		if(out->pathogens == NULL){
+			fprintf(stderr, "\nNo memory left for creating pathogen array in the population. Exiting.\n");
 			exit(1);
 		}
-		for(i=0;i<ninf;i++){
-			(out->inf)[i] = (struct host*) calloc(1, sizeof(struct host));
-			if((out->inf)[i]==NULL){
-				fprintf(stderr, "\nNo memory left for creating infected in new population. Exiting.\n");
-				exit(1);
-			}
+		for(i=0;i<ni;i++){
+			(out->pathogens)[i] = create_pathogen();
 		}
-	}*/
+	}
 
-	/* recovered */
-	/*if(nrec==0){
-		out->rec = NULL;
-	} else {
-		out->rec = (struct host *) calloc(nrec, sizeof(struct host));
-		if(out->rec == NULL){
-			fprintf(stderr, "\nNo memory left for creating recovered in new population. Exiting.\n");
-			exit(1);
-		}
-		for(i=0;i<nrec;i++){
-			(out->rec)[i] = (struct host*) calloc(1, sizeof(struct host));
-			if((out->rec)[i]==NULL){
-				fprintf(stderr, "\nNo memory left for creating recovered in new population. Exiting.\n");
-				exit(1);
-			}
-		}
-	}*/
 
 	return out;
 }
@@ -132,19 +98,12 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 
 /* Free population */
 void free_population(struct population *in){
-	/*int i;
-	for(i=0;i<get_nsus(in);i++){
-		free_host(in->sus);
-	}
+	int i;
 	for(i=0;i<get_ninf(in);i++){
-		free_host(in->inf);
+		free_pathogen(in->pathogens[i]);
 	}
-	for(i=0;i<get_nrec(in);i++){
-		free_host(in->rec);
-	}
-	free(in->sus);
-	free(in->inf);
-	free(in->rec);*/
+
+	free(in->pathogens);
 	free(in);
 }
 
@@ -164,9 +123,11 @@ void free_population(struct population *in){
 
 /* Print population content */
 void print_population(struct population *in){
+	int i;
 	printf("\nnb susceptible: %d", get_nsus(in));
 	printf("\nnb infected: %d", get_ninf(in));
 	printf("\nnb recovered: %d\n", get_nrec(in));
+	for(i=0;i<get_ninf(in);i++) print_pathogen(get_pathogens(in)[i]);
 }
 
 
@@ -179,36 +140,36 @@ void print_population(struct population *in){
    ===============================
 */
 
-/* int main(){ */
-/* 	/\* Initialize random number generator *\/ */
-/* 	time_t t; */
-/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
-/* 	gsl_rng * rng; */
-/* 	const gsl_rng_type *typ; */
-/* 	gsl_rng_env_setup(); */
-/* 	typ=gsl_rng_default; */
-/* 	rng=gsl_rng_alloc(typ); */
-/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
+int main(){
+	/* Initialize random number generator */
+	time_t t;
+	t = time(NULL); // time in seconds, used to change the seed of the random generator
+	gsl_rng * rng;
+	const gsl_rng_type *typ;
+	gsl_rng_env_setup();
+	typ=gsl_rng_default;
+	rng=gsl_rng_alloc(typ);
+	gsl_rng_set(rng,t); // changes the seed of the random generator
 
 	
-/* 	/\* simulation parameters *\/ */
-/* 	/\* struct param * par; *\/ */
-/* 	/\* par = (struct param *) calloc(1, sizeof(struct param)); *\/ */
-/* 	/\* par->L = 100; *\/ */
-/* 	/\* par->mu = 0.01; *\/ */
-/* 	/\* par->muL = par->mu * par->L; *\/ */
-/* 	/\* par->rng = rng; *\/ */
+	/* simulation parameters */
+	/* struct param * par; */
+	/* par = (struct param *) calloc(1, sizeof(struct param)); */
+	/* par->L = 100; */
+	/* par->mu = 0.01; */
+	/* par->muL = par->mu * par->L; */
+	/* par->rng = rng; */
 
 
-/* 	struct population * pop; */
+	struct population * pop;
 
-/* 	pop = create_population(1000,10,0); */
+	pop = create_population(1000,10,0);
 
-/* 	print_population(pop); */
+	print_population(pop);
 
-/* 	/\* free memory *\/ */
-/* 	free_population(pop); */
-/* 	gsl_rng_free(rng); */
+	/* free memory */
+	free_population(pop);
+	gsl_rng_free(rng);
 
-/* 	return 0; */
-/* } */
+	return 0;
+}

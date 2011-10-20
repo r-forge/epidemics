@@ -8,6 +8,7 @@
 
 
 
+
 /*
 # status legend # 
 - s: susceptible
@@ -18,6 +19,8 @@
 
 struct population{
 	/*struct host **sus, **inf, **rec;*/ /* arrays */
-	unsigned int nsus, ninf, nrec; /* size of each array */
+	struct **pathogen pathogens;
+	/* nb of item; ninf is the length of **pathogens */
+	unsigned int nsus, ninf, nrec;
 };
 

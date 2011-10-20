@@ -9,7 +9,7 @@
 
 #include "common.h"
 #include "param.h"
-#include "seqEvol.h"
+#include "pathogens.h"
 
 
 

@@ -10,12 +10,18 @@
 
 
 /* L: length of the genomes */
+/* K: number of hosts (carrying capacity */
 /* mu: mutation rate per site and generation */
 /* muL = mu*L */
+/* R: R0, i.e. number of infections created by an 
+   infectious individual in an entirely susceptible 
+   population at each time step. */
 /* rng: random number generator */
+/* t1: number of unit time before a pathogen become infectious */
+/* t2: number of unit time before a pathogen stops being infectious (i.e. dies) */
 struct param{
-	int L;
-	double mu, muL;
+	int L, K, t1, t2;
+	double mu, muL, R;
 	gsl_rng * rng;
 };
 
