@@ -116,7 +116,7 @@ return out;
 void free_population(struct population *in){
 	int i;
 	for(i=0;i<get_orinsus(in);i++){
-		free_pathogen((in->pathogens)[i]);
+		if((in->pathogens)[i] != NULL) free_pathogen((in->pathogens)[i]);
 	}
 
 	free(in->pathogens);
@@ -143,18 +143,8 @@ void print_population(struct population *in){
 	printf("\nnb susceptible: %d", get_nsus(in));
 	printf("\nnb infected: %d", get_ninf(in));
 	printf("\nnb recovered: %d\n", get_nrec(in));
-	if(get_orinsus(in)>6){
-		for(i=0;i<2;i++) {
-			if(get_pathogens(in)[i] != NULL )print_pathogen(get_pathogens(in)[i]);
-		}
-		printf("\n...");
-		for(i=(get_orinsus(in)-2);i<get_orinsus(in);i++) {
-			if(get_pathogens(in)[i] != NULL )print_pathogen(get_pathogens(in)[i]);
-		}
-	} else {
-		for(i=0;i<get_orinsus(in);i++) {
-			if(get_pathogens(in)[i] != NULL )print_pathogen(get_pathogens(in)[i]);
-		}
+	for(i=0;i<get_orinsus(in);i++){
+		if(get_pathogens(in)[i] != NULL )print_pathogen(get_pathogens(in)[i]);
 	}
 }
 
