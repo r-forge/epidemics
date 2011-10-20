@@ -251,9 +251,6 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
    =========================
 */
 
-int main(){
-	return 0;
-}
 
 /* void main(){ */
 /* 	/\* Initialize random number generator *\/ */
