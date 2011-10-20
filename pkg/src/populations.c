@@ -8,7 +8,7 @@
 
 #include "common.h"
 #include "param.h"
-#include "seqEvol.h"
+#include "pathogens.h"
 #include "populations.h"
 
 
@@ -19,7 +19,7 @@
    =================
 */
 
-struct pathogen ** get_pathogen(struct population *in){
+struct pathogen ** get_pathogens(struct population *in){
 	return in->pathogens;
 }
 
@@ -51,7 +51,7 @@ unsigned int get_nrec(struct population *in){
 
 /* Create new population */
 struct population * create_population(unsigned int ns, unsigned int ni, unsigned int nr){
-
+	int i;
 	/* create pointer to population */
 	struct population *out;
 	out = (struct population *) calloc(1, sizeof(struct population));
@@ -70,7 +70,7 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 	if(ni==0){
 		out->pathogens = NULL;
 	} else {
-		out->pathogens = (struct pathogen *) calloc(ni, sizeof(struct pathogen *));
+		out->pathogens = (struct pathogen **) calloc(ni, sizeof(struct pathogen *));
 		if(out->pathogens == NULL){
 			fprintf(stderr, "\nNo memory left for creating pathogen array in the population. Exiting.\n");
 			exit(1);
