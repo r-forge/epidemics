@@ -39,6 +39,10 @@ unsigned int get_nrec(struct population *in){
 }
 
 
+unsigned int get_ninfcum(struct population *in){
+	return in->ninfcum;
+}
+
 
 
 
@@ -64,7 +68,7 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 	out->nsus = ns;
 	out->ninf = ni;
 	out->nrec = nr;
-
+	out->ninfcum = ni; 
 
 	/* infected */
 	if(ni==0){
@@ -99,7 +103,7 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 /* Free population */
 void free_population(struct population *in){
 	int i;
-	for(i=0;i<get_ninf(in);i++){
+	for(i=0;i<get_ninfcum(in);i++){
 		free_pathogen(in->pathogens[i]);
 	}
 
@@ -140,36 +144,36 @@ void print_population(struct population *in){
    ===============================
 */
 
-int main(){
-	/* Initialize random number generator */
-	time_t t;
-	t = time(NULL); // time in seconds, used to change the seed of the random generator
-	gsl_rng * rng;
-	const gsl_rng_type *typ;
-	gsl_rng_env_setup();
-	typ=gsl_rng_default;
-	rng=gsl_rng_alloc(typ);
-	gsl_rng_set(rng,t); // changes the seed of the random generator
+/* int main(){ */
+/* 	/\* Initialize random number generator *\/ */
+/* 	time_t t; */
+/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
+/* 	gsl_rng * rng; */
+/* 	const gsl_rng_type *typ; */
+/* 	gsl_rng_env_setup(); */
+/* 	typ=gsl_rng_default; */
+/* 	rng=gsl_rng_alloc(typ); */
+/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
 
 	
-	/* simulation parameters */
-	/* struct param * par; */
-	/* par = (struct param *) calloc(1, sizeof(struct param)); */
-	/* par->L = 100; */
-	/* par->mu = 0.01; */
-	/* par->muL = par->mu * par->L; */
-	/* par->rng = rng; */
+/* 	/\* simulation parameters *\/ */
+/* 	/\* struct param * par; *\/ */
+/* 	/\* par = (struct param *) calloc(1, sizeof(struct param)); *\/ */
+/* 	/\* par->L = 100; *\/ */
+/* 	/\* par->mu = 0.01; *\/ */
+/* 	/\* par->muL = par->mu * par->L; *\/ */
+/* 	/\* par->rng = rng; *\/ */
 
 
-	struct population * pop;
+/* 	struct population * pop; */
 
-	pop = create_population(1000,10,0);
+/* 	pop = create_population(1000,10,0); */
 
-	print_population(pop);
+/* 	print_population(pop); */
 
-	/* free memory */
-	free_population(pop);
-	gsl_rng_free(rng);
+/* 	/\* free memory *\/ */
+/* 	free_population(pop); */
+/* 	gsl_rng_free(rng); */
 
-	return 0;
-}
+/* 	return 0; */
+/* } */

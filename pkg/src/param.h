@@ -19,8 +19,9 @@
 /* rng: random number generator */
 /* t1: number of unit time before a pathogen become infectious */
 /* t2: number of unit time before a pathogen stops being infectious (i.e. dies) */
+/* nstart: number of infections with wild genotype initiating the epidemic */
 struct param{
-	int L, K, t1, t2;
+	int L, K, t1, t2, nstart;
 	double mu, muL, R;
 	gsl_rng * rng;
 };

@@ -23,7 +23,7 @@
  */
 struct pathogen{
 	unsigned int *snps;
-	int length;
+	int length, age;
 	/*struct host *host;*/
 };
 
@@ -44,16 +44,12 @@ struct pathogen{
 int get_nb_snps(struct pathogen *in);
 
 
-/* Returns the ID of the host, i.e. in->host array */
-/*
-struct host * get_host(struct pathogen *in);
-*/
-
-
 /* Returns SNP vector */
 unsigned int * get_snps(struct pathogen *in);
 
 
+/* Returns the age of the pathogen - 0 when created */
+int get_age(struct pathogen *in);
 
 
 
