@@ -28,19 +28,20 @@ void process_infection(struct pathogen * pat, struct population * pop, struct pa
 		/* determine the number of descendents */
 		if(get_age(pat) >= par->t1){
 			nbnewinf = gsl_ran_poisson(par->rng, par->R);
-			printf("\nnumber of new infections %d",nbnewinf);
+			/* printf("\nnumber of new infections %d",nbnewinf); */
+
 			/* adjust number of new infections to number of susceptibles */
 			if(nbnewinf > Nsus) nbnewinf =  Nsus;
-			printf("\nrectified number of new infections %d",nbnewinf);
-			printf("\nnumber of sus %d", Nsus);
-			printf("\nnumber of cum inf %d",Ninfcum);
+			/* printf("\nrectified number of new infections %d",nbnewinf); */
+			/* printf("\nnumber of sus %d", Nsus); */
+			/* printf("\nnumber of cum inf %d",Ninfcum); */
 
 		}
 
 		if(nbnewinf>0){
 			/* for each new infection, add new pathogen */
 			for(i=Ninfcum;i<(Ninfcum+nbnewinf);i++){
-				printf("\n## trying to write on pathogen %d", i);
+ 				/* printf("\n## trying to write on pathogen %d", i); */
 				replicate(pat, (get_pathogens(pop))[i], par);
 			}
 
@@ -65,11 +66,12 @@ void age_population(struct population * pop, struct param * par){
 	/* pathogens ages */
 	for(i=0;i<get_orinsus(pop);i++){
 		ppat = (pop->pathogens)[i]; /* to make code more readable*/
-		if(ppat !=NULL){ /* if pathogen exists */
+		if(!isNULL_pathogen(ppat)){ /* if pathogen exists */
 			ppat->age = ppat->age+1; /* get older */
 			if(get_age(ppat) > par->t2) { /* die if you must */
-				free_pathogen(ppat);
-				(pop->pathogens)[i] = NULL;
+				/* free_pathogen(ppat); */
+				/* (pop->pathogens)[i] = NULL; */
+				ppat->age = -1; /* neutralize pathogen */
 				pop->nrec = pop->nrec + 1;
 				pop->ninf = pop->ninf - 1;
 			}
@@ -121,16 +123,21 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	pop = create_population(par->nsus, par->nstart, 0);
 
 	/* make population evolve */
-	while(get_nsus(pop)>0 && get_ninf(pop)>0 && nstep<10){
+	while(get_nsus(pop)>0 && get_ninf(pop)>0){
 		printf("\n-- population a step %d",++nstep);
 		print_population(pop);
 
-
-		for(i=0;i<15;i++){
+		/* handle replication for each infection */
+		for(i=0;i<get_orinsus(pop);i++){
 			process_infection(get_pathogens(pop)[i], pop, par);
-			/* age_population(pop, par); */
 		}
+
+		/* age population */
+		age_population(pop, par);
 	}
+
+	printf("\n\n-- final population");
+	print_population(pop);
 
 	/* free memory */
 	free_population(pop);
@@ -142,7 +149,7 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 int main(){
 
-	run_epidemics(100, 0.05, 50, 1.2, 10, 1,2);
+	run_epidemics(100, 0.01, 50, 1.5, 10, 1,3);
 
 	return 0;
 }
