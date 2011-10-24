@@ -31,3 +31,6 @@ struct param{
 
 /* Free param */
 void free_param(struct param *in);
+
+/* Check parameters */
+void check_param(struct param *in);

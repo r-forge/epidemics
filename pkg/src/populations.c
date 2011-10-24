@@ -71,7 +71,8 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 	}
 
 	/* create the content */
-	out->orinsus = 	out->nsus = ns;
+	out->orinsus = ns;
+	out->nsus = ns;
 	out->ninf = ni;
 	out->nrec = nr;
 	out->ninfcum = ni;
@@ -86,13 +87,13 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 			exit(1);
 		}
 
-		for(i=0;i<ni;i++){
+		for(i=0;i<ns;i++){
 			(out->pathogens)[i] = create_pathogen();
-		}
-		
-		for(i=ni;i<ns;i++){
-			/* out->pathogens)[i] = create_pathogen(); */
-			(out->pathogens[i]) = NULL;
+			if(i<ni){
+				(out->pathogens)[i]->age = 1;
+			} else {
+				(out->pathogens)[i]->age = -1; /* 'neutralised' pathogen */
+			}
 		}
 	}
 
@@ -144,7 +145,7 @@ void print_population(struct population *in){
 	printf("\nnb infected: %d", get_ninf(in));
 	printf("\nnb recovered: %d\n", get_nrec(in));
 	for(i=0;i<get_orinsus(in);i++){
-		if(get_pathogens(in)[i] != NULL )print_pathogen(get_pathogens(in)[i]);
+		if(!isNULL_pathogen(get_pathogens(in)[i])) print_pathogen(get_pathogens(in)[i]);
 	}
 }
 
@@ -169,7 +170,7 @@ void print_population(struct population *in){
 /* 	rng=gsl_rng_alloc(typ); */
 /* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
 
-	
+
 /* 	/\* simulation parameters *\/ */
 /* 	/\* struct param * par; *\/ */
 /* 	/\* par = (struct param *) calloc(1, sizeof(struct param)); *\/ */

@@ -177,7 +177,7 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 
 	/* check that output is OK */
 	if(out == NULL){
-		fprintf(stderr, "\nTrying to write a new pathogen on NULL. Exiting.\n");
+		fprintf(stderr, "\nTrying to write a new pathogen but pointer is NULL. Exiting.\n");
 		exit(1);
 	}
 
@@ -226,6 +226,15 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 
 
 
+
+int isNULL_pathogen(struct pathogen *in){
+	if(in==NULL) {  
+		fprintf(stderr, "\nPointer to a pathogen is NULL. Exiting.\n");
+		exit(1);
+	}
+	if(get_age(in)<0) return(1);
+	return 0;
+}
 
 
 
