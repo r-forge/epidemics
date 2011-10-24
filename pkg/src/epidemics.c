@@ -41,7 +41,6 @@ void process_infection(struct pathogen * pat, struct population * pop, struct pa
 			/* for each new infection, add new pathogen */
 			for(i=Ninfcum;i<(Ninfcum+nbnewinf);i++){
 				printf("\n## trying to write on pathogen %d", i);
-				//(pathogens->pop)[i] = create_pathogen();
 				replicate(pat, (get_pathogens(pop))[i], par);
 			}
 
@@ -80,6 +79,8 @@ void age_population(struct population * pop, struct param * par){
 
 
 
+
+
 /*
    ===============================
    === MAIN EXTERNAL FUNCTIONS ===
@@ -107,7 +108,7 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	par->mu = mutRate;
 	par->muL = par->mu * par->L;
 	par->rng = rng;
-	par->K = nHost - nStart;
+	par->nsus = nHost;
 	par->R = Rzero;
 	par->nstart = nStart;
 	par->t1 = t1;
@@ -117,13 +118,15 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 	/* initiate population */
 	struct population * pop;
-	pop = create_population(par->K, par->nstart, 0);
+	pop = create_population(par->nsus, par->nstart, 0);
 
 	/* make population evolve */
-	while(get_nsus(pop)>0 && get_ninf(pop)>0){
+	while(get_nsus(pop)>0 && get_ninf(pop)>0 && nstep<10){
 		printf("\n-- population a step %d",++nstep);
 		print_population(pop);
-		for(i=0;i<get_orinsus(pop);i++){
+
+
+		for(i=0;i<15;i++){
 			process_infection(get_pathogens(pop)[i], pop, par);
 			/* age_population(pop, par); */
 		}

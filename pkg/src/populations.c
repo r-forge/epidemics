@@ -72,31 +72,27 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 
 	/* create the content */
 	out->orinsus = ns;
-	out->nsus = ns;
+	out->nsus = ns-ni; /* remove susc. because of initial infections */
 	out->ninf = ni;
 	out->nrec = nr;
 	out->ninfcum = ni;
 
 	/* infected */
-	if(ni==0){
-		out->pathogens = NULL;
-	} else {
-		out->pathogens = (struct pathogen **) calloc(ns, sizeof(struct pathogen *));
-		if(out->pathogens == NULL){
-			fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating pathogen array in the population. Exiting.\n");
-			exit(1);
-		}
 
-		for(i=0;i<ns;i++){
-			(out->pathogens)[i] = create_pathogen();
-			if(i<ni){
-				(out->pathogens)[i]->age = 1;
-			} else {
-				(out->pathogens)[i]->age = -1; /* 'neutralised' pathogen */
-			}
-		}
+	out->pathogens = (struct pathogen **) calloc(ns, sizeof(struct pathogen *));
+	if(out->pathogens == NULL){
+		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating pathogen array in the population. Exiting.\n");
+		exit(1);
 	}
 
+	for(i=0;i<ns;i++){
+		(out->pathogens)[i] = create_pathogen();
+		if(i<ni){
+			(out->pathogens)[i]->age = 1; /* 'active' pathogen */
+		} else {
+			(out->pathogens)[i]->age = -1; /* 'neutralised' pathogen */
+		}
+	}
 
 return out;
 }

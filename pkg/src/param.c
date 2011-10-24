@@ -20,13 +20,13 @@ void free_param(struct param *in){
 
 void check_param(struct param *in){
 	/* nstart & K */
-	if(in->nstart > in->K){
+	if(in->nstart > in->nsus){
 		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: initial number of infections greater than host population.\n");
 		exit(1);
 	}
 
-	/* K */
-	if(in->K < 1){
+	/* nsus */
+	if(in->nsus < 1){
 		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: less than one host in population.\n");
 		exit(1);
 	}
