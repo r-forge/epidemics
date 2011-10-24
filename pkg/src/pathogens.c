@@ -56,7 +56,7 @@ struct pathogen * create_pathogen(){
 	struct pathogen *out;
 	out = (struct pathogen *) calloc(1, sizeof(struct pathogen));
 	if(out == NULL){
-		fprintf(stderr, "\nNo memory left for creating initial pathogen. Exiting.\n");
+		fprintf(stderr, "\n[in: pathogen.c->create_pathogen]\nNo memory left for creating initial pathogen. Exiting.\n");
 		exit(1);
 	}
 	out->snps = NULL;
@@ -109,7 +109,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 
 	out->snps = (unsigned int *) calloc(N, sizeof(unsigned int)); /* allocate memory for snps vector*/
 	if(get_snps(out) == NULL){
-		fprintf(stderr, "\nNo memory left for copying pathogen genome. Exiting.\n");
+		fprintf(stderr, "\n[in: pathogen.c->copy_pathogen]\nNo memory left for copying pathogen genome. Exiting.\n");
 		exit(1);
 	}
 
@@ -177,7 +177,7 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 
 	/* check that output is OK */
 	if(out == NULL){
-		fprintf(stderr, "\nTrying to write a new pathogen but pointer is NULL. Exiting.\n");
+		fprintf(stderr, "\n[in: pathogen.c->replicate]\nTrying to create a new pathogen but pointer is NULL. Exiting.\n");
 		exit(1);
 	}
 
@@ -199,7 +199,7 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 		/* reallocate memory for new vector */
 		out->snps = (unsigned int *) calloc(newsize, sizeof(unsigned int));
 		if(get_snps(out) == NULL){
-			fprintf(stderr, "\nNo memory left for replicating pathogen genome. Exiting.\n");
+			fprintf(stderr, "\n[in: pathogen.c->replicate]\nNo memory left for replicating pathogen genome. Exiting.\n");
 			exit(1);
 		}
 
@@ -229,7 +229,7 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 
 int isNULL_pathogen(struct pathogen *in){
 	if(in==NULL) {  
-		fprintf(stderr, "\nPointer to a pathogen is NULL. Exiting.\n");
+		fprintf(stderr, "\n[in: pathogen.c->isNULL_pathogen]\nPointer to a pathogen is NULL. Exiting.\n");
 		exit(1);
 	}
 	if(get_age(in)<0) return(1);

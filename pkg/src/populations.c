@@ -66,7 +66,7 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 	struct population *out;
 	out = (struct population *) calloc(1, sizeof(struct population));
 	if(out == NULL){
-		fprintf(stderr, "\nNo memory left for creating new population. Exiting.\n");
+		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating new population. Exiting.\n");
 		exit(1);
 	}
 
@@ -83,7 +83,7 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 	} else {
 		out->pathogens = (struct pathogen **) calloc(ns, sizeof(struct pathogen *));
 		if(out->pathogens == NULL){
-			fprintf(stderr, "\nNo memory left for creating pathogen array in the population. Exiting.\n");
+			fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating pathogen array in the population. Exiting.\n");
 			exit(1);
 		}
 

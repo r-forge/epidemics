@@ -21,61 +21,61 @@ void free_param(struct param *in){
 void check_param(struct param *in){
 	/* nstart & K */
 	if(in->nstart > in->K){
-		fprintf(stderr, "\nParameter error: initial number of infections greater than host population.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: initial number of infections greater than host population.\n");
 		exit(1);
 	}
 
 	/* K */
 	if(in->K < 1){
-		fprintf(stderr, "\nParameter error: less than one host in population.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: less than one host in population.\n");
 		exit(1);
 	}
 
 	/* nstart */
 	if(in->nstart < 1){
-		fprintf(stderr, "\nParameter error: less than one initial infection.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: less than one initial infection.\n");
 		exit(1);
 	}
 
 	/* L */
 	if(in->L < 1){
-		fprintf(stderr, "\nParameter error: genome length less than one.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: genome length less than one.\n");
 		exit(1);
 	}
 
 	if(in->L < 1){
-		fprintf(stderr, "\nParameter error: genome length less than one.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: genome length less than one.\n");
 		exit(1);
 	}
 
 	/* t1 */
 	if(in->t1 < 1){
-		fprintf(stderr, "\nParameter error: time to infectiousness less than one.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: time to infectiousness less than one.\n");
 		exit(1);
 	}
 
 	/* t2 */
 	if(in->t2 < 1){
-		fprintf(stderr, "\nParameter error: infection duration less than one.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: infection duration less than one.\n");
 		exit(1);
 	}
 
 	/* t1 & t2 */
 	if(in->t1 > in->t1){
-		fprintf(stderr, "\nParameter error: infection last less than time to infectiousness.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: infection last less than time to infectiousness.\n");
 		exit(1);
 	}
 
 
 	/* mu */
 	if(in->mu < 0.0){
-		fprintf(stderr, "\nParameter error: negative mutation rate.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative mutation rate.\n");
 		exit(1);
 	}
 
 	/* R */
 	if(in->R < 0.0){
-		fprintf(stderr, "\nParameter error: negative reproductive number.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative reproductive number.\n");
 		exit(1);
 	}
 
