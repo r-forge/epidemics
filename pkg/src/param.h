@@ -20,6 +20,8 @@
 /* t1: number of unit time before a pathogen become infectious */
 /* t2: number of unit time before a pathogen stops being infectious (i.e. dies) */
 /* nstart: number of infections with wild genotype initiating the epidemic */
+/* t_sample: time at which to sample the outbreak */
+/* n_sample: sample size, in number of pathogens */
 struct param{
 	int L, nsus, t1, t2, nstart, t_sample, n_sample;
 	double mu, muL, R;

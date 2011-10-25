@@ -79,8 +79,19 @@ void check_param(struct param *in){
 		exit(1);
 	}
 
-}
+	/* t_sample */
+	if(in->t_sample < 0){
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative sampling time.\n");
+		exit(1);
+	}
 
+	/* t_sample */
+	if(in->n_sample < 0){
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative sample size.\n");
+		exit(1);
+	}
+
+}
 
 
 
