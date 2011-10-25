@@ -108,5 +108,7 @@ void print_param(struct param *in){
 	printf("\nnb initial infections: %d", in->nstart);
 	printf("\nstart infectious period: %d   ", in->t1);
 	printf("\nend infectious period: %d   ", in->t2);
+	printf("\nsampling time: %d   ", in->t_sample);
+	printf("\nsample size: %d   ", in->n_sample);
 	printf("\n");
 }

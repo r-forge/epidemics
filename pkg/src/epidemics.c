@@ -89,7 +89,7 @@ void age_population(struct population * pop, struct param * par){
    ===============================
 */
 
-void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int nStart, int t1, int t2){
+void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int nStart, int t1, int t2,int Tsample, int Nsample){
 	int i, nstep=0;
 
 	/* Initialize random number generator */
@@ -115,6 +115,8 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	par->nstart = nStart;
 	par->t1 = t1;
 	par->t2 = t2;
+	par->t_sample = Tsample;
+	par->n_sample = Nsample;
 
 	/* check/print parameters */
 	check_param(par);
