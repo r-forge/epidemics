@@ -23,6 +23,13 @@ struct population{
 
 
 
+struct sample{
+	struct pathogen ** pathogens;
+	/* nb of item; ninf is the length of **pathogens */
+	unsigned int n;
+};
+
+
 
 /*
    =================
@@ -47,6 +54,8 @@ unsigned int get_ninfcum(struct population *in);
 
 unsigned int get_orinsus(struct population *in);
 
+
+unsigned int get_n(struct sample *in);
 
 
 /*

@@ -103,7 +103,7 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	gsl_rng_set(rng,t); // changes the seed of the random generator
 
 
-	/* simulation parameters */
+	/* transfer simulation parameters */
 	struct param * par;
 	par = (struct param *) calloc(1, sizeof(struct param));
 	par->L = seqLength;
@@ -116,7 +116,9 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	par->t1 = t1;
 	par->t2 = t2;
 
+	/* check/print parameters */
 	check_param(par);
+	print_param(par);
 
 	/* initiate population */
 	struct population * pop;
@@ -124,8 +126,8 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 	/* make population evolve */
 	while(get_nsus(pop)>0 && get_ninf(pop)>0){
-		printf("\n-- population a step %d",++nstep);
-		print_population(pop);
+		/* printf("\n-- population a step %d --",++nstep); */
+		/* print_population(pop); */
 
 		/* handle replication for each infection */
 		for(i=0;i<get_orinsus(pop);i++){
@@ -136,8 +138,8 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 		age_population(pop, par);
 	}
 
-	printf("\n\n-- final population");
-	print_population(pop);
+	/* printf("\n\n-- FINAL POPULATION --"); */
+	/* print_population(pop); */
 
 	/* free memory */
 	free_population(pop);
@@ -149,7 +151,7 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 int main(){
 
-	run_epidemics(100, 0.01, 50, 1.5, 10, 1,3);
+	run_epidemics(100, 0.01, 50, 1.5, 10, 1,5);
 
 	return 0;
 }

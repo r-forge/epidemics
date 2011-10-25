@@ -21,7 +21,7 @@
 /* t2: number of unit time before a pathogen stops being infectious (i.e. dies) */
 /* nstart: number of infections with wild genotype initiating the epidemic */
 struct param{
-	int L, nsus, t1, t2, nstart;
+	int L, nsus, t1, t2, nstart, t_sample, n_sample;
 	double mu, muL, R;
 	gsl_rng * rng;
 };
@@ -34,3 +34,6 @@ void free_param(struct param *in);
 
 /* Check parameters */
 void check_param(struct param *in);
+
+/* Print parameters */
+void print_param(struct param *in);

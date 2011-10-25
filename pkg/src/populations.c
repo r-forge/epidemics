@@ -49,6 +49,9 @@ unsigned int get_orinsus(struct population *in){
 }
 
 
+unsigned int get_n(struct sample *in){
+	return in->n;
+}
 
 
 
@@ -102,6 +105,27 @@ return out;
 
 
 
+/* struct sample * create_sample(unsigned int n){ */
+/* 	int i; */
+
+/* 	/\* create pointer to pathogens *\/ */
+/* 	struct sample *out; */
+/* 	out = (struct sample *) calloc(1, sizeof(struct sample)); */
+/* 	if(out == NULL){ */
+/* 		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating new population. Exiting.\n"); */
+/* 		exit(1); */
+/* 	} */
+
+/* 	/\* create the content *\/ */
+/* 	out->pathogens = (struct pathogen **) calloc(n, sizeof(struct pathogen *)); */
+/* 	if(out->pathogens == NULL){ */
+/* 		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating pathogen array in the population. Exiting.\n"); */
+/* 		exit(1); */
+/* 	} */
+/* } */
+
+
+
 
 /*
    ===================
@@ -143,6 +167,7 @@ void print_population(struct population *in){
 	for(i=0;i<get_orinsus(in);i++){
 		if(!isNULL_pathogen(get_pathogens(in)[i])) print_pathogen(get_pathogens(in)[i]);
 	}
+	printf("\n");
 }
 
 
@@ -154,6 +179,11 @@ void print_population(struct population *in){
    === MAIN EXTERNAL FUNCTIONS ===
    ===============================
 */
+
+struct sample * sample_population(struct population *in){
+	
+}
+
 
 /* int main(){ */
 /* 	/\* Initialize random number generator *\/ */

@@ -61,8 +61,8 @@ void check_param(struct param *in){
 	}
 
 	/* t1 & t2 */
-	if(in->t1 > in->t1){
-		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: infection last less than time to infectiousness.\n");
+	if(in->t1 > in->t2){
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: infections last less than time to infectiousness.\n");
 		exit(1);
 	}
 
@@ -79,4 +79,23 @@ void check_param(struct param *in){
 		exit(1);
 	}
 
+}
+
+
+
+
+
+/* print parameters */
+void print_param(struct param *in){
+	printf("\n-- simulation parameters --");
+
+	/* genetic parameters */
+	printf("\nmutation rate: %f   genome length: %d", in->mu, in->L);
+
+	/* epidemiological parameters*/
+	printf("\nnb susceptible: %d  incidence: %.2f", in->nsus, in->R);
+	printf("\nnb initial infections: %d", in->nstart);
+	printf("\nstart infectious period: %d   ", in->t1);
+	printf("\nend infectious period: %d   ", in->t2);
+	printf("\n");
 }
