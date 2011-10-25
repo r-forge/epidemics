@@ -222,7 +222,7 @@ struct sample * draw_sample(struct population *in, struct param *par){
 	j=0;
 	for(i=0;i<nIsolates;i++){
 		while(isNULL_pathogen((in->pathogens)[j])) j++;
-		availIsolates[i] = j;
+		availIsolates[i] = j++;
 	}
 
 	/* choose from available pathogens */
