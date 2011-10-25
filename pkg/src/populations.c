@@ -128,7 +128,7 @@ void free_population(struct population *in){
 
 /* Free sample */
 void free_sample(struct sample *in){
-	/* note: free_population will free pathogens array */
+	free(in->pathogens);
 	free(in);
 }
 
@@ -163,7 +163,8 @@ void print_sample(struct sample *in){
 	int i;
 	printf("\n%d pathogens", in->n);
 	for(i=0;i<in->n;i++){
-		if(!isNULL_pathogen((in->pathogens)[i])) print_pathogen((in->pathogens)[i]);
+		//if(!isNULL_pathogen((in->pathogens)[i])) print_pathogen((in->pathogens)[i]);
+		print_pathogen((in->pathogens)[i]);
 	}
 	printf("\n");
 }
@@ -182,11 +183,11 @@ void print_sample(struct sample *in){
 /* Get sample of isolates */
 struct sample * draw_sample(struct population *in, struct param *par){
 	int i, j, popSize=get_orinsus(in), n=par->n_sample, id, nIsolates=0;
-
+	int *availIsolates; 
 
 	/* create pointer to pathogens */
 	struct sample *out;
-	struct pathogen ** availIsolates;
+
 	out = (struct sample *) calloc(1, sizeof(struct sample));
 
 	if(out == NULL){
@@ -211,8 +212,8 @@ struct sample * draw_sample(struct population *in, struct param *par){
 		exit(1);
 	}
 
-	/* make vector of addresses of available isolates */
-	availIsolates = (struct pathogen **) calloc(1, sizeof(struct pathogen *));
+	/* make vector of indices of available isolates */
+	availIsolates = (int *) calloc(nIsolates, sizeof(int));
 	if(availIsolates == NULL){
 		fprintf(stderr, "\n[in: population.c->draw_sample]\nNo memory left to isolate available pathogens. Exiting.\n");
 		exit(1);
@@ -220,20 +221,20 @@ struct sample * draw_sample(struct population *in, struct param *par){
 
 	j=0;
 	for(i=0;i<nIsolates;i++){
-		if(!isNULL_pathogen((in->pathogens)[j])){
-			availIsolates[i] = (in->pathogens)[j];
-		} else {
-			j++;
-		}
+		while(isNULL_pathogen((in->pathogens)[j])) j++;
+		availIsolates[i] = j;
 	}
 
-	/* get addresses of selected isolates */
+	/* choose from available pathogens */
 	for(i=0;i<n;i++){
-		id=gsl_rng_uniform_int(par->rng,nIsolates)+1;
-		(out->pathogens)[i] = (in->pathogens)[id];
+		id=gsl_rng_uniform_int(par->rng,nIsolates);
+		(out->pathogens)[i] = (in->pathogens)[availIsolates[id]];
 	}
 
 	out->n = n;
+
+	/* free local pointers */
+	free(availIsolates);
 
 	return out;
 } /* end draw_sample */
