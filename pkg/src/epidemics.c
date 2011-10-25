@@ -53,7 +53,7 @@ void process_infection(struct pathogen * pat, struct population * pop, struct pa
 			pop->ninf = pop->ninf + nbnewinf;
 		}
 	}
-}
+} /* end process_infection */
 
 
 
@@ -77,7 +77,7 @@ void age_population(struct population * pop, struct param * par){
 			}
 		}
 	}
-}
+} /* end age_population */
 
 
 
@@ -124,12 +124,14 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 	/* initiate population */
 	struct population * pop;
+	struct sample *samp;
+
 	pop = create_population(par->nsus, par->nstart, 0);
 
 	/* make population evolve */
-	while(get_nsus(pop)>0 && get_ninf(pop)>0){
-		/* printf("\n-- population a step %d --",++nstep); */
-		/* print_population(pop); */
+	/* while(get_nsus(pop)>0 && get_ninf(pop)>0 && par->t_sample<=nstep){ */
+	while(get_nsus(pop)>0 && get_ninf(pop)>0 && nstep<=par->t_sample){
+		nstep++;
 
 		/* handle replication for each infection */
 		for(i=0;i<get_orinsus(pop);i++){
@@ -140,12 +142,24 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 		age_population(pop, par);
 	}
 
-	/* printf("\n\n-- FINAL POPULATION --"); */
-	/* print_population(pop); */
+	/* we stopped after 'nstep' steps */
+	if(nstep != par->t_sample){
+		printf("\nEpidemics ended at time %d, before sampling time (%d).\n", nstep, par->t_sample);
+	}
+
+
+	printf("\n\n-- FINAL POPULATION --");
+	print_population(pop);
+
+	samp = draw_sample(pop, par);
+
+	printf("\n\n-- SAMPLE --");
+	print_sample(samp);
 
 	/* free memory */
 	free_population(pop);
 	free_param(par);
+	free_sample(samp);
 }
 
 
@@ -153,7 +167,7 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 int main(){
 
-	run_epidemics(100, 0.01, 50, 1.5, 10, 1,5);
+	run_epidemics(100, 0.01, 1e3, 1.05, 10, 1,2, 5, 10);
 
 	return 0;
 }

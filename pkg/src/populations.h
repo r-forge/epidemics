@@ -76,7 +76,7 @@ struct population * create_population(unsigned int ns, unsigned int ni, unsigned
 /* Free population */
 void free_population(struct population *in);
 
-
+void free_sample(struct sample *in);
 
 
 /*
@@ -86,3 +86,14 @@ void free_population(struct population *in);
 */
 void print_population(struct population *in);
 
+void print_sample(struct sample *in);
+
+
+/*
+   ==========================
+   === EXTERNAL FUNCTIONS ===
+   ==========================
+*/
+
+/* draw sample from a population */
+struct sample * draw_sample(struct population *in, struct param *par);

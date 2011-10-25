@@ -105,26 +105,6 @@ return out;
 
 
 
-/* struct sample * create_sample(unsigned int n){ */
-/* 	int i; */
-
-/* 	/\* create pointer to pathogens *\/ */
-/* 	struct sample *out; */
-/* 	out = (struct sample *) calloc(1, sizeof(struct sample)); */
-/* 	if(out == NULL){ */
-/* 		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating new population. Exiting.\n"); */
-/* 		exit(1); */
-/* 	} */
-
-/* 	/\* create the content *\/ */
-/* 	out->pathogens = (struct pathogen **) calloc(n, sizeof(struct pathogen *)); */
-/* 	if(out->pathogens == NULL){ */
-/* 		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating pathogen array in the population. Exiting.\n"); */
-/* 		exit(1); */
-/* 	} */
-/* } */
-
-
 
 
 /*
@@ -145,6 +125,12 @@ void free_population(struct population *in){
 }
 
 
+
+/* Free sample */
+void free_sample(struct sample *in){
+	/* note: free_population will free pathogens array */
+	free(in);
+}
 
 
 
@@ -172,6 +158,19 @@ void print_population(struct population *in){
 
 
 
+/* Print sample content */
+void print_sample(struct sample *in){
+	int i;
+	printf("\n%d pathogens", in->n);
+	for(i=0;i<in->n;i++){
+		if(!isNULL_pathogen((in->pathogens)[i])) print_pathogen((in->pathogens)[i]);
+	}
+	printf("\n");
+}
+
+
+
+
 
 
 /*
@@ -180,9 +179,71 @@ void print_population(struct population *in){
    ===============================
 */
 
-struct sample * sample_population(struct population *in){
-	
-}
+/* Get sample of isolates */
+struct sample * draw_sample(struct population *in, struct param *par){
+	int i, j, popSize=get_orinsus(in), n=par->n_sample, id, nIsolates=0;
+
+
+	/* create pointer to pathogens */
+	struct sample *out;
+	struct pathogen ** availIsolates;
+	out = (struct sample *) calloc(1, sizeof(struct sample));
+
+	if(out == NULL){
+		fprintf(stderr, "\n[in: population.c->draw_sample]\nNo memory left to sample the population. Exiting.\n");
+		exit(1);
+	}
+
+	/* allocate memory for pathogens */
+	out->pathogens = (struct pathogen **) calloc(n, sizeof(struct pathogen *));
+	if(out->pathogens == NULL){
+		fprintf(stderr, "\n[in: population.c->draw_sample]\nNo memory left sample pathogens from the population. Exiting.\n");
+		exit(1);
+	}
+
+	/* get the number of isolates that can be sampled */
+	for(i=0;i<popSize;i++){
+		if(!isNULL_pathogen((in->pathogens)[i])) nIsolates++;
+	}
+
+	if(nIsolates != get_ninf(in)){
+		fprintf(stderr, "\n[in: population.c->draw_sample]\nNumber of available isolates (%d) does not match number of infected (%d). Exiting.\n", nIsolates, get_ninf(in));
+		exit(1);
+	}
+
+	/* make vector of addresses of available isolates */
+	availIsolates = (struct pathogen **) calloc(1, sizeof(struct pathogen *));
+	if(availIsolates == NULL){
+		fprintf(stderr, "\n[in: population.c->draw_sample]\nNo memory left to isolate available pathogens. Exiting.\n");
+		exit(1);
+	}
+
+	j=0;
+	for(i=0;i<nIsolates;i++){
+		if(!isNULL_pathogen((in->pathogens)[j])){
+			availIsolates[i] = (in->pathogens)[j];
+		} else {
+			j++;
+		}
+	}
+
+	/* get addresses of selected isolates */
+	for(i=0;i<n;i++){
+		id=gsl_rng_uniform_int(par->rng,nIsolates)+1;
+		(out->pathogens)[i] = (in->pathogens)[id];
+	}
+
+	out->n = n;
+
+	return out;
+} /* end draw_sample */
+
+
+
+
+
+
+
 
 
 /* int main(){ */
