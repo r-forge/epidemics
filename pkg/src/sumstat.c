@@ -222,6 +222,21 @@ double hs(struct sample *in, struct param *par){
 
 
 
+int allnb(struct sample *in, struct param *par){
+	struct snplist *alleles;
+	int out;
+	alleles = list_snps(in, par);
+	out = alleles->length;
+	free_snplist(alleles);
+	return out;
+}
+
+
+
+
+
+
+
 /*
    =========================
    === TESTING FUNCTIONS ===

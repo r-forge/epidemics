@@ -168,7 +168,11 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	/* test Hs*/
 	double Hs = hs(samp,par);
 	printf("\nHs = %0.3f\n", Hs);
-	
+
+	/* test nb of alleles */
+	int nball = allnb(samp,par);
+	printf("\nnumber of alleles = %d\n", nball);
+
 	/* free memory */
 	free_population(pop);
 	free_param(par);
