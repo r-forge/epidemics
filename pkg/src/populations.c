@@ -24,32 +24,32 @@ struct pathogen ** get_pathogens(struct population *in){
 }
 
 
-unsigned int get_nsus(struct population *in){
+int get_nsus(struct population *in){
 	return in->nsus;
 }
 
 
-unsigned int get_ninf(struct population *in){
+int get_ninf(struct population *in){
 	return in->ninf;
 }
 
 
-unsigned int get_nrec(struct population *in){
+int get_nrec(struct population *in){
 	return in->nrec;
 }
 
 
-unsigned int get_ninfcum(struct population *in){
+int get_ninfcum(struct population *in){
 	return in->ninfcum;
 }
 
 
-unsigned int get_orinsus(struct population *in){
+int get_orinsus(struct population *in){
 	return in->orinsus;
 }
 
 
-unsigned int get_n(struct sample *in){
+int get_n(struct sample *in){
 	return in->n;
 }
 
@@ -63,7 +63,7 @@ unsigned int get_n(struct sample *in){
 */
 
 /* Create new population */
-struct population * create_population(unsigned int ns, unsigned int ni, unsigned int nr){
+struct population * create_population(int ns, int ni, int nr){
 	int i;
 	/* create pointer to population */
 	struct population *out;

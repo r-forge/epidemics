@@ -18,7 +18,7 @@
 struct population{
 	struct pathogen ** pathogens;
 	/* nb of item; ninf is the length of **pathogens */
-	unsigned int nsus, ninf, nrec, ninfcum, orinsus;
+	int nsus, ninf, nrec, ninfcum, orinsus;
 };
 
 
@@ -26,7 +26,7 @@ struct population{
 struct sample{
 	struct pathogen ** pathogens;
 	/* nb of item; ninf is the length of **pathogens */
-	unsigned int n;
+	int n;
 };
 
 
@@ -40,22 +40,22 @@ struct sample{
 struct pathogen ** get_pathogens(struct population *in);
 
 
-unsigned int get_nsus(struct population *in);
+int get_nsus(struct population *in);
 
 
-unsigned int get_ninf(struct population *in);
+int get_ninf(struct population *in);
 
 
-unsigned int get_nrec(struct population *in);
+int get_nrec(struct population *in);
 
 
-unsigned int get_ninfcum(struct population *in);
+int get_ninfcum(struct population *in);
 
 
-unsigned int get_orinsus(struct population *in);
+int get_orinsus(struct population *in);
 
 
-unsigned int get_n(struct sample *in);
+int get_n(struct sample *in);
 
 
 /*
@@ -63,7 +63,7 @@ unsigned int get_n(struct sample *in);
    === CONSTRUCTORS ===
    ====================
 */
-struct population * create_population(unsigned int ns, unsigned int ni, unsigned int nr);
+struct population * create_population(int ns, int ni, int nr);
 
 
 

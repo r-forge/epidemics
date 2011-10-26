@@ -25,7 +25,7 @@ unsigned int get_host_id(struct host *in){
 
 
 
-unsigned short int get_host_ninf(struct host *in){
+short int get_host_ninf(struct host *in){
 	return in->ninf;
 }
 

@@ -17,12 +17,12 @@
 /* The structure 'pathogen' stores a vector of mutated alleles.
    Each integer indicates the position of a mutated allele.
    The wild genotye is an empty vector.
-   - 'snps' is an array of unsigned integers
+   - 'snps' is an array of integers
    - 'length' is the length if this array
    - 'host' is an integer identifying the host
  */
 struct pathogen{
-	unsigned int *snps;
+	int *snps;
 	int length, age;
 	/*struct host *host;*/
 };
@@ -45,7 +45,7 @@ int get_nb_snps(struct pathogen *in);
 
 
 /* Returns SNP vector */
-unsigned int * get_snps(struct pathogen *in);
+int * get_snps(struct pathogen *in);
 
 
 /* Returns the age of the pathogen - 0 when created */

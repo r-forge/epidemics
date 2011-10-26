@@ -30,7 +30,7 @@ int get_nb_snps(struct pathogen *in){
 
 
 /* Returns SNP vector */
-unsigned int * get_snps(struct pathogen *in){
+int * get_snps(struct pathogen *in){
 	return in->snps;
 }
 
@@ -107,7 +107,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 
 	N=get_nb_snps(in);
 
-	out->snps = (unsigned int *) calloc(N, sizeof(unsigned int)); /* allocate memory for snps vector*/
+	out->snps = (int *) calloc(N, sizeof(int)); /* allocate memory for snps vector*/
 	if(get_snps(out) == NULL){
 		fprintf(stderr, "\n[in: pathogen.c->copy_pathogen]\nNo memory left for copying pathogen genome. Exiting.\n");
 		exit(1);
@@ -197,7 +197,7 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 		out->length = 0;
 	} else { /* new genotype */
 		/* reallocate memory for new vector */
-		out->snps = (unsigned int *) calloc(newsize, sizeof(unsigned int));
+		out->snps = (int *) calloc(newsize, sizeof(int));
 		if(get_snps(out) == NULL){
 			fprintf(stderr, "\n[in: pathogen.c->replicate]\nNo memory left for replicating pathogen genome. Exiting.\n");
 			exit(1);

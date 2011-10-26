@@ -16,7 +16,7 @@
 */
 struct host{
 	unsigned int id;
-	unsigned short int ninf;
+	short int ninf;
 	struct pathogen **infections;
 };
 

@@ -18,6 +18,12 @@ struct snplist{
 };
 
 
+struct allfreq{
+	double *freq;
+	int length;
+};
+
+
 
 
 
@@ -29,6 +35,7 @@ struct snplist{
 
 struct snplist * create_snplist(int n);
 
+struct allfreq * create_allfreq(int n);
 
 
 
@@ -41,6 +48,7 @@ struct snplist * create_snplist(int n);
 
 void free_snplist(struct snplist *in);
 
+void free_allfreq(struct allfreq *in);
 
 
 
@@ -53,8 +61,9 @@ void free_snplist(struct snplist *in);
 */
 int int_in_vec(int x, int *vec, int vecSize);
 
-
 struct snplist * list_snps(struct sample *in, struct param *par);
+
+
 
 /*
    ==========================
@@ -63,3 +72,7 @@ struct snplist * list_snps(struct sample *in, struct param *par);
 */
 
 void print_snplist(struct snplist *in);
+
+void print_allfreq(struct allfreq *in);
+
+struct allfreq * get_frequencies(struct sample *in, struct param *par);

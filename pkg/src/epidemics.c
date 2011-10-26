@@ -129,7 +129,6 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	pop = create_population(par->nsus, par->nstart, 0);
 
 	/* make population evolve */
-	/* while(get_nsus(pop)>0 && get_ninf(pop)>0 && par->t_sample<=nstep){ */
 	while(get_nsus(pop)>0 && get_ninf(pop)>0 && nstep<par->t_sample){
 		nstep++;
 
@@ -151,22 +150,27 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	/* printf("\n\n-- FINAL POPULATION --"); */
 	/* print_population(pop, FALSE); */
 
+	/* test sampling */
 	samp = draw_sample(pop, par);
-
 	printf("\n\n-- SAMPLE --");
 	print_sample(samp, TRUE);
 
-
+	/* test allele listing */
 	struct snplist *snpbilan;
 	snpbilan = list_snps(samp, par);
-
 	print_snplist(snpbilan);
+
+	/* test allele frequencies */
+	struct allfreq *freq;
+	freq = get_frequencies(samp, par);
+	print_allfreq(freq);
 
 	/* free memory */
 	free_population(pop);
 	free_param(par);
 	free_sample(samp);
 	free_snplist(snpbilan);
+	free_allfreq(freq);
 }
 
 
