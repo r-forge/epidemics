@@ -198,13 +198,26 @@ struct allfreq * get_frequencies(struct sample *in, struct param *par){
 
 
 
-/* double hs(struct sample *in, struct param *par){ */
-/* 	int i; */
-/* 	double out; */
+double hs(struct sample *in, struct param *par){
+	int i;
+	double out;
+	struct allfreq *freq;
 
-/* 	return out; */
-/* 	/\* *\/ */
-/* } */
+	/* get allele frequencies */
+	freq = get_frequencies(in, par);
+
+	/* compute Hs */
+	out = 0.0;
+	for(i=0;i<freq->length;i++){
+		out = out + freq->freq[i] * freq->freq[i];
+	}
+	out = out / freq->length;
+	out = 1.0 - out;
+
+	/* free local pointers and return */
+	free_allfreq(freq);
+	return out;
+}
 
 
 

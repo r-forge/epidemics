@@ -76,3 +76,5 @@ void print_snplist(struct snplist *in);
 void print_allfreq(struct allfreq *in);
 
 struct allfreq * get_frequencies(struct sample *in, struct param *par);
+
+double hs(struct sample *in, struct param *par);

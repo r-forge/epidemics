@@ -165,6 +165,10 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	freq = get_frequencies(samp, par);
 	print_allfreq(freq);
 
+	/* test Hs*/
+	double Hs = hs(samp,par);
+	printf("\nHs = %0.3f\n", Hs);
+	
 	/* free memory */
 	free_population(pop);
 	free_param(par);
