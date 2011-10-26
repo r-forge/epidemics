@@ -7,6 +7,16 @@
 */
 
 
+/*
+   ==================
+   === STRUCTURES ===
+   ==================
+*/
+
+struct snplist{
+	int *snps, length;
+};
+
 
 
 /*

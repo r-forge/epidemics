@@ -10,7 +10,7 @@
 #include "param.h"
 #include "pathogens.h"
 #include "populations.h"
-
+#include "sumstat.h"
 
 
 
@@ -20,18 +20,46 @@
    ===========================
 */
 
-/* check if an integer is in a vector of integers */
-bool int_in_vec(int x, int *vec, int vecSize){
-	int i=0;
+/* check if an integer is in a vector of integers, and return the matching position */
+int int_in_vec(int x, int *vec, int vecSize){
+	int i=0; 
 	while(x!=vec[i] && i<vecSize) i++;
-	if(i==vecSize || vecSize<1) return FALSE;
-	return TRUE;
+	if(i==vecSize || vecSize<1) return -1; /* -1 will mean: no match*/
+	return i;
 }
 
 
+/* count number of snps in a sample */
+struct snplist * list_snps(struct sample *in, struct param *par){
+	int i=0, j=0, N=get_n(in), *pool, poolsize=0, curNbSnps;
+
+	/* allocate output */
+	struct snplist *out;
+	out = calloc(1, sizeof(snplist));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: sumstat.c->list_snps]\nNo memory left for listing SNPs. Exiting.\n");
+		exit(1);
+	}
+
+	/* create pool of snps */
+	pool = calloc(par->L, sizeof(int));
+	for(i=0;i<N;i++){
+		curNbSnps = get_nb_snps(in->pathogens[i]);
+		for(j=0;j<poolsize;j++){
+			if(int_in_vec(pool[j], get_snps(in->pathogens[i]), curNbSnps)){
+				pool[poolsize] =
+			}
+		}
+	}
+
+	return out;
+}
 
 
-
+void free_snplist(struct snplist *in){
+	if(in->snps != NULL) free(in->snps);
+	if(in != NULL) free(in);
+}
 
 /*
    ===============================
