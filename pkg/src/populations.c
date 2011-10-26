@@ -128,7 +128,7 @@ void free_population(struct population *in){
 
 /* Free sample */
 void free_sample(struct sample *in){
-	free(in->pathogens);
+	if(in->pathogens != NULL) free(in->pathogens);
 	free(in);
 }
 
@@ -145,30 +145,33 @@ void free_sample(struct sample *in){
 */
 
 /* Print population content */
-void print_population(struct population *in){
+void print_population(struct population *in, bool showGen){
 	int i;
 	printf("\nnb susceptible: %d", get_nsus(in));
 	printf("\nnb infected: %d", get_ninf(in));
 	printf("\nnb recovered: %d\n", get_nrec(in));
-	for(i=0;i<get_orinsus(in);i++){
-		if(!isNULL_pathogen(get_pathogens(in)[i])) print_pathogen(get_pathogens(in)[i]);
+	if(showGen){
+		for(i=0;i<get_orinsus(in);i++){
+			if(!isNULL_pathogen(get_pathogens(in)[i])) print_pathogen(get_pathogens(in)[i]);
+		}
+		printf("\n");
 	}
-	printf("\n");
 }
 
 
 
 /* Print sample content */
-void print_sample(struct sample *in){
+void print_sample(struct sample *in, bool showGen){
 	int i;
 	printf("\n%d pathogens", in->n);
-	for(i=0;i<in->n;i++){
-		//if(!isNULL_pathogen((in->pathogens)[i])) print_pathogen((in->pathogens)[i]);
-		print_pathogen((in->pathogens)[i]);
+	if(showGen){
+		for(i=0;i<in->n;i++){
+			//if(!isNULL_pathogen((in->pathogens)[i])) print_pathogen((in->pathogens)[i]);
+			print_pathogen((in->pathogens)[i]);
+		}
+		printf("\n");
 	}
-	printf("\n");
 }
-
 
 
 
@@ -210,6 +213,14 @@ struct sample * draw_sample(struct population *in, struct param *par){
 	if(nIsolates != get_ninf(in)){
 		fprintf(stderr, "\n[in: population.c->draw_sample]\nNumber of available isolates (%d) does not match number of infected (%d). Exiting.\n", nIsolates, get_ninf(in));
 		exit(1);
+	}
+
+	/* escape if no isolate available */
+	if(nIsolates < 1){
+		printf("\nPopulation without infections - sample will be empty.\n");
+		out->n = 0;
+		out->pathogens = NULL;
+		return out;
 	}
 
 	/* make vector of indices of available isolates */

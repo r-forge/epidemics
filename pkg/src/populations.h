@@ -84,9 +84,9 @@ void free_sample(struct sample *in);
    === AUXILIARY FUNCTIONS ===
    ===========================
 */
-void print_population(struct population *in);
+void print_population(struct population *in, bool showGen);
 
-void print_sample(struct sample *in);
+void print_sample(struct sample *in, bool showGen);
 
 
 /*

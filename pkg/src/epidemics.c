@@ -130,7 +130,7 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 	/* make population evolve */
 	/* while(get_nsus(pop)>0 && get_ninf(pop)>0 && par->t_sample<=nstep){ */
-	while(get_nsus(pop)>0 && get_ninf(pop)>0 && nstep<=par->t_sample){
+	while(get_nsus(pop)>0 && get_ninf(pop)>0 && nstep<par->t_sample){
 		nstep++;
 
 		/* handle replication for each infection */
@@ -143,18 +143,18 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	}
 
 	/* we stopped after 'nstep' steps */
-	if(nstep != par->t_sample){
+	if(nstep < par->t_sample){
 		printf("\nEpidemics ended at time %d, before sampling time (%d).\n", nstep, par->t_sample);
 	}
 
 
-	printf("\n\n-- FINAL POPULATION --");
-	print_population(pop);
+	/* printf("\n\n-- FINAL POPULATION --"); */
+	/* print_population(pop, FALSE); */
 
 	samp = draw_sample(pop, par);
 
-	printf("\n\n-- SAMPLE --");
-	print_sample(samp);
+	/* printf("\n\n-- SAMPLE --"); */
+	/* print_sample(samp, TRUE); */
 
 	/* free memory */
 	free_population(pop);
@@ -167,7 +167,7 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 int main(){
 
-	run_epidemics(100, 0.01, 1e3, 1.05, 10, 1,2, 5, 10);
+	run_epidemics(1e5, 1e-5, 1e6, 1.05, 10, 1,1, 30, 10);
 
 	return 0;
 }
