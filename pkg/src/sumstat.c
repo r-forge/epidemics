@@ -21,7 +21,8 @@
 */
 
 struct snplist * create_snplist(int n){
-	out = calloc(1, sizeof(snplist));
+	struct snplist *out;
+	out = calloc(1, sizeof(struct snplist));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: sumstat.c->create_snplist]\nNo memory left for listing SNPs. Exiting.\n");
 		exit(1);
@@ -73,7 +74,7 @@ int int_in_vec(int x, int *vec, int vecSize){
 
 
 
-/* count number of snps in a sample */
+/* count and list number of snps in a sample */
 struct snplist * list_snps(struct sample *in, struct param *par){
 	int i=0, j=0, N=get_n(in), *pool, poolsize, curNbSnps;
 	struct snplist *out;
@@ -139,10 +140,12 @@ void print_snplist(struct snplist *in){
    === TESTING FUNCTIONS ===
    =========================
 */
-int main(){
-	int  i, vec[5]={1,2,3,4,5};
 
-	for(i=0;i<10;i++) printf("\ni=%d, result:%d", i, int_in_vec(i,vec,5));
+
+/* int main(){ */
+/* 	int  i, vec[5]={1,2,3,4,5}; */
+
+/* 	for(i=0;i<10;i++) printf("\ni=%d, result:%d", i, int_in_vec(i,vec,5)); */
 	
-	return 0;
-}
+/* 	return 0; */
+/* } */

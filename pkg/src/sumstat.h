@@ -19,12 +19,42 @@ struct snplist{
 
 
 
+
+
+/*
+   ====================
+   === CONSTRUCTORS ===
+   ====================
+*/
+
+struct snplist * create_snplist(int n);
+
+
+
+
+
+/*
+   ===================
+   === DESTRUCTORS ===
+   ===================
+*/
+
+void free_snplist(struct snplist *in);
+
+
+
+
+
+
 /*
    ===========================
    === AUXILIARY FUNCTIONS ===
    ===========================
 */
+int int_in_vec(int x, int *vec, int vecSize);
 
+
+struct snplist * list_snps(struct sample *in, struct param *par);
 
 /*
    ==========================
@@ -32,3 +62,4 @@ struct snplist{
    ==========================
 */
 
+void print_snplist(struct snplist *in);

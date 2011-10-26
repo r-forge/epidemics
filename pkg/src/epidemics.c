@@ -10,7 +10,7 @@
 #include "param.h"
 #include "pathogens.h"
 #include "populations.h"
-
+#include "sumstat.h"
 
 
 
@@ -153,13 +153,20 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 	samp = draw_sample(pop, par);
 
-	/* printf("\n\n-- SAMPLE --"); */
-	/* print_sample(samp, TRUE); */
+	printf("\n\n-- SAMPLE --");
+	print_sample(samp, TRUE);
+
+
+	struct snplist *snpbilan;
+	snpbilan = list_snps(samp, par);
+
+	print_snplist(snpbilan);
 
 	/* free memory */
 	free_population(pop);
 	free_param(par);
 	free_sample(samp);
+	free_snplist(snpbilan);
 }
 
 
@@ -167,7 +174,7 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 int main(){
 
-	run_epidemics(1e5, 1e-5, 1e6, 1.05, 10, 1,1, 30, 10);
+	run_epidemics(100, 0.01, 1e3, 1.05, 10, 1,1, 5, 10);
 
 	return 0;
 }
