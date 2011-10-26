@@ -94,7 +94,7 @@ void free_allfreq(struct allfreq *in){
 /* check if an integer is in a vector of integers, and return the matching position */
 int int_in_vec(int x, int *vec, int vecSize){
 	int i=0;
-	while(x!=vec[i] && i<vecSize) i++;
+	while(i<vecSize && x!=vec[i]) i++; /* note: condition needs to be in this order */
 	if(i==vecSize || vecSize<1) return -1; /* -1 will mean: no match*/
 	return i;
 }
