@@ -17,7 +17,7 @@
 
 struct metapopulation{
 	struct pathogen ** pathogens;
-	struct population * populations;
+	struct population ** populations;
 	int maxnpat, npop, *popid;
 };
 

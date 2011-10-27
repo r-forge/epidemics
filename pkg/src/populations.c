@@ -119,6 +119,8 @@ int get_total_orinsus(struct metapopulation *in){
 }
 
 
+
+
 /*
    ====================
    === CONSTRUCTORS ===
@@ -145,7 +147,7 @@ struct metapopulation * create_metapopulation(int maxnpat, int nini, int npop, i
 	}
 
 	/* allocate population array */
-	out->populations = (struct population *) calloc(npop, sizeof(struct population));
+	out->populations = (struct population **) calloc(1, sizeof(struct population *));
 	if(out->populations == NULL){
 		fprintf(stderr, "\n[in: population.c->create_metapopulation]\nNo memory left for creating populations array in the metapopulation. Exiting.\n");
 		exit(1);
@@ -189,7 +191,12 @@ struct metapopulation * create_metapopulation(int maxnpat, int nini, int npop, i
 
 /* Create new population */
 struct population create_population(int ns, int ni, int nr){
-	struct population out;
+	struct population *out;
+	out = (struct population *) calloc(1, sizeof(struct population));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating new population. Exiting.\n");
+		exit(1);
+	}
 
 	/* fill the content */
 	out->orinsus = ns;
@@ -216,20 +223,30 @@ struct population create_population(int ns, int ni, int nr){
 
 /* Free metapopulation */
 void free_metapopulation(struct metapopulation *in){
-	int i, npat=get_maxnpat(in);
+	int i, npat=get_maxnpat(in), npop=get_npop(in);
 	for(i=0;i<npat;i++){
-		if((in->pathogens)[i] != NULL) free_pathogen((in->pathogens)[i]);
+		if(in->pathogens[i] != NULL) free_pathogen((in->pathogens)[i]);
+	}
+
+	for(i=0;i<npop;i++){
+		if(in->populations[i] != NULL) free_population(in->populations[i]);
 	}
 
 	free(in->pathogens);
+	free(in->populations);
+	free(in->popid);
 	free(in);
 }
+
+
 
 
 /* Free metapopulation */
 void free_population(struct population *in){
 	free(in);
 }
+
+
 
 
 /* Free sample */
@@ -252,15 +269,24 @@ void free_sample(struct sample *in){
 
 /* Print metapopulation content */
 void print_metapopulation(struct metapopulation *in, bool showGen){
-	int i;
-	printf("\nnb of populations: %d", get_npop(in));
-	printf("\nnb infected: %d", get_ninf(in));
-	printf("\nnb recovered: %d\n", get_nrec(in));
-	if(showGen){
-		for(i=0;i<get_orinsus(in);i++){
-			if(!isNULL_pathogen(get_pathogens(in)[i])) print_pathogen(get_pathogens(in)[i]);
+	int i, k, K=get_npop(in);
+	struct population *curPop;
+
+	/* general display */
+	printf("\nnb of populations: %d", K);
+	printf("\ntotal nb infected: %d", get_total_ninf(in));
+	printf("\ntotal nb recovered: %d\n", get_total_nrec(in));
+
+	/* display populations */
+	for(k=0;k<K;k++){
+		curPop = get_populations(in)[k];
+		print_population(curPop);
+		if(showGen){
+			for(i=0;i<get_maxnpat(in);i++){
+				if(!isNULL_pathogen(get_pathogens(curPop)[i]) && popid[i]==k) print_pathogen(get_pathogens(in)[i]);
+			}
+			printf("\n");
 		}
-		printf("\n");
 	}
 }
 
