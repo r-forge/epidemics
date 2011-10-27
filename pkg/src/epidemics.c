@@ -174,8 +174,12 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	printf("\nnumber of alleles = %d\n", nball);
 
 	/* test mean nb of snps */
-	double meannb = mean_nb_snps(samp);
-	printf("\nnumber of alleles = %.2f\n", meannb);
+	double temp = mean_nb_snps(samp);
+	printf("\nmean number of alleles = %.2f\n", temp);
+
+	/* test var nb of snps */
+	temp = var_nb_snps(samp);
+	printf("\nvariance of number of alleles = %.2f\n", temp);
 
 	/* free memory */
 	free_population(pop);

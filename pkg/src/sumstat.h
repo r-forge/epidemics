@@ -82,3 +82,5 @@ double hs(struct sample *in, struct param *par);
 int nb_snps(struct sample *in, struct param *par);
 
 double mean_nb_snps(struct sample *in);
+
+double var_nb_snps(struct sample *in);

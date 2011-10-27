@@ -247,6 +247,16 @@ double mean_nb_snps(struct sample *in){
 
 
 
+double var_nb_snps(struct sample *in){
+	int i, N=get_n(in);
+	double out=0, mu=mean_nb_snps(in);
+	for(i=0;i<N;i++){
+		out += pow(get_nb_snps(in->pathogens[i]) - mu,2); /* \sum x_i - \bar{x}*/
+	}
+	out = (double) out / (double) (N-1.0);
+	return out;
+}
+
 
 
 
