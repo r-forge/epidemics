@@ -28,14 +28,9 @@ void process_infection(struct pathogen * pat, struct population * pop, struct pa
 		/* determine the number of descendents */
 		if(get_age(pat) >= par->t1){
 			nbnewinf = gsl_ran_poisson(par->rng, par->R);
-			/* printf("\nnumber of new infections %d",nbnewinf); */
 
 			/* adjust number of new infections to number of susceptibles */
 			if(nbnewinf > Nsus) nbnewinf =  Nsus;
-			/* printf("\nrectified number of new infections %d",nbnewinf); */
-			/* printf("\nnumber of sus %d", Nsus); */
-			/* printf("\nnumber of cum inf %d",Ninfcum); */
-
 		}
 
 		if(nbnewinf>0){
@@ -46,8 +41,6 @@ void process_infection(struct pathogen * pat, struct population * pop, struct pa
 			}
 
 			/* update number of susceptibles and infected */
-			/* printf("\nnb of sus in pop: %d", Nsus); */
-			/* printf("\norinsus - nbnewinf: %d", Nsus - nbnewinf); */
 			pop->nsus = pop->nsus - nbnewinf;
 			pop->ninfcum = pop->ninfcum + nbnewinf;
 			pop->ninf = pop->ninf + nbnewinf;
@@ -70,7 +63,6 @@ void age_population(struct population * pop, struct param * par){
 			ppat->age = ppat->age+1; /* get older */
 			if(get_age(ppat) > par->t2) { /* die if you must */
 				/* free_pathogen(ppat); */
-				/* (pop->pathogens)[i] = NULL; */
 				ppat->age = -1; /* neutralize pathogen */
 				pop->nrec = pop->nrec + 1;
 				pop->ninf = pop->ninf - 1;
@@ -200,7 +192,7 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 
 int main(){
 
-	run_epidemics(100, 0.01, 1e3, 1.05, 10, 1,1, 5, 10);
+	run_epidemics(1e5, 1e-5, 1e3, 1.05, 10, 1,1, 5, 10);
 
 	return 0;
 }

@@ -97,7 +97,7 @@ struct population * create_population(int ns, int ni, int nr){
 		}
 	}
 
-return out;
+	return out;
 }
 
 
