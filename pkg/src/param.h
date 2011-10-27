@@ -23,7 +23,7 @@
 /* t_sample: time at which to sample the outbreak */
 /* n_sample: sample size, in number of pathogens */
 struct param{
-	int L, nsus, t1, t2, nstart, t_sample, n_sample;
+	int L, nsus, t1, t2, nstart, t_sample, n_sample, npop;
 	double mu, muL, R;
 	gsl_rng * rng;
 };

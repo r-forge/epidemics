@@ -272,7 +272,7 @@ void print_metapopulation(struct metapopulation *in, bool showGen){
 	int i, k, K=get_npop(in);
 	struct population *curPop;
 
-	/* general display */
+	/* display general info */
 	printf("\nnb of populations: %d", K);
 	printf("\ntotal nb infected: %d", get_total_ninf(in));
 	printf("\ntotal nb recovered: %d\n", get_total_nrec(in));
@@ -324,10 +324,33 @@ void print_sample(struct sample *in, bool showGen){
    ===============================
 */
 
+void age_metapopulation(struct metapopulation * metapop, struct param * par){
+	struct pathogen *ppat;
+	int i, maxnpat = get_maxnpat(metapop), *popid;
+	popid = get_popid(metapop);
+
+	/* pathogens ages */
+	for(i=0;i<maxnpat;i++){
+		ppat = (metapop->pathogens)[i]; /* to make code more readable*/
+		if(!isNULL_pathogen(ppat)){ /* if pathogen exists */
+			ppat->age = ppat->age+1; /* get older */
+			if(get_age(ppat) > par->t2) { /* die if you must */
+				ppat->age = -1; /* inactivate pathogen */
+				(metapop->populations[popid[i]])->nrec = (metapop->populations[popid[i]])->nrec + 1;
+				(metapop->populations[popid[i]])->ninf = (metapop->populations[popid[i]])->ninf - 1;
+			}
+		}
+	}
+} /* end age_metapopulation */
+
+
+
+
+
 /* Get sample of isolates */
 struct sample * draw_sample(struct metapopulation *in, struct param *par){
-	int i, j, popSize=get_orinsus(in), n=par->n_sample, id, nIsolates=0;
-	int *availIsolates; 
+	int i, j, popSize=get_orinsus(in), n=par->n_sample, id, nIsolates=0, maxnpat=get_maxnpat(in);
+	int *availIsolates;
 
 	/* create pointer to pathogens */
 	struct sample *out;
@@ -347,12 +370,12 @@ struct sample * draw_sample(struct metapopulation *in, struct param *par){
 	}
 
 	/* get the number of isolates that can be sampled */
-	for(i=0;i<popSize;i++){
-		if(!isNULL_pathogen((in->pathogens)[i])) nIsolates++;
+	for(i=0;i<maxnpat;i++){
+		if(!isNULL_pathogen((get_pathogens(in)[i]))) nIsolates++;
 	}
 
-	if(nIsolates != get_ninf(in)){
-		fprintf(stderr, "\n[in: population.c->draw_sample]\nNumber of available isolates (%d) does not match number of infected (%d). Exiting.\n", nIsolates, get_ninf(in));
+	if(nIsolates != get_total_ninf(in)){
+		fprintf(stderr, "\n[in: population.c->draw_sample]\nNumber of available isolates (%d) does not match total number of infected (%d). Exiting.\n", nIsolates, get_total_ninf(in));
 		exit(1);
 	}
 
@@ -373,7 +396,7 @@ struct sample * draw_sample(struct metapopulation *in, struct param *par){
 
 	j=0;
 	for(i=0;i<nIsolates;i++){
-		while(isNULL_pathogen((in->pathogens)[j])) j++;
+		while(isNULL_pathogen(get_pathogens(in)[j])) j++;
 		availIsolates[i] = j++;
 	}
 

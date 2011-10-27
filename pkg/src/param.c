@@ -91,6 +91,12 @@ void check_param(struct param *in){
 		exit(1);
 	}
 
+	/* npop */
+	if(in->npop < 1){
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: number of populations < 1.\n");
+		exit(1);
+	}
+
 }
 
 
@@ -104,7 +110,8 @@ void print_param(struct param *in){
 	printf("\nmutation rate: %f   genome length: %d", in->mu, in->L);
 
 	/* epidemiological parameters*/
-	printf("\nnb susceptible: %d  incidence: %.2f", in->nsus, in->R);
+	printf("\nnb of populations: %d", in->npop);
+	printf("\nnb susceptible per populations: %d  incidence: %.2f", in->nsus, in->R);
 	printf("\nnb initial infections: %d", in->nstart);
 	printf("\nstart infectious period: %d   ", in->t1);
 	printf("\nend infectious period: %d   ", in->t2);
