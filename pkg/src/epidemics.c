@@ -21,7 +21,7 @@
 */
 
 /* seed new infections from a single pathogen */
-void process_infection(struct pathogen * pat, struct metapopulation * metapop, struct param * par, struct population *pop, int popid){
+void process_infection(struct pathogen * pat, struct metapopulation * metapop, struct population *pop, int popid, struct param * par){
 	int i, nbnewinf=0,  Nsus=get_nsus(pop), Ninfcum=get_ninfcum(pop);
 
 	if(!isNULL_pathogen(pat)){ /* if infection is not a gost */
@@ -63,7 +63,7 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
 */
 
 void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, double incid, int nStart, int t1, int t2,int Tsample, int Nsample){
-	int i, nstep=0;
+	int i, nstep=0, curPopId;
 
 	/* Initialize random number generator */
 	time_t t;
@@ -83,6 +83,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	par->mu = mutRate;
 	par->muL = par->mu * par->L;
 	par->rng = rng;
+	par->npop = npop;
 	par->nsus = nHostPerPop;
 	par->R = incid;
 	par->nstart = nStart;
@@ -91,23 +92,26 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	par->t_sample = Tsample;
 	par->n_sample = Nsample;
 
+
 	/* check/print parameters */
 	check_param(par);
 	print_param(par);
 
 	/* initiate population */
 	struct metapopulation * metapop;
-	struct sample *samp;
+	struct sample * samp;
+	struct population * curpop;
 
-	metapop = create_metapopulation(par->nsus, par->nstart, 0);
+	metapop = create_metapopulation(par);
 
 	/* make metapopulation evolve */
-	while(get_nsus(metapop)>0 && get_ninf(metapop)>0 && nstep<par->t_sample){
+	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->t_sample){
 		nstep++;
 
 		/* handle replication for each infection */
-		for(i=0;i<get_orinsus(metapop);i++){
-			process_infection(get_pathogens(metapop)[i], metapop, par);
+		for(i=0;i<get_maxnpat(metapop);i++){
+			curPopId = get_popid(metapop)[i];
+			process_infection(get_pathogens(metapop)[i], metapop, get_population(metapop)[curPopId], curPopId, par);
 		}
 
 		/* age metapopulation */
@@ -120,8 +124,8 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	}
 
 
-	/* printf("\n\n-- FINAL POPULATION --"); */
-	/* print_population(pop, FALSE); */
+	printf("\n\n-- FINAL POPULATION --");
+	print_metapopulation(pop, FALSE);
 
 	/* test sampling */
 	samp = draw_sample(metapop, par);
@@ -172,8 +176,8 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 
 
 int main(){
-
-	run_epidemics(1e5, 1e-5, 1e3, 1.05, 10, 1,1, 5, 10);
+/* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double incid, int nStart, int t1, int t2,int Tsample, int Nsample) */
+	run_epidemics(1e4, 1e-4, 3, 1000, 1.05, 10, 1,1, 5, 10);
 
 	return 0;
 }

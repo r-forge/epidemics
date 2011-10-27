@@ -128,8 +128,13 @@ int get_total_orinsus(struct metapopulation *in){
 */
 
 /* Create new metapopulation */
-struct metapopulation * create_metapopulation(int maxnpat, int nini, int npop, int nsus){
-	int i;
+struct metapopulation * create_metapopulation(struct param *par){
+	int i, npop, nsus, maxnpat, nini ;
+	npop = par->npop;
+	nsus = par->nsus;
+	maxnpat = npop*nsus;
+	nini = par->nstart;
+
 	/* create pointer to metapopulation */
 	struct metapopulation *out;
 	out = (struct metapopulation *) calloc(1, sizeof(struct metapopulation));

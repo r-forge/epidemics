@@ -112,6 +112,7 @@ void print_param(struct param *in){
 	/* epidemiological parameters*/
 	printf("\nnb of populations: %d", in->npop);
 	printf("\nnb susceptible per populations: %d  incidence: %.2f", in->nsus, in->R);
+	printf("\ntotal nb of susceptible: %d", in->npop * in->nsus);
 	printf("\nnb initial infections: %d", in->nstart);
 	printf("\nstart infectious period: %d   ", in->t1);
 	printf("\nend infectious period: %d   ", in->t2);
