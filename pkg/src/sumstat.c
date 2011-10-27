@@ -222,12 +222,25 @@ double hs(struct sample *in, struct param *par){
 
 
 
-int allnb(struct sample *in, struct param *par){
+int nb_snps(struct sample *in, struct param *par){
 	struct snplist *alleles;
 	int out;
 	alleles = list_snps(in, par);
 	out = alleles->length;
 	free_snplist(alleles);
+	return out;
+}
+
+
+
+
+double mean_nb_snps(struct sample *in){
+	int i, N=get_n(in);
+	double out=0;
+	for(i=0;i<N;i++){
+		out += get_nb_snps(in->pathogens[i]);
+	}
+	out = (double) out / (double) N;
 	return out;
 }
 
