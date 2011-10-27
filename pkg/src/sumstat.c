@@ -222,6 +222,31 @@ double hs(struct sample *in, struct param *par){
 
 
 
+double hs_full_genome(struct sample *in, struct param *par){
+	int i;
+	double out;
+	struct allfreq *freq;
+
+	/* get allele frequencies */
+	freq = get_frequencies(in, par);
+
+	/* compute Hs */
+	out = 0.0;
+	for(i=0;i<freq->length;i++){
+		out = out + freq->freq[i] * freq->freq[i];
+	}
+	out = out + (par->L - freq->length); /* fixed loci */
+	out = out / par->L;
+	out = 1.0 - out;
+
+	/* free local pointers and return */
+	free_allfreq(freq);
+	return out;
+}
+
+
+
+
 int nb_snps(struct sample *in, struct param *par){
 	struct snplist *alleles;
 	int out;

@@ -169,6 +169,10 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	double Hs = hs(samp,par);
 	printf("\nHs = %0.3f\n", Hs);
 
+	/* test Hs full genome */
+	Hs = hs_full_genome(samp,par);
+	printf("\nHs (full genome) = %0.5f\n", Hs);
+
 	/* test nb of snps */
 	int nball = nb_snps(samp,par);
 	printf("\nnumber of alleles = %d\n", nball);
@@ -180,6 +184,8 @@ void run_epidemics(int seqLength, double mutRate, int nHost, double Rzero, int n
 	/* test var nb of snps */
 	temp = var_nb_snps(samp);
 	printf("\nvariance of number of alleles = %.2f\n", temp);
+
+	printf("\n");
 
 	/* free memory */
 	free_population(pop);
