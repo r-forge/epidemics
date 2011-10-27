@@ -46,10 +46,10 @@ struct sample{
    =================
 */
 
-struct pathogen ** get_pathogens(struct population *in);
+struct pathogen ** get_pathogens(struct metapopulation *in);
 
 
-struct population * get_populations(struct metapopulation *in);
+struct population ** get_populations(struct metapopulation *in);
 
 
 int get_maxnpat(struct metapopulation *in);
@@ -79,6 +79,12 @@ int get_orinsus(struct population *in);
 int get_n(struct sample *in);
 
 
+int get_total_nsus(struct metapopulation *in);
+
+
+int get_total_ninf(struct metapopulation *in);
+
+
 int get_total_nrec(struct metapopulation *in);
 
 
@@ -95,7 +101,7 @@ int get_total_orinsus(struct metapopulation *in);
    === CONSTRUCTORS ===
    ====================
 */
-struct population * create_metapopulation(int maxnpat, int nini, int npop, int nsus);
+struct metapopulation * create_metapopulation(struct param *par);
 
 struct population * create_population(int ns, int ni, int nr);
 
@@ -107,7 +113,7 @@ struct population * create_population(int ns, int ni, int nr);
 */
 
 /* Free population */
-void free_metapopulation(struct population *in);
+void free_metapopulation(struct metapopulation *in);
 
 void free_population(struct population *in);
 
@@ -132,5 +138,9 @@ void print_sample(struct sample *in, bool showGen);
    ==========================
 */
 
+
+/* age metapopulation */
+void age_metapopulation(struct metapopulation * metapop, struct param * par);
+
 /* draw sample from a population */
-struct sample * draw_sample(struct population *in, struct param *par);
+struct sample * draw_sample(struct metapopulation *in, struct param *par);

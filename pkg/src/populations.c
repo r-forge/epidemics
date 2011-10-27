@@ -24,7 +24,7 @@ struct pathogen ** get_pathogens(struct metapopulation *in){
 }
 
 
-struct population * get_populations(struct metapopulation *in){
+struct population ** get_populations(struct metapopulation *in){
 	return in->populations;
 }
 
@@ -181,9 +181,9 @@ struct metapopulation * create_metapopulation(struct param *par){
 	}
 
 	/* fill in the populations arrays */
-	out->population[0] = create_population(nsus, nini, 0);
+	out->populations[0] = create_population(nsus, nini, 0);
 	for(i=1;i<npop;i++) {
-		out->population[i] = create_population(nsus, 0, 0);
+		out->populations[i] = create_population(nsus, 0, 0);
 	}
 
 	return out;
@@ -195,7 +195,7 @@ struct metapopulation * create_metapopulation(struct param *par){
 
 
 /* Create new population */
-struct population create_population(int ns, int ni, int nr){
+struct population * create_population(int ns, int ni, int nr){
 	struct population *out;
 	out = (struct population *) calloc(1, sizeof(struct population));
 	if(out == NULL){
@@ -288,7 +288,7 @@ void print_metapopulation(struct metapopulation *in, bool showGen){
 		print_population(curPop);
 		if(showGen){
 			for(i=0;i<get_maxnpat(in);i++){
-				if(!isNULL_pathogen(get_pathogens(curPop)[i]) && popid[i]==k) print_pathogen(get_pathogens(in)[i]);
+				if(!isNULL_pathogen(get_pathogens(in)[i]) && get_popid(in)[i]==k) print_pathogen(get_pathogens(in)[i]);
 			}
 			printf("\n");
 		}
@@ -354,7 +354,7 @@ void age_metapopulation(struct metapopulation * metapop, struct param * par){
 
 /* Get sample of isolates */
 struct sample * draw_sample(struct metapopulation *in, struct param *par){
-	int i, j, popSize=get_orinsus(in), n=par->n_sample, id, nIsolates=0, maxnpat=get_maxnpat(in);
+	int i, j, n=par->n_sample, id, nIsolates=0, maxnpat=get_maxnpat(in);
 	int *availIsolates;
 
 	/* create pointer to pathogens */
