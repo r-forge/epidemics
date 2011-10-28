@@ -32,7 +32,7 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
 		pop = get_populations(metapop)[newpopid]; /* with dispersal */
 		/* pop = get_populations(metapop)[get_popid(pat)]; */ /* no dispersal*/
 		Nsus=get_nsus(pop);
-		Ninfcum=get_ninfcum(pop);
+		Ninfcum=get_total_ninfcum(metapop);
 
 		/* determine the number of descendents */
 		if(get_age(pat) >= par->t1){
