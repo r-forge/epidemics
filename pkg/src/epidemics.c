@@ -11,7 +11,7 @@
 #include "pathogens.h"
 #include "populations.h"
 #include "sumstat.h"
-
+#unclde "dispersal.h"
 
 
 /*
@@ -21,13 +21,14 @@
 */
 
 /* seed new infections from a single pathogen */
-void process_infection(struct pathogen * pat, struct metapopulation * metapop, struct param * par){
-	struct population *pop;
-	int i, nbnewinf=0, Nsus, Ninfcum;
+void process_infection(struct pathogen * pat, struct metapopulation * metapop, struct param * par, struct dispmat *D){
+	struct population pop;
+	int i, nbnewinf=0, Nsus, Ninfcum, newpopid;
 
 	if(!isNULL_pathogen(pat)){ /* if infection is not a gost */
-		/* determine the pathogen's population , Nsus, Ninfcum*/
-		pop = get_populations(metapop)[get_popid(pat)];
+		/* determine the pathogen's original population , Nsus, Ninfcum*/
+		newpopid = disperse(pat, D, par);
+		pop = get_populations(metapop)[newpopid];
 		Nsus=get_nsus(pop);
 		Ninfcum=get_ninfcum(pop);
 
@@ -103,6 +104,12 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	check_param(par);
 	print_param(par);
 
+	/* dispersal matrix */
+	struct matdisp *D;
+	D = create_matdisp(par);
+	printf("\ndispersal matrix:");
+	print_matdisp(D);
+
 	/* initiate population */
 	struct metapopulation * metapop;
 	struct sample * samp;
@@ -116,7 +123,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
-			process_infection(get_pathogens(metapop)[i], metapop, par);
+			process_infection(get_pathogens(metapop)[i], metapop, par, D);
 		}
 
 		/* age metapopulation */
