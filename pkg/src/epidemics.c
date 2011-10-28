@@ -11,7 +11,7 @@
 #include "pathogens.h"
 #include "populations.h"
 #include "sumstat.h"
-#unclde "dispersal.h"
+#include "dispersal.h"
 
 
 /*
@@ -22,7 +22,7 @@
 
 /* seed new infections from a single pathogen */
 void process_infection(struct pathogen * pat, struct metapopulation * metapop, struct param * par, struct dispmat *D){
-	struct population pop;
+	struct population * pop;
 	int i, nbnewinf=0, Nsus, Ninfcum, newpopid;
 
 	if(!isNULL_pathogen(pat)){ /* if infection is not a gost */
@@ -105,10 +105,10 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	print_param(par);
 
 	/* dispersal matrix */
-	struct matdisp *D;
-	D = create_matdisp(par);
+	struct dispmat *D;
+	D = create_dispmat(par);
 	printf("\ndispersal matrix:");
-	print_matdisp(D);
+	print_dispmat(D);
 
 	/* initiate population */
 	struct metapopulation * metapop;
