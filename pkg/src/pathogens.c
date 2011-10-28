@@ -157,7 +157,7 @@ int make_unique_mutation(struct pathogen *in, struct param *par){
 /* Print pathogen content */
 void print_pathogen(struct pathogen *in){
 	int i, N=get_nb_snps(in);
-	printf("\nin pop: %d - age: %d \n%d snps: ", get_popid(in), get_age(in), N);
+	printf("\nin pop %d, age %d, %d snps:\n", get_popid(in), get_age(in), N);
 	if(N>0) {
 		for(i=0;i<N;i++) printf("%d ", get_snps(in)[i]);
 	}

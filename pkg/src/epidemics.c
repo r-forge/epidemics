@@ -28,7 +28,9 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
 	if(!isNULL_pathogen(pat)){ /* if infection is not a gost */
 		/* determine the pathogen's original population , Nsus, Ninfcum*/
 		newpopid = disperse(pat, D, par);
-		pop = get_populations(metapop)[newpopid];
+		/* printf("\n new pop id %d", newpopid); */
+		pop = get_populations(metapop)[newpopid]; /* with dispersal */
+		/* pop = get_populations(metapop)[get_popid(pat)]; */ /* no dispersal*/
 		Nsus=get_nsus(pop);
 		Ninfcum=get_ninfcum(pop);
 
@@ -46,6 +48,7 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
  				/* printf("\n## trying to write on pathogen %d", i); */
 				replicate(pat, (get_pathogens(metapop))[i], par);
 				/* add dispersal here later */
+				(metapop->pathogens[i])->popid = newpopid;
 			}
 
 			/* update number of susceptibles and infected */
@@ -69,7 +72,7 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
    ===============================
 */
 
-void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, double incid, int nStart, int t1, int t2,int Tsample, int Nsample){
+void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, double incid, int nStart, int t1, int t2,int Tsample, int Nsample, double *pdisp){
 	int i, nstep=0, maxnpat;
 
 	/* Initialize random number generator */
@@ -98,7 +101,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	par->t2 = t2;
 	par->t_sample = Tsample;
 	par->n_sample = Nsample;
-
+	par->pdisp = pdisp;
 
 	/* check/print parameters */
 	check_param(par);
@@ -189,7 +192,8 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 
 int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double incid, int nStart, int t1, int t2,int Tsample, int Nsample) */
-	run_epidemics(1e3, 2e-3, 3, 100, 1.5, 10, 1, 3, 5, 10);
+	double pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
+	run_epidemics(1e3, 1e-3, 3, 100, 1.1, 10, 1, 2, 5, 10, pdisp);
 
 	return 0;
 }
