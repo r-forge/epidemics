@@ -156,12 +156,12 @@ void print_dispmat(struct dispmat *in){
 
 /* return the id of a new population */
 int disperse(struct pathogen * pathogen, struct dispmat *disp, struct param *par){
-	int i=1, k=disp->n, popid = get_popid(pathogen), cumprob=get_mat(disp)[popid][0];
+	int i=1, k=disp->n, popid = get_popid(pathogen);
+	double cumprob=get_mat(disp)[popid][0];
 	double x=gsl_rng_uniform(par->rng); /* nb between 0 and 1 */
 
 	while(x > cumprob && i<k){
 		cumprob += get_mat(disp)[popid][i++]; /* to check */
 	}
-	printf("new pop: %d",i);
-	return i;
+	return i-1;
 }
