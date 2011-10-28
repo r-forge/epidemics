@@ -143,6 +143,9 @@ struct metapopulation * create_metapopulation(struct param *par){
 		exit(1);
 	}
 
+	/* set maxnpat and npop */
+	out->maxnpat = maxnpat;
+	out->npop = npop;
 
 	/* allocate pathogen array */
 	out->pathogens = (struct pathogen **) calloc(maxnpat, sizeof(struct pathogen *));
@@ -152,7 +155,7 @@ struct metapopulation * create_metapopulation(struct param *par){
 	}
 
 	/* allocate population array */
-	out->populations = (struct population **) calloc(1, sizeof(struct population *));
+	out->populations = (struct population **) calloc(npop, sizeof(struct population *));
 	if(out->populations == NULL){
 		fprintf(stderr, "\n[in: population.c->create_metapopulation]\nNo memory left for creating populations array in the metapopulation. Exiting.\n");
 		exit(1);
@@ -170,13 +173,12 @@ struct metapopulation * create_metapopulation(struct param *par){
 	for(i=0;i<maxnpat;i++){
 		(out->pathogens)[i] = create_pathogen();
 		if(i<nini){ /* there are nini intial pathogens in the metapopulation */
-			(out->pathogens)[i]->age = 1; /* 'active' pathogen */
+			(out->pathogens[i])->age = 1; /* 'active' pathogen */
 			out->popid[i] = 0;
 
 		} else {
-			(out->pathogens)[i]->age = -1; /* 'neutralised' pathogen */
+			(out->pathogens[i])->age = -1; /* 'neutralised' pathogen */
 			out->popid[i] = -1;
-
 		}
 	}
 
@@ -285,6 +287,7 @@ void print_metapopulation(struct metapopulation *in, bool showGen){
 	/* display populations */
 	for(k=0;k<K;k++){
 		curPop = get_populations(in)[k];
+		printf("\npopulation %d", k);
 		print_population(curPop);
 		if(showGen){
 			for(i=0;i<get_maxnpat(in);i++){

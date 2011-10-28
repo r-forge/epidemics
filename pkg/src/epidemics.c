@@ -102,25 +102,28 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	struct sample * samp;
 
 	metapop = create_metapopulation(par);
+	print_metapopulation(metapop, FALSE);
 
 	/* make metapopulation evolve */
-	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->t_sample){
-		nstep++;
+	printf("\ntotal nsus: %d", get_total_nsus(metapop));
+	printf("\ntotal ninf: %d", get_total_ninf(metapop));
+	/* while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->t_sample){ */
+	/* 	nstep++; */
 
-		/* handle replication for each infection */
-		for(i=0;i<get_maxnpat(metapop);i++){
-			curPopId = get_popid(metapop)[i];
-			process_infection(get_pathogens(metapop)[i], metapop, get_populations(metapop)[curPopId], curPopId, par);
-		}
+	/* 	/\* handle replication for each infection *\/ */
+	/* 	for(i=0;i<get_maxnpat(metapop);i++){ */
+	/* 		curPopId = get_popid(metapop)[i]; */
+	/* 		process_infection(get_pathogens(metapop)[i], metapop, get_populations(metapop)[curPopId], curPopId, par); */
+	/* 	} */
 
-		/* age metapopulation */
-		age_metapopulation(metapop, par);
-	}
+	/* 	/\* age metapopulation *\/ */
+	/* 	age_metapopulation(metapop, par); */
+	/* } */
 
-	/* we stopped after 'nstep' steps */
-	if(nstep < par->t_sample){
-		printf("\nEpidemics ended at time %d, before sampling time (%d).\n", nstep, par->t_sample);
-	}
+	/* /\* we stopped after 'nstep' steps *\/ */
+	/* if(nstep < par->t_sample){ */
+	/* 	printf("\nEpidemics ended at time %d, before sampling time (%d).\n", nstep, par->t_sample); */
+	/* } */
 
 
 	printf("\n\n-- FINAL POPULATION --");
