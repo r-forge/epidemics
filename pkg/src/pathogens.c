@@ -28,7 +28,6 @@ int get_nb_snps(struct pathogen *in){
 
 
 
-
 /* Returns SNP vector */
 int * get_snps(struct pathogen *in){
 	return in->snps;
@@ -39,6 +38,13 @@ int * get_snps(struct pathogen *in){
 /* Returns the age of the pathogen - 0 when created */
 int get_age(struct pathogen *in){
 	return in->age;
+}
+
+
+
+/* Returns the population of the pathogen (-1 for inactive pathogen) */
+int get_popid(struct pathogen *in){
+	return in->popid;
 }
 
 
@@ -62,6 +68,7 @@ struct pathogen * create_pathogen(){
 	out->snps = NULL;
 	out->length = 0;
 	out->age = 0;
+	out->popid = 0;
 	return out;
 }
 
@@ -118,6 +125,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 	}
 	out->length = N;
 	out->age = get_age(in);
+	out->popid = get_popid(in);
 	/*out->host = get_host(in);*/
 }
 
@@ -149,7 +157,7 @@ int make_unique_mutation(struct pathogen *in, struct param *par){
 /* Print pathogen content */
 void print_pathogen(struct pathogen *in){
 	int i, N=get_nb_snps(in);
-	printf("\nage: %d \n%d snps: ", get_age(in), N);
+	printf("\nin pop: %d - age: %d \n%d snps: ", get_popid(in), get_age(in), N);
 	if(N>0) {
 		for(i=0;i<N;i++) printf("%d ", get_snps(in)[i]);
 	}
@@ -219,6 +227,7 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 	} /* the genotype has been handled at this point */
 
 	out->age = 0;
+	out->popid = get_popid(in);
 
 } /*end replicate*/
 

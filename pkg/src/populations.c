@@ -39,11 +39,6 @@ int get_npop(struct metapopulation *in){
 }
 
 
-int * get_popid(struct metapopulation *in){
-	return in->popid;
-}
-
-
 int get_nsus(struct population *in){
 	return in->nsus;
 }
@@ -161,24 +156,17 @@ struct metapopulation * create_metapopulation(struct param *par){
 		exit(1);
 	}
 
-	/* allocate population identifier array */
-	out->popid = (int *) calloc(maxnpat, sizeof(int));
-	if(out->popid == NULL){
-		fprintf(stderr, "\n[in: population.c->create_metapopulation]\nNo memory left for creating population identifier array in the metapopulation. Exiting.\n");
-		exit(1);
-	}
-
 
 	/* fill in the pathogens and popid arrays */
 	for(i=0;i<maxnpat;i++){
 		(out->pathogens)[i] = create_pathogen();
 		if(i<nini){ /* there are nini intial pathogens in the metapopulation */
 			(out->pathogens[i])->age = 1; /* 'active' pathogen */
-			out->popid[i] = 0;
+			(out->pathogens[i])->popid = 0;
 
 		} else {
 			(out->pathogens[i])->age = -1; /* 'neutralised' pathogen */
-			out->popid[i] = -1;
+			(out->pathogens[i])->popid = -1;
 		}
 	}
 
@@ -241,7 +229,6 @@ void free_metapopulation(struct metapopulation *in){
 
 	free(in->pathogens);
 	free(in->populations);
-	free(in->popid);
 	free(in);
 }
 
@@ -278,6 +265,7 @@ void free_sample(struct sample *in){
 void print_metapopulation(struct metapopulation *in, bool showGen){
 	int i, k, K=get_npop(in);
 	struct population *curPop;
+	struct pathogen * curpat;
 
 	/* display general info */
 	printf("\nnb of populations: %d", K);
@@ -291,7 +279,8 @@ void print_metapopulation(struct metapopulation *in, bool showGen){
 		print_population(curPop);
 		if(showGen){
 			for(i=0;i<get_maxnpat(in);i++){
-				if(!isNULL_pathogen(get_pathogens(in)[i]) && get_popid(in)[i]==k) print_pathogen(get_pathogens(in)[i]);
+				curpat = get_pathogens(in)[i];
+				if(!isNULL_pathogen(curpat) && get_popid(curpat)==k) print_pathogen(curpat);
 			}
 			printf("\n");
 		}
@@ -334,8 +323,7 @@ void print_sample(struct sample *in, bool showGen){
 
 void age_metapopulation(struct metapopulation * metapop, struct param * par){
 	struct pathogen *ppat;
-	int i, maxnpat = get_maxnpat(metapop), *popid;
-	popid = get_popid(metapop);
+	int i, maxnpat = get_maxnpat(metapop);
 
 	/* pathogens ages */
 	for(i=0;i<maxnpat;i++){
@@ -344,8 +332,11 @@ void age_metapopulation(struct metapopulation * metapop, struct param * par){
 			ppat->age = ppat->age+1; /* get older */
 			if(get_age(ppat) > par->t2) { /* die if you must */
 				ppat->age = -1; /* inactivate pathogen */
-				(metapop->populations[popid[i]])->nrec = (metapop->populations[popid[i]])->nrec + 1;
-				(metapop->populations[popid[i]])->ninf = (metapop->populations[popid[i]])->ninf - 1;
+
+				/* update nrec and ninf in corresponding population */
+				(metapop->populations[ppat->popid])->nrec = (metapop->populations[ppat->popid])->nrec + 1;
+				(metapop->populations[ppat->popid])->ninf = (metapop->populations[ppat->popid])->ninf - 1;
+				ppat->popid = -1; /* inactivate pathogen */
 			}
 		}
 	}

@@ -23,7 +23,7 @@
  */
 struct pathogen{
 	int *snps;
-	int length, age;
+	int length, age, popid;
 	/*struct host *host;*/
 };
 
@@ -52,7 +52,8 @@ int * get_snps(struct pathogen *in);
 int get_age(struct pathogen *in);
 
 
-
+/* Returns the population of the pathogen (-1 for inactive pathogen) */
+int get_popid(struct pathogen *in);
 
 
 

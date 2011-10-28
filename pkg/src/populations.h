@@ -18,7 +18,7 @@
 struct metapopulation{
 	struct pathogen ** pathogens;
 	struct population ** populations;
-	int maxnpat, npop, *popid;
+	int maxnpat, npop;
 };
 
 
@@ -53,9 +53,6 @@ struct population ** get_populations(struct metapopulation *in);
 
 
 int get_maxnpat(struct metapopulation *in);
-
-
-int * get_popid(struct metapopulation *in);
 
 
 int get_npop(struct metapopulation *in);
