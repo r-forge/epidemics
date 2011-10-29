@@ -51,6 +51,20 @@ struct dispmat * create_dispmat(struct param *par);
 
 
 /*
+   ===================
+   === DESTRUCTORS ===
+   ===================
+*/
+
+/* Free dispmat */
+void free_dispmat(struct dispmat *in);
+
+
+
+
+
+
+/*
    ===========================
    === AUXILIARY FUNCTIONS ===
    ===========================

@@ -185,6 +185,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	free_sample(samp);
 	free_snplist(snpbilan);
 	free_allfreq(freq);
+	free_dispmat(D);
 }
 
 
