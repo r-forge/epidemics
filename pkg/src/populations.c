@@ -269,8 +269,10 @@ void print_metapopulation(struct metapopulation *in, bool showGen){
 
 	/* display general info */
 	printf("\nnb of populations: %d", K);
+	printf("\ntotal nb susceptible: %d", get_total_nsus(in));
 	printf("\ntotal nb infected: %d", get_total_ninf(in));
-	printf("\ntotal nb recovered: %d\n", get_total_nrec(in));
+	printf("\ntotal nb recovered: %d", get_total_nrec(in));
+	printf("\ntotal population size: %d\n", get_total_nsus(in)+get_total_ninf(in)+get_total_nrec(in));
 
 	/* display populations */
 	for(k=0;k<K;k++){

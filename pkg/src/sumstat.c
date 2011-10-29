@@ -63,6 +63,30 @@ struct allfreq * create_allfreq(int n){
 
 
 
+/* create distmat_int between n objects */
+struct distmat_int * create_distmat_int(int n){
+	struct distmat_int *out;
+	int length=n*(n-1)/2;
+
+	out = calloc(1, sizeof(struct distmat_int));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: sumstat.c->create_distmat]\nNo memory left for creating distance matrix. Exiting.\n");
+		exit(1);
+	}
+
+	out->x = calloc(length, sizeof(int));
+	if(out->x == NULL){
+		fprintf(stderr, "\n[in: sumstat.c->create_distmat]\nNo memory left for creating distance matrix. Exiting.\n");
+		exit(1);
+	}
+
+	out->length = length;
+	out->N = N;
+
+	return out;
+}
+
+
 
 
 /*
@@ -82,6 +106,12 @@ void free_allfreq(struct allfreq *in){
 }
 
 
+void free_distmat_int(struct distmat_int *in){
+	if(in->x != NULL) free(in->x);
+	if(in != NULL) free(in);
+}
+
+
 
 
 
@@ -97,6 +127,21 @@ int int_in_vec(int x, int *vec, int vecSize){
 	while(i<vecSize && x!=vec[i]) i++; /* note: condition needs to be in this order */
 	if(i==vecSize || vecSize<1) return -1; /* -1 will mean: no match*/
 	return i;
+}
+
+
+
+
+/* compute the number of integers differing between two sets */
+int dist_a_b(int *a, int *b, int na, int nb){
+	int i, out=0;
+	for(i=0;i<na;i++){
+		if(int_in_vec(a[i], b, nb)<0) out++;
+	}
+	for(i=0;i<nb;i++){
+		if(int_in_vec(b[i], a, na)<0) out++;
+	}
+	return out;
 }
 
 
@@ -162,6 +207,24 @@ void print_allfreq(struct allfreq *in){
 	int i;
 	printf("\nallele frequencies for %d SNPs:\n", in->length);
 	for(i=0;i<in->length;i++) printf("%.2f ",in->freq[i]);
+	printf("\n");
+}
+
+
+
+void print_distmat_int(struct distmat_int *in){
+	int i,j, counter=0;
+	int N = 
+	printf("\npairwise distances between %d isolates:\n", in->length);
+
+	for(i=0;i<N-1;i++){
+		printf("\nisolate %d:\t", i);
+		for(j=i+1;j<N;j++){
+			printf("%d \t", out->x[counter++]);
+		}
+		printf("\n");
+	}
+
 	printf("\n");
 }
 
@@ -279,6 +342,23 @@ double var_nb_snps(struct sample *in){
 		out += pow(get_nb_snps(in->pathogens[i]) - mu,2); /* \sum x_i - \bar{x}*/
 	}
 	out = (double) out / (double) (N-1.0);
+	return out;
+}
+
+
+
+
+struct distmat_int * pairwise_dist(struct sample *in, struct param *par){
+	int i, j, N=get_n(in), counter=0;
+	struct distmat_int * out;
+	out = create_distmat_int((N*N-1)/2);
+
+	/* computations */
+	for(i=0;i<N-1;i++){
+		for(j=i+1;j<N;j++){
+			out->x[counter++] = dist_a_b(get_snps(in->pathogens[i]),get_snps(in->pathogens[j]),get_nb_snps(in->pathogens[i]),get_nb_snps(in->pathogens[j]));
+	}
+
 	return out;
 }
 

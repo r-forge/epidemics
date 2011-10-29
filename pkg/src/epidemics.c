@@ -194,7 +194,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double incid, int nStart, int t1, int t2,int Tsample, int Nsample) */
 	double pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
-	run_epidemics(1e3, 1e-3, 3, 100, 1.1, 10, 1, 2, 5, 10, pdisp);
+	run_epidemics(1e5, 1e-5, 3, 1e5, 1.2, 10, 1, 2, 30, 30, pdisp);
 
 	return 0;
 }
