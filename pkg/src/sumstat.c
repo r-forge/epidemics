@@ -81,7 +81,7 @@ struct distmat_int * create_distmat_int(int n){
 	}
 
 	out->length = length;
-	out->N = N;
+	out->n = n;
 
 	return out;
 }
@@ -213,16 +213,18 @@ void print_allfreq(struct allfreq *in){
 
 
 void print_distmat_int(struct distmat_int *in){
-	int i,j, counter=0;
-	int N = 
-	printf("\npairwise distances between %d isolates:\n", in->length);
+	int i,j, counter=0, N=in->n;
 
+	printf("\npairwise distances between %d isolates:\n", in->n);
+	for(i=0;i<N;i++) printf("\t'%d'",i);
 	for(i=0;i<N-1;i++){
-		printf("\nisolate %d:\t", i);
-		for(j=i+1;j<N;j++){
-			printf("%d \t", out->x[counter++]);
+		printf("\n'%d'\t", i);
+		for(j=0;j<i+1;j++){
+			printf("- \t");
 		}
-		printf("\n");
+		for(j=i+1;j<N;j++){
+			printf("%d \t", in->x[counter++]);
+		}
 	}
 
 	printf("\n");
@@ -349,15 +351,19 @@ double var_nb_snps(struct sample *in){
 
 
 struct distmat_int * pairwise_dist(struct sample *in, struct param *par){
-	int i, j, N=get_n(in), counter=0;
+	int i, j, N=get_n(in), counter=0, length=N*(N-1)/2;
 	struct distmat_int * out;
-	out = create_distmat_int((N*N-1)/2);
+	out = create_distmat_int(length);
 
 	/* computations */
 	for(i=0;i<N-1;i++){
 		for(j=i+1;j<N;j++){
 			out->x[counter++] = dist_a_b(get_snps(in->pathogens[i]),get_snps(in->pathogens[j]),get_nb_snps(in->pathogens[i]),get_nb_snps(in->pathogens[j]));
+		}
 	}
+
+	out->n=N;
+	out->length=length;
 
 	return out;
 }

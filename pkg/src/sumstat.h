@@ -14,7 +14,7 @@
 */
 
 struct snplist{
-	int *snps, length;
+	int *snps, length, N;
 };
 
 
@@ -25,7 +25,7 @@ struct allfreq{
 
 
 struct distmat_int{
-	int *x, length;
+	int *x, n, length;
 };
 
 
