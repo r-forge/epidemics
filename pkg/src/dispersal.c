@@ -161,7 +161,7 @@ int disperse(struct pathogen * pathogen, struct dispmat *disp, struct param *par
 	double x=gsl_rng_uniform(par->rng); /* nb between 0 and 1 */
 
 	while(x > cumprob && i<k){
-		cumprob += get_mat(disp)[popid][i++]; /* to check */
+		cumprob += get_mat(disp)[popid][i++];
 	}
 	return i-1;
 }
