@@ -232,6 +232,8 @@ void print_distmat_int(struct distmat_int *in){
 
 
 
+
+
 struct allfreq * get_frequencies(struct sample *in, struct param *par){
 	int i, j, N=get_n(in);
 	struct snplist *alleles;
@@ -283,6 +285,7 @@ double hs(struct sample *in, struct param *par){
 	free_allfreq(freq);
 	return out;
 }
+
 
 
 
@@ -365,6 +368,44 @@ struct distmat_int * pairwise_dist(struct sample *in, struct param *par){
 	out->n=N;
 	out->length=length;
 
+	return out;
+}
+
+
+
+
+
+double mean_pairwise_dist(struct sample *in, struct param *par){
+	struct distmat_int * mat = pairwise_dist(in, par);
+	int i, n=mat->length;
+	double out=0.0;
+
+	/* computations */
+	for(i=0;i<n;i++) out += mat->x[i];
+	out = out / (double) n;
+
+	/* free memory and return */
+	free_distmat_int(mat);
+	return out;
+}
+
+
+
+
+
+double var_pairwise_dist(struct sample *in, struct param *par){
+	struct distmat_int * mat = pairwise_dist(in, par);
+	int i, n=mat->length;
+	double mu=0.0, out=0.0;
+
+	/* computations */
+	for(i=0;i<n;i++) mu += mat->x[i];
+	mu = mu/n;
+	for(i=0;i<n;i++) out += pow((double) mat->x[i] - mu, 2);
+	out = out / (double) (n-1);
+
+	/* free memory and return */
+	free_distmat_int(mat);
 	return out;
 }
 

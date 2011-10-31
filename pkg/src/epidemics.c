@@ -181,7 +181,16 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	struct distmat_int *mat = pairwise_dist(samp, par);
 	print_distmat_int(mat);
 
-	printf("\n");
+	/* test mean pairwise distances */
+	temp = mean_pairwise_dist(samp,par);
+	printf("\nmean pairwise distance: %.2f", temp);
+
+	/* test variance of pairwise distances */
+	temp = var_pairwise_dist(samp,par);
+	printf("\nvar pairwise distance: %.2f", temp);
+
+
+	printf("\n\n");
 
 	/* free memory */
 	free_metapopulation(metapop);
@@ -199,7 +208,10 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double incid, int nStart, int t1, int t2,int Tsample, int Nsample) */
 	double pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
-	run_epidemics(1e2, 0.5e-2, 3, 1e3, 1.01, 10, 1, 2, 10, 5, pdisp);
-
+	time_t t1,t2;
+	time(&t1);
+	run_epidemics(1e4, 1e-4, 3, 1e7, 1.1, 10, 1, 4, 20, 10, pdisp);
+	time(&t2);
+	printf("\ntime ellapsed: %d seconds \n", (int) (t2-t1));
 	return 0;
 }

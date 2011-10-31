@@ -96,3 +96,7 @@ double mean_nb_snps(struct sample *in);
 double var_nb_snps(struct sample *in);
 
 struct distmat_int * pairwise_dist(struct sample *in, struct param *par);
+
+double mean_pairwise_dist(struct sample *in, struct param *par);
+
+double var_pairwise_dist(struct sample *in, struct param *par);
