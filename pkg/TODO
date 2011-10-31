@@ -1,0 +1,35 @@
+#### BY DECREASING ORDER OF PRIORITY ####
+
+
+
+== TIME EXPLICIT SAMPLING ==
+
+- keep track of dates of 'activity' of the pathogens
+
+- sampling isolate with constrained date
+
+
+
+
+== PARAMETER ESTIMATION ==
+
+- random generation of parameter values
+
+- MCMC estimation
+
+- write MCMC outputs to file
+
+- compare different summary statistics
+
+
+
+
+== HANDLING I/O ==
+
+- write simulation outputs to file
+
+- read simulation parameters from file
+
+- make R interface
+
+- get R package to compile
