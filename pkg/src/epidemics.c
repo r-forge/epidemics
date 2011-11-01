@@ -7,9 +7,11 @@
 */
 
 #include "common.h"
+#include "auxiliary.h"
 #include "param.h"
 #include "pathogens.h"
 #include "populations.h"
+#include "sampling.h"
 #include "sumstat.h"
 #include "dispersal.h"
 

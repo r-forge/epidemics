@@ -24,9 +24,6 @@ struct allfreq{
 };
 
 
-struct distmat_int{
-	int *x, n, length;
-};
 
 
 
@@ -40,8 +37,6 @@ struct snplist * create_snplist(int n);
 
 struct allfreq * create_allfreq(int n);
 
-struct distmat_int * create_distmat_int(int n);
-
 
 
 /*
@@ -54,7 +49,6 @@ void free_snplist(struct snplist *in);
 
 void free_allfreq(struct allfreq *in);
 
-void free_distmat_int(struct distmat_int *in);
 
 
 
@@ -64,7 +58,6 @@ void free_distmat_int(struct distmat_int *in);
    === AUXILIARY FUNCTIONS ===
    ===========================
 */
-int int_in_vec(int x, int *vec, int vecSize);
 
 int dist_a_b(int *a, int *b, int na, int nb);
 
@@ -80,8 +73,6 @@ struct snplist * list_snps(struct sample *in, struct param *par);
 void print_snplist(struct snplist *in);
 
 void print_allfreq(struct allfreq *in);
-
-void print_distmat_int(struct distmat_int *in);
 
 struct allfreq * get_frequencies(struct sample *in, struct param *par);
 

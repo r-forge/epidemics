@@ -32,14 +32,6 @@ struct population{
 
 
 
-struct sample{
-	struct pathogen ** pathogens;
-	/* nb of item; ninf is the length of **pathogens */
-	int n;
-};
-
-
-
 /*
    =================
    === ACCESSORS ===
@@ -74,9 +66,6 @@ int get_orinsus(struct population *in);
 
 
 int get_popsize(struct population *in);
-
-
-int get_n(struct sample *in);
 
 
 int get_total_nsus(struct metapopulation *in);
@@ -117,7 +106,6 @@ void free_metapopulation(struct metapopulation *in);
 
 void free_population(struct population *in);
 
-void free_sample(struct sample *in);
 
 
 /*
@@ -129,7 +117,6 @@ void print_metapopulation(struct metapopulation *in, bool showGen);
 
 void print_population(struct population *in);
 
-void print_sample(struct sample *in, bool showGen);
 
 
 /*
@@ -142,5 +129,3 @@ void print_sample(struct sample *in, bool showGen);
 /* age metapopulation */
 void age_metapopulation(struct metapopulation * metapop, struct param * par);
 
-/* draw sample from a population */
-struct sample * draw_sample(struct metapopulation *in, struct param *par);
