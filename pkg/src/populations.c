@@ -64,6 +64,11 @@ int get_orinsus(struct population *in){
 }
 
 
+int get_popsize(struct population *in){
+	return in->nsus + in->ninf + in->nrec;
+}
+
+
 int get_n(struct sample *in){
 	return in->n;
 }

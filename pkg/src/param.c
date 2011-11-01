@@ -73,8 +73,8 @@ void check_param(struct param *in){
 		exit(1);
 	}
 
-	/* R */
-	if(in->R < 0.0){
+	/* beta */
+	if(in->beta < 0.0){
 		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative reproductive number.\n");
 		exit(1);
 	}
@@ -111,7 +111,7 @@ void print_param(struct param *in){
 
 	/* epidemiological parameters*/
 	printf("\nnb of populations: %d", in->npop);
-	printf("\nnb susceptible per populations: %d  incidence: %.2f", in->nsus, in->R);
+	printf("\nnb susceptible per populations: %d  incidence: %.2f", in->nsus, in->beta);
 	printf("\ntotal nb of susceptible: %d", in->npop * in->nsus);
 	printf("\nnb initial infections: %d", in->nstart);
 	printf("\nstart infectious period: %d   ", in->t1);

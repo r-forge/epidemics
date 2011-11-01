@@ -23,7 +23,7 @@
 /* seed new infections from a single pathogen */
 void process_infection(struct pathogen * pat, struct metapopulation * metapop, struct param * par, struct dispmat *D){
 	struct population * pop;
-	int i, nbnewinf=0, Nsus, Ninfcum, newpopid;
+	int i, nbnewinf=0, Nsus, Npop, Ninfcum, newpopid;
 
 	if(!isNULL_pathogen(pat)){ /* if infection is not a gost */
 		/* determine the pathogen's original population , Nsus, Ninfcum*/
@@ -32,11 +32,14 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
 		pop = get_populations(metapop)[newpopid]; /* with dispersal */
 		/* pop = get_populations(metapop)[get_popid(pat)]; */ /* no dispersal*/
 		Nsus=get_nsus(pop);
+		Npop=get_popsize(pop);
 		Ninfcum=get_total_ninfcum(metapop);
 
 		/* determine the number of descendents */
+		/* for each infection, nb new infec = \beta * (nb sus)/(pop size) */
 		if(get_age(pat) >= par->t1){
-			nbnewinf = gsl_ran_poisson(par->rng, par->R);
+			/*nbnewinf = gsl_ran_poisson(par->rng, par->beta);*/
+			nbnewinf = gsl_ran_poisson(par->rng, par->beta * Nsus/Npop);
 
 			/* adjust number of new infections to number of susceptibles */
 			if(nbnewinf > Nsus) nbnewinf =  Nsus;
@@ -72,7 +75,7 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
    ===============================
 */
 
-void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, double incid, int nStart, int t1, int t2,int Tsample, int Nsample, double *pdisp){
+void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample, double *pdisp){
 	int i, nstep=0, maxnpat;
 
 	/* Initialize random number generator */
@@ -95,7 +98,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	par->rng = rng;
 	par->npop = npop;
 	par->nsus = nHostPerPop;
-	par->R = incid;
+	par->beta = beta;
 	par->nstart = nStart;
 	par->t1 = t1;
 	par->t2 = t2;
@@ -206,11 +209,11 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 
 
 int main(){
-/* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double incid, int nStart, int t1, int t2,int Tsample, int Nsample) */
+/* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
 	double pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
 	time_t t1,t2;
 	time(&t1);
-	run_epidemics(1e4, 1e-4, 3, 1e7, 1.1, 10, 1, 4, 20, 10, pdisp);
+	run_epidemics(1e4, 1e-4, 3, 1e5, 1.1, 10, 1, 4, 10, 10, pdisp);
 	time(&t2);
 	printf("\ntime ellapsed: %d seconds \n", (int) (t2-t1));
 	return 0;

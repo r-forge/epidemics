@@ -13,9 +13,7 @@
 /* nsus: number of hosts (carrying capacity */
 /* mu: mutation rate per site and generation */
 /* muL = mu*L */
-/* R: R0, i.e. number of infections created by an 
-   infectious individual in an entirely susceptible 
-   population at each time step. */
+/* beta: transmission rate */
 /* rng: random number generator */
 /* t1: number of unit time before a pathogen become infectious */
 /* t2: number of unit time before a pathogen stops being infectious (i.e. dies) */
@@ -24,7 +22,7 @@
 /* n_sample: sample size, in number of pathogens */
 struct param{
 	int L, nsus, t1, t2, nstart, t_sample, n_sample, npop;
-	double mu, muL, R, *pdisp;
+	double mu, muL, beta, *pdisp;
 	gsl_rng * rng;
 };
 

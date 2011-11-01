@@ -73,6 +73,9 @@ int get_ninfcum(struct population *in);
 int get_orinsus(struct population *in);
 
 
+int get_popsize(struct population *in);
+
+
 int get_n(struct sample *in);
 
 
