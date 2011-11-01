@@ -7,8 +7,8 @@
 */
 
 #include "common.h"
+#include "auxiliary.h"
 #include "param.h"
-
 
 /* Free param */
 void free_param(struct param *in){
@@ -79,15 +79,20 @@ void check_param(struct param *in){
 		exit(1);
 	}
 
-	/* t_sample */
-	if(in->t_sample < 0){
-		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative sampling time.\n");
+	/* n_sample */
+	if(in->n_sample < 0){
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative sample size.\n");
 		exit(1);
 	}
 
 	/* t_sample */
-	if(in->n_sample < 0){
-		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative sample size.\n");
+	if(min_int(in->t_sample, in->n_sample) < 0){
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative sampling time detected.\n");
+		exit(1);
+	}
+
+	if(max_int(in->t_sample, in->n_sample) > in->duration){
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: sampling time span longer than epidemic duration.\n");
 		exit(1);
 	}
 
@@ -111,12 +116,13 @@ void print_param(struct param *in){
 
 	/* epidemiological parameters*/
 	printf("\nnb of populations: %d", in->npop);
-	printf("\nnb susceptible per populations: %d  incidence: %.2f", in->nsus, in->beta);
+	printf("\nduration of the epidemic: %d   ", in->duration);
+	printf("\nnb susceptible per populations: %d  transmission rate (beta): %.2f", in->nsus, in->beta);
 	printf("\ntotal nb of susceptible: %d", in->npop * in->nsus);
 	printf("\nnb initial infections: %d", in->nstart);
 	printf("\nstart infectious period: %d   ", in->t1);
 	printf("\nend infectious period: %d   ", in->t2);
-	printf("\nsampling time: %d   ", in->t_sample);
+	/* printf("\nsampling time: %d   ", in->t_sample); */
 	printf("\nsample size: %d   ", in->n_sample);
 	printf("\n");
 }

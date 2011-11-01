@@ -26,6 +26,14 @@ int get_n(struct sample *in);
 
 
 
+/*
+   ===================
+   === CONTRUCTORS ===
+   ===================
+*/
+
+struct sample * create_sample(int n);
+
 
 
 /*
@@ -58,3 +66,7 @@ void print_sample(struct sample *in, bool showGen);
 
 /* draw sample from a population */
 struct sample * draw_sample(struct metapopulation *in, struct param *par);
+
+
+/* merge several samples together */
+struct sample *merge_samples(struct sample *in, int n);

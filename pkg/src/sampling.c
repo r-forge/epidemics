@@ -28,6 +28,32 @@ int get_n(struct sample *in){
 
 /*
    ===================
+   === CONTRUCTORS ===
+   ===================
+*/
+
+struct sample * create_sample(int n){
+	struct sample *out = calloc(1, sizeof(struct sample));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: population.c->create_sample]\nNo memory left to sample the metapopulation. Exiting.\n");
+		exit(1);
+	}
+
+	/* allocate memory for pathogens */
+	out->pathogens = (struct pathogen **) calloc(n, sizeof(struct pathogen *));
+	if(out->pathogens == NULL){
+		fprintf(stderr, "\n[in: population.c->create_sample]\nNo memory left sample pathogens from the metapopulation. Exiting.\n");
+		exit(1);
+	}
+	out->n = n;
+	return out;
+
+}
+
+
+
+/*
+   ===================
    === DESTRUCTORS ===
    ===================
 */
@@ -79,21 +105,7 @@ struct sample * draw_sample(struct metapopulation *in, struct param *par){
 	int *availIsolates;
 
 	/* create pointer to pathogens */
-	struct sample *out;
-
-	out = (struct sample *) calloc(1, sizeof(struct sample));
-
-	if(out == NULL){
-		fprintf(stderr, "\n[in: population.c->draw_sample]\nNo memory left to sample the metapopulation. Exiting.\n");
-		exit(1);
-	}
-
-	/* allocate memory for pathogens */
-	out->pathogens = (struct pathogen **) calloc(n, sizeof(struct pathogen *));
-	if(out->pathogens == NULL){
-		fprintf(stderr, "\n[in: population.c->draw_sample]\nNo memory left sample pathogens from the metapopulation. Exiting.\n");
-		exit(1);
-	}
+	struct sample *out=create_sample(n);
 
 	/* get the number of isolates that can be sampled */
 	for(i=0;i<maxnpat;i++){
@@ -145,7 +157,33 @@ struct sample * draw_sample(struct metapopulation *in, struct param *par){
 
 
 
+/* merge several samples together */
+struct sample *merge_samples(struct sample *in, int n){
+	int i, j, newsize=0, counter=0;
 
+	/* create output */
+	for(i=0;i<n;i++) newsize += get_n(in[i]);
+	struct sample * out = create_sample(newsize);
+
+	/* fill in output */
+	for(i=0;i<n;i++){
+		for(j=0;j<get_n(in[i]);j++){
+			out->patogens[counter++] = in[i]->pathogens[j];
+		}
+	}
+
+	out->n = newsize;
+	return out;
+}
+
+
+
+
+
+/* translate sampling dates into simulation timestep */
+int * translate_dates(int *dates, int n, par *par){
+	
+}
 
 
 /* int main(){ */
@@ -172,7 +210,6 @@ struct sample * draw_sample(struct metapopulation *in, struct param *par){
 /* 	struct population * pop; */
 
 /* 	pop = create_population(1000,10,0); */
-
 /* 	print_population(pop); */
 
 /* 	/\* free memory *\/ */

@@ -77,7 +77,7 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
    ===============================
 */
 
-void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample, double *pdisp){
+void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int *Tsample, int Nsample, double *pdisp){
 	int i, nstep=0, maxnpat;
 
 	/* Initialize random number generator */

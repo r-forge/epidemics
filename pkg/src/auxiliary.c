@@ -81,8 +81,20 @@ int int_in_vec(int x, int *vec, int vecSize){
 	return i;
 }
 
+/* find max value in a vector of integers */
+int max_int(int *vec, int length){
+	int i, out=vec[0];
+	for(i=0;i<length;i++) if(out<vec[i]) out=vec[i];
+	return out;
+}
 
 
+/* find min value in a vector of integers */
+int min_int(int *vec, int length){
+	int i, out=vec[0];
+	for(i=0;i<length;i++) if(out>vec[i]) out=vec[i];
+	return out;
+}
 
 
 

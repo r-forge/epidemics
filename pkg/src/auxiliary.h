@@ -58,6 +58,10 @@ void free_table_int(struct table_int *in);
 */
 int int_in_vec(int x, int *vec, int vecSize);
 
+int max_int(int *vec, int length);
+
+int min_int(int *vec, int length);
+
 
 /*
    ==========================

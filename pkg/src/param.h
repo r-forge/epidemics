@@ -18,10 +18,12 @@
 /* t1: number of unit time before a pathogen become infectious */
 /* t2: number of unit time before a pathogen stops being infectious (i.e. dies) */
 /* nstart: number of infections with wild genotype initiating the epidemic */
-/* t_sample: time at which to sample the outbreak */
+/* t_sample: array of integers giving the times at which to sample each isolate (in time steps from most recent isolate) */
 /* n_sample: sample size, in number of pathogens */
+/* npop: number of populations in the metapopulation */
+/* duration: maximum number of steps to run simulations for; implicitely the duration of the epidemic until most recent sample */
 struct param{
-	int L, nsus, t1, t2, nstart, t_sample, n_sample, npop;
+	int L, nsus, t1, t2, nstart, *t_sample, n_sample, npop, duration;
 	double mu, muL, beta, *pdisp;
 	gsl_rng * rng;
 };

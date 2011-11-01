@@ -1,12 +1,21 @@
 #### BY DECREASING ORDER OF PRIORITY ####
+## legend: 
+## 'o'=done
+## '-'=to do
+## 'x'=abandoned
+
+
+== DYNAMICS ==
+
+o include density-dependence
 
 
 
 == TIME EXPLICIT SAMPLING ==
 
-- keep track of dates of 'activity' of the pathogens
+x keep track of dates of 'activity' of the pathogens
 
-- sampling isolate with constrained date
+- sampling isolates with constrained date
 
 
 
