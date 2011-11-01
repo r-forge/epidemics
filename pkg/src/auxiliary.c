@@ -18,20 +18,20 @@
    ====================
 */
 
-/* create distmat_int between n objects */
+/* create empty distmat_int between n objects */
 struct distmat_int * create_distmat_int(int n){
 	struct distmat_int *out;
 	int length=n*(n-1)/2;
 
 	out = calloc(1, sizeof(struct distmat_int));
 	if(out == NULL){
-		fprintf(stderr, "\n[in: sumstat.c->create_distmat]\nNo memory left for creating distance matrix. Exiting.\n");
+		fprintf(stderr, "\n[in: auxiliary.c->create_distmat]\nNo memory left for creating distance matrix. Exiting.\n");
 		exit(1);
 	}
 
 	out->x = calloc(length, sizeof(int));
 	if(out->x == NULL){
-		fprintf(stderr, "\n[in: sumstat.c->create_distmat]\nNo memory left for creating distance matrix. Exiting.\n");
+		fprintf(stderr, "\n[in: auxiliary.c->create_distmat]\nNo memory left for creating distance matrix. Exiting.\n");
 		exit(1);
 	}
 
@@ -40,6 +40,8 @@ struct distmat_int * create_distmat_int(int n){
 
 	return out;
 }
+
+
 
 
 
@@ -56,6 +58,12 @@ void free_distmat_int(struct distmat_int *in){
 }
 
 
+
+void free_table_int(struct table_int *in){
+	if(in->items != NULL) free(in->items);
+	if(in->times != NULL) free(in->times);
+	if(in != NULL) free(in);
+}
 
 
 
@@ -85,6 +93,72 @@ int int_in_vec(int x, int *vec, int vecSize){
    === MAIN EXTERNAL FUNCTIONS ===
    ===============================
 */
+
+struct table_int * get_table_int(int *vec, int length){
+	int i, j, nbitems=0, *pool, poolsize;
+	struct table_int *out = calloc(1, sizeof(struct table_int));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: auxiliary.c->create_table_int]\nNo memory left for creating table of integers. Exiting.\n");
+		exit(1);
+	}
+
+	/* enumerate nb of unique items */
+	/* create pool of unique items */
+	pool = calloc(length, sizeof(int));
+	if(pool == NULL){
+		fprintf(stderr, "\n[in: auxiliary.c->get_table_int]\nNo memory left for listing unique integers. Exiting.\n");
+		exit(1);
+	}
+
+	/* list and count all SNPs */
+	poolsize = 0;
+	for(i=0;i<length;i++){
+		if(int_in_vec(vec[i], pool, poolsize) < 0){
+			pool[poolsize++] = vec[i];
+		}
+	}
+
+	/* copy list of items to output */
+	out->items = calloc(poolsize, sizeof(int));
+	if(out->items == NULL){
+		fprintf(stderr, "\n[in: auxiliary.c->create_table_int]\nNo memory left for creating table of integers. Exiting.\n");
+		exit(1);
+	}
+
+	for(i=0;i<poolsize;i++) out->items[i] = pool[i];
+	out->n = poolsize;
+
+	/* count number of occurences of each item */
+	out->times = calloc(poolsize, sizeof(int));
+	if(out->times == NULL){
+		fprintf(stderr, "\n[in: auxiliary.c->create_table_int]\nNo memory left for creating table of integers. Exiting.\n");
+		exit(1);
+	}
+
+	for(i=0;i<poolsize;i++){
+		for(j=0;j<length;j++){
+			if(vec[j]==out->items[i]) out->times[i] = out->times[i]+1;
+		}
+	}
+
+	/* free local pointers and return result */
+	free(pool);
+	return out;
+}
+
+
+
+
+void print_table_int(struct table_int *in){
+	int i;
+	printf("\nItems: ");
+	for(i=0;i<in->n;i++) printf("%d\t", in->items[i]);
+	printf("\nTimes: ");
+	for(i=0;i<in->n;i++) printf("%d\t", in->times[i]);
+	printf("\n");
+}
+
+
 
 void print_distmat_int(struct distmat_int *in){
 	int i,j, counter=0, N=in->n;
@@ -120,9 +194,17 @@ void print_distmat_int(struct distmat_int *in){
 
 
 /* int main(){ */
-/* 	int  i, vec[5]={1,2,3,4,5}; */
+/* 	int  i, vec[10]={1,2,1,4,3,2,2,2,1,5}, n=10; */
+/* 	struct table_int *out; */
 
-/* 	for(i=0;i<10;i++) printf("\ni=%d, result:%d", i, int_in_vec(i,vec,5)); */
-	
+/* 	printf("\ninput: "); */
+/* 	for(i=0;i<n;i++) printf("%d\t", vec[i]); */
+
+/* 	out = get_table_int(vec,n); */
+
+/* 	printf("\noutput"); */
+/* 	print_table_int(out); */
+
+/* 	free_table_int(out); */
 /* 	return 0; */
 /* } */

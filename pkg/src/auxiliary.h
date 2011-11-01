@@ -47,6 +47,8 @@ struct distmat_int * create_distmat_int(int n);
 void free_distmat_int(struct distmat_int *in);
 
 
+void free_table_int(struct table_int *in);
+
 
 
 /*
@@ -62,6 +64,9 @@ int int_in_vec(int x, int *vec, int vecSize);
    === EXTERNAL FUNCTIONS ===
    ==========================
 */
+struct table_int * get_table_int(int *vec, int length);
+
+void print_table_int(struct table_int *in);
 
 void print_distmat_int(struct distmat_int *in);
 
