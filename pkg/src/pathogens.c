@@ -51,6 +51,8 @@ int get_popid(struct pathogen *in){
 
 
 
+
+
 /*
    ====================
    === CONSTRUCTORS ===
@@ -126,7 +128,6 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 	out->length = N;
 	out->age = get_age(in);
 	out->popid = get_popid(in);
-	/*out->host = get_host(in);*/
 }
 
 
@@ -161,7 +162,6 @@ void print_pathogen(struct pathogen *in){
 	if(N>0) {
 		for(i=0;i<N;i++) printf("%d ", get_snps(in)[i]);
 	}
-	/* printf("\nhost: %llu \n", get_host(in)); */
 }
 
 

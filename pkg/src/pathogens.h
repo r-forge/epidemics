@@ -19,7 +19,10 @@
    The wild genotye is an empty vector.
    - 'snps' is an array of integers
    - 'length' is the length if this array
-   - 'host' is an integer identifying the host
+   - 'age' gives the age of the pathogen
+   - 'popid' gives the index of the population in which the pathogen is
+   - 'birth' gives the timestep at which the pathogen appeared
+   - 'death' gives the timestep at which the pathogen disappeared
  */
 struct pathogen{
 	int *snps;
@@ -55,6 +58,8 @@ int get_age(struct pathogen *in);
 /* Returns the population of the pathogen */
 /* (-1 for inactive pathogen) */
 int get_popid(struct pathogen *in);
+
+
 
 
 
