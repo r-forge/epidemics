@@ -107,7 +107,7 @@ int min_int(int *vec, int length){
 */
 
 struct table_int * get_table_int(int *vec, int length){
-	int i, j, nbitems=0, *pool, poolsize;
+	int i, j, *pool, poolsize;
 	struct table_int *out = calloc(1, sizeof(struct table_int));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: auxiliary.c->create_table_int]\nNo memory left for creating table of integers. Exiting.\n");

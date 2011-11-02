@@ -100,8 +100,8 @@ void print_sample(struct sample *in, bool showGen){
 */
 
 /* Get sample of isolates */
-struct sample * draw_sample(struct metapopulation *in, struct param *par){
-	int i, j, n=par->n_sample, id, nIsolates=0, maxnpat=get_maxnpat(in);
+struct sample * draw_sample(struct metapopulation *in, int n, struct param *par){
+	int i, j, id, nIsolates=0, maxnpat=get_maxnpat(in);
 	int *availIsolates;
 
 	/* create pointer to pathogens */
@@ -158,7 +158,7 @@ struct sample * draw_sample(struct metapopulation *in, struct param *par){
 
 
 /* merge several samples together */
-struct sample *merge_samples(struct sample *in, int n){
+struct sample * merge_samples(struct sample **in, int n){
 	int i, j, newsize=0, counter=0;
 
 	/* create output */
@@ -168,7 +168,7 @@ struct sample *merge_samples(struct sample *in, int n){
 	/* fill in output */
 	for(i=0;i<n;i++){
 		for(j=0;j<get_n(in[i]);j++){
-			out->patogens[counter++] = in[i]->pathogens[j];
+			out->pathogens[counter++] = in[i]->pathogens[j];
 		}
 	}
 
@@ -181,9 +181,12 @@ struct sample *merge_samples(struct sample *in, int n){
 
 
 /* translate sampling dates into simulation timestep */
-int * translate_dates(int *dates, int n, par *par){
-	
+void translate_dates(int *dates, int n, struct param *par){
+	int i;
+	for(i=0;i<n;i++) dates[i] = par->duration - dates[i];
 }
+
+
 
 
 /* int main(){ */

@@ -77,7 +77,7 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
    ===============================
 */
 
-void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int *Tsample, int Nsample, double *pdisp){
+void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2, int Nsample, int *Tsample, int duration, double *pdisp){
 	int i, nstep=0, maxnpat;
 
 	/* Initialize random number generator */
@@ -120,14 +120,25 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 
 	/* initiate population */
 	struct metapopulation * metapop;
-	struct sample * samp;
-
 	metapop = create_metapopulation(par);
 	maxnpat = get_maxnpat(metapop);
 
+	/* get sampling schemes (timestep+effectives) */
+	struct table_int *tabdates = get_table_int(par->t_sample, par->n_sample);
+
+	/* create sample */
+	struct sample ** samplist = calloc(tabdates->n, sizeof(struct sample *));
+	struct sample *samp;
+	int counter_sample = 0, tabidx;
+
 	/* make metapopulation evolve */
-	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->t_sample){
+	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
 		nstep++;
+
+		/* draw samples */
+		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){
+			samplist[counter_sample++] = draw_sample(metapop, tabdates->times[tabidx], par);
+		}
 
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
@@ -139,16 +150,18 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	}
 
 	/* we stopped after 'nstep' steps */
-	if(nstep < par->t_sample){
-		printf("\nEpidemics ended at time %d, before sampling time (%d).\n", nstep, par->t_sample);
+	if(nstep < par->duration){
+		printf("\nEpidemics ended at time %d, before sampling time (%d).\n", nstep, par->duration);
 	}
 
 
 	printf("\n\n-- FINAL METAPOPULATION --");
 	print_metapopulation(metapop, FALSE);
 
+	/* merge samples */
+	samp = merge_samples(samplist, tabdates->n);
+
 	/* test sampling */
-	samp = draw_sample(metapop, par);
 	printf("\n\n-- SAMPLE --");
 	print_sample(samp, TRUE);
 
@@ -200,7 +213,10 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	/* free memory */
 	free_metapopulation(metapop);
 	free_param(par);
+	for(i=0;i<tabdates->n;i++) free_sample(samplist[i]);
+	free(samplist);
 	free_sample(samp);
+	free_table_int(tabdates);
 	free_snplist(snpbilan);
 	free_allfreq(freq);
 	free_dispmat(D);
@@ -212,11 +228,14 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 
 int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
-	double pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
-	time_t t1,t2;
-	time(&t1);
-	run_epidemics(1e4, 1e-4, 3, 1e5, 1.1, 10, 1, 4, 10, 10, pdisp);
-	time(&t2);
-	printf("\ntime ellapsed: %d seconds \n", (int) (t2-t1));
+	double mu=1e-4, beta=1.1, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
+	time_t time1,time2;
+	int genoL=1e4, duration=10, npop=3, popsize=1e5, nstart=10, t1=1, t2=3, nsamp=5;
+	int tsamp[5] = {2,6,1,0,0};
+
+	time(&time1);
+	run_epidemics(genoL, mu, npop, popsize, beta, nstart, t1, t2, nsamp, tsamp, duration, pdisp);
+	time(&time2);
+	printf("\ntime ellapsed: %d seconds \n", (int) (time2-time1));
 	return 0;
 }

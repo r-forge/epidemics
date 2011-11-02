@@ -65,8 +65,13 @@ void print_sample(struct sample *in, bool showGen);
 */
 
 /* draw sample from a population */
-struct sample * draw_sample(struct metapopulation *in, struct param *par);
+struct sample * draw_sample(struct metapopulation *in, int n, struct param *par);
 
 
 /* merge several samples together */
-struct sample *merge_samples(struct sample *in, int n);
+struct sample *merge_samples(struct sample **in, int n);
+
+
+
+/* translate sampling dates into simulation timestep */
+void translate_dates(int *dates, int n, struct param *par);
