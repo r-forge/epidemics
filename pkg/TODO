@@ -2,7 +2,10 @@
 ## legend: 
 ## 'o'=done
 ## '-'=to do
-## 'x'=abandoned
+## 'x'=abandoned/no longer relevant
+
+== BUGS ==
+- segfault when epidemic stops before duration.
 
 
 == DYNAMICS ==
@@ -15,7 +18,7 @@ o include density-dependence
 
 x keep track of dates of 'activity' of the pathogens
 
-- sampling isolates with constrained date
+o sampling isolates with constrained date
 
 
 
