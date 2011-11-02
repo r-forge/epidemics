@@ -166,15 +166,15 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 
 
 /* merge several samples together */
-struct sample * merge_samples(struct sample **in, int n, struct param *par){
+struct sample * merge_samples(struct sample **in, int nsamp, struct param *par){
 	int i, j, newsize=0, counter=0;
 
 	/* create output */
-	for(i=0;i<n;i++) newsize += get_n(in[i]);
-	struct sample * out = create_sample(n);
+	for(i=0;i<nsamp;i++) newsize += get_n(in[i]);
+	struct sample * out = create_sample(newsize);
 
 	/* fill in output */
-	for(i=0;i<n;i++){
+	for(i=0;i<nsamp;i++){
 		for(j=0;j<get_n(in[i]);j++){
 			copy_pathogen(in[i]->pathogens[j], out->pathogens[counter++], par);
 		}
