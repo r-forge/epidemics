@@ -106,6 +106,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	par->t2 = t2;
 	par->t_sample = Tsample;
 	par->n_sample = Nsample;
+	par->duration = duration;
 	par->pdisp = pdisp;
 
 	/* check/print parameters */
@@ -124,10 +125,13 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	maxnpat = get_maxnpat(metapop);
 
 	/* get sampling schemes (timestep+effectives) */
+	translate_dates(par);
 	struct table_int *tabdates = get_table_int(par->t_sample, par->n_sample);
+	printf("\nsampling at timesteps:");
+	print_table_int(tabdates);
 
 	/* create sample */
-	struct sample ** samplist = calloc(tabdates->n, sizeof(struct sample *));
+	struct sample ** samplist = (struct sample **) calloc(tabdates->n, sizeof(struct sample *));
 	struct sample *samp;
 	int counter_sample = 0, tabidx;
 
@@ -135,8 +139,11 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
 		nstep++;
 
+		printf("\nnstep: %d", nstep);
+
 		/* draw samples */
 		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){
+			printf("\ntabidx: %d", tabidx);
 			samplist[counter_sample++] = draw_sample(metapop, tabdates->times[tabidx], par);
 		}
 
@@ -148,6 +155,9 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 		/* age metapopulation */
 		age_metapopulation(metapop, par);
 	}
+	printf("\ncounter: %d", counter_sample);
+	printf("\nnstep: %d", nstep);
+
 
 	/* we stopped after 'nstep' steps */
 	if(nstep < par->duration){
@@ -159,68 +169,71 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	print_metapopulation(metapop, FALSE);
 
 	/* merge samples */
-	samp = merge_samples(samplist, tabdates->n);
+	/* samp = merge_samples(samplist, tabdates->n); */
+	for(i=0;i<tabdates->n;i++) {
+		printf("\nsample %d", i);
+		print_sample(samplist[i], TRUE);
+	}
+	/* /\* test sampling *\/ */
+	/* printf("\n\n-- SAMPLE --"); */
+	/* print_sample(samp, TRUE); */
 
-	/* test sampling */
-	printf("\n\n-- SAMPLE --");
-	print_sample(samp, TRUE);
+	/* /\* test allele listing *\/ */
+	/* struct snplist *snpbilan; */
+	/* snpbilan = list_snps(samp, par); */
+	/* print_snplist(snpbilan); */
 
-	/* test allele listing */
-	struct snplist *snpbilan;
-	snpbilan = list_snps(samp, par);
-	print_snplist(snpbilan);
+	/* /\* test allele frequencies *\/ */
+	/* struct allfreq *freq; */
+	/* freq = get_frequencies(samp, par); */
+	/* print_allfreq(freq); */
 
-	/* test allele frequencies */
-	struct allfreq *freq;
-	freq = get_frequencies(samp, par);
-	print_allfreq(freq);
+	/* /\* test Hs*\/ */
+	/* double Hs = hs(samp,par); */
+	/* printf("\nHs = %0.3f\n", Hs); */
 
-	/* test Hs*/
-	double Hs = hs(samp,par);
-	printf("\nHs = %0.3f\n", Hs);
+	/* /\* test Hs full genome *\/ */
+	/* Hs = hs_full_genome(samp,par); */
+	/* printf("\nHs (full genome) = %0.5f\n", Hs); */
 
-	/* test Hs full genome */
-	Hs = hs_full_genome(samp,par);
-	printf("\nHs (full genome) = %0.5f\n", Hs);
+	/* /\* test nb of snps *\/ */
+	/* int nball = nb_snps(samp,par); */
+	/* printf("\nnumber of alleles = %d\n", nball); */
 
-	/* test nb of snps */
-	int nball = nb_snps(samp,par);
-	printf("\nnumber of alleles = %d\n", nball);
+	/* /\* test mean nb of snps *\/ */
+	/* double temp = mean_nb_snps(samp); */
+	/* printf("\nmean number of alleles = %.2f\n", temp); */
 
-	/* test mean nb of snps */
-	double temp = mean_nb_snps(samp);
-	printf("\nmean number of alleles = %.2f\n", temp);
+	/* /\* test var nb of snps *\/ */
+	/* temp = var_nb_snps(samp); */
+	/* printf("\nvariance of number of alleles = %.2f\n", temp); */
 
-	/* test var nb of snps */
-	temp = var_nb_snps(samp);
-	printf("\nvariance of number of alleles = %.2f\n", temp);
+	/* /\* test pairwise distances *\/ */
+	/* struct distmat_int *mat = pairwise_dist(samp, par); */
+	/* print_distmat_int(mat); */
 
-	/* test pairwise distances */
-	struct distmat_int *mat = pairwise_dist(samp, par);
-	print_distmat_int(mat);
+	/* /\* test mean pairwise distances *\/ */
+	/* temp = mean_pairwise_dist(samp,par); */
+	/* printf("\nmean pairwise distance: %.2f", temp); */
 
-	/* test mean pairwise distances */
-	temp = mean_pairwise_dist(samp,par);
-	printf("\nmean pairwise distance: %.2f", temp);
-
-	/* test variance of pairwise distances */
-	temp = var_pairwise_dist(samp,par);
-	printf("\nvar pairwise distance: %.2f", temp);
+	/* /\* test variance of pairwise distances *\/ */
+	/* temp = var_pairwise_dist(samp,par); */
+	/* printf("\nvar pairwise distance: %.2f", temp); */
 
 
-	printf("\n\n");
+	/* printf("\n\n"); */
 
-	/* free memory */
-	free_metapopulation(metapop);
-	free_param(par);
-	for(i=0;i<tabdates->n;i++) free_sample(samplist[i]);
-	free(samplist);
-	free_sample(samp);
-	free_table_int(tabdates);
-	free_snplist(snpbilan);
-	free_allfreq(freq);
-	free_dispmat(D);
-	free_distmat_int(mat);
+	/* /\* free memory *\/ */
+	/* free_metapopulation(metapop); */
+	/* free_param(par); */
+	/* for(i=0;i<tabdates->n;i++) free_sample(samplist[i]); */
+	/* free(samplist); */
+	/* free_sample(samp); */
+	/* free_table_int(tabdates); */
+	/* free_snplist(snpbilan); */
+	/* free_allfreq(freq); */
+	/* free_dispmat(D); */
+	/* free_distmat_int(mat); */
 }
 
 

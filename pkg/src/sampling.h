@@ -74,4 +74,4 @@ struct sample *merge_samples(struct sample **in, int n);
 
 
 /* translate sampling dates into simulation timestep */
-void translate_dates(int *dates, int n, struct param *par);
+void translate_dates(struct param *par);

@@ -92,7 +92,7 @@ void check_param(struct param *in){
 	}
 
 	if(max_int(in->t_sample, in->n_sample) > in->duration){
-		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: sampling time span longer than epidemic duration.\n");
+		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: sampling time span (%d) longer than epidemic duration (%d).\n", max_int(in->t_sample, in->n_sample), in->duration);
 		exit(1);
 	}
 

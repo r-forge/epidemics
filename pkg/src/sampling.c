@@ -181,9 +181,9 @@ struct sample * merge_samples(struct sample **in, int n){
 
 
 /* translate sampling dates into simulation timestep */
-void translate_dates(int *dates, int n, struct param *par){
+void translate_dates(struct param *par){
 	int i;
-	for(i=0;i<n;i++) dates[i] = par->duration - dates[i];
+	for(i=0;i<par->n_sample;i++) par->t_sample[i] = par->duration - par->t_sample[i]; /* minimum date must be 1 */
 }
 
 
