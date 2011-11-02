@@ -22,3 +22,4 @@
    ==========================
 */
 
+void write_ts_groupsizes(struct ts_groupsizes *in);

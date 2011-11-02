@@ -206,6 +206,27 @@ struct population * create_population(int ns, int ni, int nr){
 
 
 
+/* Create ts_groupsizes */
+struct ts_groupsizes * create_ts_groupsizes(int nsteps){
+	struct ts_groupsizes * out = (struct ts_groupsizes *) calloc(1, sizeof(struct ts_groupsizes));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: population.c->create_ts_groupsizes]\nNo memory left for storing group sizes. Exiting.\n");
+		exit(1);
+	}
+
+	out->nsus = (int *) calloc(nsteps, sizeof(int));
+	out->ninf = (int *) calloc(nsteps, sizeof(int));
+	out->nrec = (int *) calloc(nsteps, sizeof(int));
+	out->ninfcum = (int *) calloc(nsteps, sizeof(int));
+	out->length = nsteps;
+
+	if(out->nsus==NULL || out->ninf==NULL || out->nrec==NULL || out->ninfcum==NULL){
+		fprintf(stderr, "\n[in: population.c->create_ts_groupsizes]\nNo memory left for storing group sizes. Exiting.\n");
+		exit(1);
+	}
+
+	return out;
+}
 
 
 
@@ -242,6 +263,16 @@ void free_population(struct population *in){
 
 
 
+/* Free ts_groupsizes */
+void free_ts_groupsizes(struct ts_groupsizes *in){
+	if(in!=NULL){
+		free(in->nsus);
+		free(in->ninf);
+		free(in->nrec);
+		free(in->ninfcum);
+		free(in);
+	}
+}
 
 
 
@@ -325,8 +356,18 @@ void age_metapopulation(struct metapopulation * metapop, struct param * par){
 
 
 
+/* keep track of group sizes */
+void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step){
+	if(step>in->length){
+		fprintf(stderr, "\n[in: population.c->fill_ts_groupsizes]\n. ts_groupsizes object is not long enough to store output of step %d. Exiting.\n", step);
+		exit(1);
+	}
 
-
+	in->nsus[step-1] = get_total_nsus(metapop);
+	in->ninf[step-1] = get_total_ninf(metapop);
+	in->nrec[step-1] = get_total_nrec(metapop);
+	in->ninfcum[step-1] = get_total_ninfcum(metapop);
+}
 
 
 

@@ -14,6 +14,7 @@
 #include "sampling.h"
 #include "sumstat.h"
 #include "dispersal.h"
+#include "inout.h"
 
 
 /*
@@ -119,6 +120,10 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	printf("\ndispersal matrix:");
 	print_dispmat(D);
 
+	/* group sizes */
+	struct ts_groupsizes * grpsizes = create_ts_groupsizes(par->duration);
+
+
 	/* initiate population */
 	struct metapopulation * metapop;
 	metapop = create_metapopulation(par);
@@ -127,7 +132,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	/* get sampling schemes (timestep+effectives) */
 	translate_dates(par);
 	struct table_int *tabdates = get_table_int(par->t_sample, par->n_sample);
-	printf("\nsampling at timesteps:");
+	printf("\n\nsampling at timesteps:");
 	print_table_int(tabdates);
 
 	/* create sample */
@@ -152,6 +157,8 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 			samplist[counter_sample++] = draw_sample(metapop, tabdates->times[tabidx], par);
 		}
 
+		fill_ts_groupsizes(grpsizes, metapop, nstep);
+
 	}
 
 	/* we stopped after 'nstep' steps */
@@ -159,14 +166,11 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 		printf("\nEpidemics ended at time %d, before sampling time (%d).\n", nstep, par->duration);
 	}
 
+	/* write group sizes to file */
+	write_ts_groupsizes(grpsizes);
 
 	printf("\n\n-- FINAL METAPOPULATION --");
 	print_metapopulation(metapop, FALSE);
-
-	for(i=0;i<counter_sample;i++) {
-		printf("\nsample %d", i);
-		print_sample(samplist[i], TRUE);
-	}
 
 	/* /\* test samples *\/ */
 	samp = merge_samples(samplist, tabdates->n, par);
@@ -192,11 +196,11 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 
 	/* test nb of snps */
 	int nball = nb_snps(samp,par);
-	printf("\nnumber of alleles = %d\n", nball);
+	printf("\nnumber of SNPs = %d\n", nball);
 
 	/* test mean nb of snps */
 	double temp = mean_nb_snps(samp);
-	printf("\nmean number of alleles = %.2f\n", temp);
+	printf("\nmean number of SNPs = %.2f\n", temp);
 
 	/* test var nb of snps */
 	temp = var_nb_snps(samp);
@@ -228,6 +232,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	free_allfreq(freq);
 	free_dispmat(D);
 	free_distmat_int(mat);
+	free_ts_groupsizes(grpsizes);
 }
 
 
@@ -235,10 +240,10 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 
 int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
-	double mu=1e-4, beta=1.1, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
+	double mu=1e-5, beta=1.1, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
 	time_t time1,time2;
-	int genoL=1e4, duration=3, npop=3, popsize=1e5, nstart=10, t1=1, t2=3, nsamp=5;
-	int tsamp[5] = {2,2,1,0,0};
+	int genoL=1e4, duration=50, npop=3, popsize=1e5, nstart=10, t1=1, t2=3, nsamp=10;
+	int tsamp[10] = {10,9,9,5,5,4,2,1,0,0};
 
 	time(&time1);
 	run_epidemics(genoL, mu, npop, popsize, beta, nstart, t1, t2, nsamp, tsamp, duration, pdisp);

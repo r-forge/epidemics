@@ -31,6 +31,13 @@ struct population{
 
 
 
+struct ts_groupsizes{
+	int *nsus, *ninf, *nrec, *ninfcum, length;
+};
+
+
+
+
 
 /*
    =================
@@ -94,6 +101,8 @@ struct metapopulation * create_metapopulation(struct param *par);
 
 struct population * create_population(int ns, int ni, int nr);
 
+struct ts_groupsizes * create_ts_groupsizes(int nsteps);
+
 
 /*
    ===================
@@ -106,6 +115,7 @@ void free_metapopulation(struct metapopulation *in);
 
 void free_population(struct population *in);
 
+void free_ts_groupsizes(struct ts_groupsizes *in);
 
 
 /*
@@ -129,3 +139,5 @@ void print_population(struct population *in);
 /* age metapopulation */
 void age_metapopulation(struct metapopulation * metapop, struct param * par);
 
+/* keep track of group sizes */
+void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step);
