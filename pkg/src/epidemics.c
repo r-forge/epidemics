@@ -172,7 +172,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	printf("\n\n-- FINAL METAPOPULATION --");
 	print_metapopulation(metapop, FALSE);
 
-	/* /\* test samples *\/ */
+	/* test samples */
 	samp = merge_samples(samplist, tabdates->n, par);
 	print_sample(samp, TRUE);
 
