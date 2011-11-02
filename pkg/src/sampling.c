@@ -33,6 +33,7 @@ int get_n(struct sample *in){
 */
 
 struct sample * create_sample(int n){
+	int i;
 	struct sample *out = calloc(1, sizeof(struct sample));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: population.c->create_sample]\nNo memory left to sample the metapopulation. Exiting.\n");
@@ -45,6 +46,8 @@ struct sample * create_sample(int n){
 		fprintf(stderr, "\n[in: population.c->create_sample]\nNo memory left sample pathogens from the metapopulation. Exiting.\n");
 		exit(1);
 	}
+
+	for(i=0;i<n;i++) out->pathogens[i] = create_pathogen();
 	out->n = n;
 	return out;
 
@@ -60,7 +63,13 @@ struct sample * create_sample(int n){
 
 /* Free sample */
 void free_sample(struct sample *in){
-	if(in->pathogens != NULL) free(in->pathogens);
+	int i, n=get_n(in);
+	if(in->pathogens != NULL) {
+		for(i=0;i<n;i++) {
+			if(in->pathogens[i] != NULL) free_pathogen(in->pathogens[i]);
+		}
+		free(in->pathogens);
+	}
 	free(in);
 }
 
@@ -141,10 +150,9 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 	/* choose from available pathogens */
 	for(i=0;i<n;i++){
 		id=gsl_rng_uniform_int(par->rng,nIsolates);
-		(out->pathogens)[i] = (in->pathogens)[availIsolates[id]];
+		/* (out->pathogens)[i] = (in->pathogens)[availIsolates[id]]; */ /* this just copies addresses; need to copy content! */
+		copy_pathogen(in->pathogens[availIsolates[id]], out->pathogens[i], par);
 	}
-
-	out->n = n;
 
 	/* free local pointers */
 	free(availIsolates);
@@ -158,17 +166,17 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 
 
 /* merge several samples together */
-struct sample * merge_samples(struct sample **in, int n){
+struct sample * merge_samples(struct sample **in, int n, struct param *par){
 	int i, j, newsize=0, counter=0;
 
 	/* create output */
 	for(i=0;i<n;i++) newsize += get_n(in[i]);
-	struct sample * out = create_sample(newsize);
+	struct sample * out = create_sample(n);
 
 	/* fill in output */
 	for(i=0;i<n;i++){
 		for(j=0;j<get_n(in[i]);j++){
-			out->pathogens[counter++] = in[i]->pathogens[j];
+			copy_pathogen(in[i]->pathogens[j], out->pathogens[counter++], par);
 		}
 	}
 
