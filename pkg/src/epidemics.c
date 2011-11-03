@@ -163,75 +163,79 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 
 	/* we stopped after 'nstep' steps */
 	if(nstep < par->duration){
-		printf("\nEpidemics ended at time %d, before sampling time (%d).\n", nstep, par->duration);
+		printf("\nEpidemics ended at time %d, before last sampling time (%d).\n", nstep, par->duration);
+	} else {
+
+		printf("\n\n-- FINAL METAPOPULATION --");
+		print_metapopulation(metapop, FALSE);
+
+		/* test samples */
+		samp = merge_samples(samplist, tabdates->n, par);
+		print_sample(samp, TRUE);
+
+		/* test allele listing */
+		struct snplist *snpbilan;
+		snpbilan = list_snps(samp, par);
+		print_snplist(snpbilan);
+
+		/* test allele frequencies */
+		struct allfreq *freq;
+		freq = get_frequencies(samp, par);
+		print_allfreq(freq);
+
+		/* test Hs*/
+		double Hs = hs(samp,par);
+		printf("\nHs = %0.3f\n", Hs);
+
+		/* test Hs full genome */
+		Hs = hs_full_genome(samp,par);
+		printf("\nHs (full genome) = %0.5f\n", Hs);
+
+		/* test nb of snps */
+		int nball = nb_snps(samp,par);
+		printf("\nnumber of SNPs = %d\n", nball);
+
+		/* test mean nb of snps */
+		double temp = mean_nb_snps(samp);
+		printf("\nmean number of SNPs = %.2f\n", temp);
+
+		/* test var nb of snps */
+		temp = var_nb_snps(samp);
+		printf("\nvariance of number of alleles = %.2f\n", temp);
+
+		/* test pairwise distances */
+		struct distmat_int *mat = pairwise_dist(samp, par);
+		print_distmat_int(mat);
+
+		/* test mean pairwise distances */
+		temp = mean_pairwise_dist(samp,par);
+		printf("\nmean pairwise distance: %.2f", temp);
+
+		/* test variance of pairwise distances */
+		temp = var_pairwise_dist(samp,par);
+		printf("\nvar pairwise distance: %.2f", temp);
+
+		printf("\n\n");
+
+		/* free memory */
+		free_sample(samp);
+		free_snplist(snpbilan);
+		free_allfreq(freq);
+		free_distmat_int(mat);
+
 	}
 
 	/* write group sizes to file */
+	printf("\n\nPrinting group sizes to file 'out-popsize.txt'");
 	write_ts_groupsizes(grpsizes);
-
-	printf("\n\n-- FINAL METAPOPULATION --");
-	print_metapopulation(metapop, FALSE);
-
-	/* test samples */
-	samp = merge_samples(samplist, tabdates->n, par);
-	print_sample(samp, TRUE);
-
-	/* test allele listing */
-	struct snplist *snpbilan;
-	snpbilan = list_snps(samp, par);
-	print_snplist(snpbilan);
-
-	/* test allele frequencies */
-	struct allfreq *freq;
-	freq = get_frequencies(samp, par);
-	print_allfreq(freq);
-
-	/* test Hs*/
-	double Hs = hs(samp,par);
-	printf("\nHs = %0.3f\n", Hs);
-
-	/* test Hs full genome */
-	Hs = hs_full_genome(samp,par);
-	printf("\nHs (full genome) = %0.5f\n", Hs);
-
-	/* test nb of snps */
-	int nball = nb_snps(samp,par);
-	printf("\nnumber of SNPs = %d\n", nball);
-
-	/* test mean nb of snps */
-	double temp = mean_nb_snps(samp);
-	printf("\nmean number of SNPs = %.2f\n", temp);
-
-	/* test var nb of snps */
-	temp = var_nb_snps(samp);
-	printf("\nvariance of number of alleles = %.2f\n", temp);
-
-	/* test pairwise distances */
-	struct distmat_int *mat = pairwise_dist(samp, par);
-	print_distmat_int(mat);
-
-	/* test mean pairwise distances */
-	temp = mean_pairwise_dist(samp,par);
-	printf("\nmean pairwise distance: %.2f", temp);
-
-	/* test variance of pairwise distances */
-	temp = var_pairwise_dist(samp,par);
-	printf("\nvar pairwise distance: %.2f", temp);
-
-
-	printf("\n\n");
 
 	/* free memory */
 	free_metapopulation(metapop);
 	free_param(par);
-	for(i=0;i<tabdates->n;i++) free_sample(samplist[i]);
+	for(i=0;i<counter_sample-1;i++) free_sample(samplist[i]);
 	free(samplist);
-	free_sample(samp);
 	free_table_int(tabdates);
-	free_snplist(snpbilan);
-	free_allfreq(freq);
 	free_dispmat(D);
-	free_distmat_int(mat);
 	free_ts_groupsizes(grpsizes);
 }
 
@@ -242,7 +246,7 @@ int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
 	double mu=1e-5, beta=1.1, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
 	time_t time1,time2;
-	int genoL=1e4, duration=50, npop=3, popsize=1e5, nstart=10, t1=1, t2=3, nsamp=10;
+	int genoL=1e4, duration=100, npop=3, popsize=1e5, nstart=10, t1=1, t2=3, nsamp=10;
 	int tsamp[10] = {10,9,9,5,5,4,2,1,0,0};
 
 	time(&time1);
