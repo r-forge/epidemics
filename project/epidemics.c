@@ -215,6 +215,11 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 		temp = var_pairwise_dist(samp,par);
 		printf("\nvar pairwise distance: %.2f", temp);
 
+		/* test Fst */
+		temp = fst(samp,par);
+		printf("\nfst: %.2f", temp);
+
+
 		printf("\n\n");
 
 		/* free memory */
@@ -246,7 +251,7 @@ int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
 	double mu=1e-5, beta=1.1, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
 	time_t time1,time2;
-	int genoL=1e4, duration=100, npop=3, popsize=1e5, nstart=10, t1=1, t2=3, nsamp=10;
+	int genoL=1e4, duration=50, npop=3, popsize=1e5, nstart=10, t1=1, t2=3, nsamp=10;
 	int tsamp[10] = {10,9,9,5,5,4,2,1,0,0};
 
 	time(&time1);

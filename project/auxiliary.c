@@ -58,7 +58,6 @@ void free_distmat_int(struct distmat_int *in){
 }
 
 
-
 void free_table_int(struct table_int *in){
 	if(in->items != NULL) free(in->items);
 	if(in->times != NULL) free(in->times);
