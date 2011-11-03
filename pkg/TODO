@@ -5,21 +5,16 @@
 ## 'x'=abandoned/no longer relevant
 
 == BUGS ==
-- segfault when epidemic stops before duration.
 
-
-== DYNAMICS ==
-
-o include density-dependence
+o segfault when epidemic stops before duration.
 
 
 
-== TIME EXPLICIT SAMPLING ==
+== SUMMARY STATISTICS ==
 
-x keep track of dates of 'activity' of the pathogens
+- implement Fst
 
-o sampling isolates with constrained date
-
+- implement distance between two statistics (of any type)
 
 
 
