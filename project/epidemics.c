@@ -237,7 +237,7 @@ void run_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, dou
 	/* free memory */
 	free_metapopulation(metapop);
 	free_param(par);
-	for(i=0;i<counter_sample-1;i++) free_sample(samplist[i]);
+	for(i=0;i<counter_sample;i++) free_sample(samplist[i]);
 	free(samplist);
 	free_table_int(tabdates);
 	free_dispmat(D);
