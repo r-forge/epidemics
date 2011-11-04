@@ -119,14 +119,14 @@ void free_allfreq(struct allfreq *in){
 
 void free_ts_sumstat(struct ts_sumstat *in){
 	if(in!=NULL){
-		free(out->steps);
-		free(out->nbSnps);
-		free(out->Hs);
-		free(out->meanNbSnps);
-		free(out->varNbSnps);
-		free(out->meanPairwiseDist);
-		free(out->varPairwiseDist);
-		free(out->Fst);
+		free(in->steps);
+		free(in->nbSnps);
+		free(in->Hs);
+		free(in->meanNbSnps);
+		free(in->varNbSnps);
+		free(in->meanPairwiseDist);
+		free(in->varPairwiseDist);
+		free(in->Fst);
 	}
 	free(in);
 }
@@ -435,8 +435,8 @@ double fst(struct sample *in, struct param *par){
 
 
 
-void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step){
-	idx = in->length;
+void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step, struct param *par){
+	int idx = in->length;
 
 	if(idx > in->maxlength){
 		fprintf(stderr, "\n[in: sumstat.c->fill_ts_sumstat]\n. ts_sumstat object is not long enough to store output of step %d. Exiting.\n", step);

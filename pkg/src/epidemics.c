@@ -122,8 +122,7 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	print_dispmat(D);
 
 	/* group sizes */
-	struct ts_groupsizes * grpsizes = create_ts_groupsizes(par->duration);
-
+	struct ts_groupsizes * grpsizes = create_ts_groupsizes(par);
 
 	/* initiate population */
 	struct metapopulation * metapop;
@@ -284,7 +283,7 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 	par->nstart = *nStart;
 	par->t1 = *t1;
 	par->t2 = *t2;
-	par->t_sample = Tsample;
+	par->t_sample = NULL;
 	par->n_sample = *Nsample;
 	par->duration = *duration;
 	par->pdisp = pdisp;
@@ -329,7 +328,7 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 		samp = draw_sample(metapop, par->n_sample, par);
 
 		/* compute statistics */
-		if(get_total_ninf(metapop)> *minSize) fill_ts_sumstat(sumstats, samp, nstep);
+		if(get_total_ninf(metapop)> *minSize) fill_ts_sumstat(sumstats, samp, nstep, par);
 
 		/* get group sizes */
 		fill_ts_groupsizes(grpsizes, metapop, nstep);
@@ -339,7 +338,7 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 	printf("\n\nPrinting results to file...");
 	write_ts_groupsizes(grpsizes);
 	write_ts_sumstat(sumstats);
-	printf("done.\n")
+	printf("done.\n\n");
 
 	/* free memory */
 	free_sample(samp);
@@ -349,6 +348,8 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 	free_ts_groupsizes(grpsizes);
 	free_ts_sumstat(sumstats);
 }
+
+
 
 
 
@@ -399,7 +400,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	print_dispmat(D);
 
 	/* group sizes */
-	struct ts_groupsizes * grpsizes = create_ts_groupsizes(par->duration);
+	struct ts_groupsizes * grpsizes = create_ts_groupsizes(par);
 
 
 	/* initiate population */

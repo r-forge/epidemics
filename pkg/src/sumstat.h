@@ -102,6 +102,6 @@ double var_pairwise_dist(struct sample *in, struct param *par);
 
 double fst(struct sample *in, struct param *par);
 
-void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step);
+void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step, struct param *par);
 
 void write_ts_sumstat(struct ts_sumstat *in);

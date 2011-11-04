@@ -90,14 +90,16 @@ void check_param(struct param *in){
 	}
 
 	/* t_sample */
-	if(min_int(in->t_sample, in->n_sample) < 0){
-		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative sampling time detected.\n");
-		exit(1);
-	}
+	if(in->t_sample != NULL){
+		if(min_int(in->t_sample, in->n_sample) < 0){
+			fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: negative sampling time detected.\n");
+			exit(1);
+		}
 
-	if(max_int(in->t_sample, in->n_sample) > in->duration){
-		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: sampling time span (%d) longer than epidemic duration (%d).\n", max_int(in->t_sample, in->n_sample), in->duration);
-		exit(1);
+		if(max_int(in->t_sample, in->n_sample) > in->duration){
+			fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: sampling time span (%d) longer than epidemic duration (%d).\n", max_int(in->t_sample, in->n_sample), in->duration);
+			exit(1);
+		}
 	}
 
 	/* npop */

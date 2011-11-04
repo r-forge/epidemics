@@ -11,6 +11,7 @@
 #include "pathogens.h"
 #include "populations.h"
 #include "sampling.h"
+#include "sumstat.h"
 #include "inout.h"
 
 
@@ -62,7 +63,7 @@ void write_ts_sumstat(struct ts_sumstat *in){
 
 	fprintf(outfile, "step\tnbSnps\tHs\tmeanNbSnps\tvarNbSnps\tmeanPairwiseDist\tvarPairwiseDist\tFst\n");
 	for(i=0;i<in->length;i++){
-		fprintf(outfile, "%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\n", in->step[i], in->nbSnps[i], in->Hs[i], in->meanNbSnps[i], in->varNbSnps[i], in->meanPairwiseDist[i], in->varPairwiseDist[i], in->Fst[i]);
+		fprintf(outfile, "%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\n", in->steps[i], in->nbSnps[i], in->Hs[i], in->meanNbSnps[i], in->varNbSnps[i], in->meanPairwiseDist[i], in->varPairwiseDist[i], in->Fst[i]);
 	}
 	fclose(outfile);
 }
