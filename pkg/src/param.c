@@ -19,16 +19,20 @@ void free_param(struct param *in){
 
 
 void check_param(struct param *in){
+	int i, checkOK=0;
+
 	/* nstart & K */
-	if(in->nstart > in->nsus){
+	if(in->nstart > in->nsus[0]){
 		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: initial number of infections greater than host population.\n");
 		exit(1);
 	}
 
 	/* nsus */
-	if(in->nsus < 1){
-		fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: less than one host in population.\n");
-		exit(1);
+	for(i=0;i<in->npop;i++){
+		if(in->nsus[i] < 1){
+			fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: less than one host in population %d.\n",i);
+			exit(1);
+		}
 	}
 
 	/* nstart */
@@ -109,6 +113,7 @@ void check_param(struct param *in){
 
 /* print parameters */
 void print_param(struct param *in){
+	int i, totnsus=0;
 	printf("\n-- simulation parameters --");
 
 	/* genetic parameters */
@@ -117,8 +122,11 @@ void print_param(struct param *in){
 	/* epidemiological parameters*/
 	printf("\nnb of populations: %d", in->npop);
 	printf("\nduration of the epidemic: %d   ", in->duration);
-	printf("\nnb susceptible per populations: %d  transmission rate (beta): %.2f", in->nsus, in->beta);
-	printf("\ntotal nb of susceptible: %d", in->npop * in->nsus);
+	printf("\nnb susceptible per populations:");
+	for(i=0;i<in->npop;i++) printf("%d\t", in->nsus[i]);
+	printf("\ntransmission rate (beta): %.2f", in->beta);
+	for(i=0;i<in->npop;i++) totnsus += in->nsus[i];
+	printf("\ntotal nb of susceptible: %d", totnsus);
 	printf("\nnb initial infections: %d", in->nstart);
 	printf("\nstart infectious period: %d   ", in->t1);
 	printf("\nend infectious period: %d   ", in->t2);

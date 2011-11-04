@@ -124,10 +124,10 @@ int get_total_orinsus(struct metapopulation *in){
 
 /* Create new metapopulation */
 struct metapopulation * create_metapopulation(struct param *par){
-	int i, npop, nsus, maxnpat, nini ;
+	int i, npop, *nsus, maxnpat=0, nini ;
 	npop = par->npop;
 	nsus = par->nsus;
-	maxnpat = npop*nsus;
+	for(i=0;i<npop;i++) maxnpat += nsus[i];
 	nini = par->nstart;
 
 	/* create pointer to metapopulation */
@@ -171,9 +171,9 @@ struct metapopulation * create_metapopulation(struct param *par){
 	}
 
 	/* fill in the populations arrays */
-	out->populations[0] = create_population(nsus, nini, 0);
+	out->populations[0] = create_population(nsus[0], nini, 0);
 	for(i=1;i<npop;i++) {
-		out->populations[i] = create_population(nsus, 0, 0);
+		out->populations[i] = create_population(nsus[i], 0, 0);
 	}
 
 	return out;
