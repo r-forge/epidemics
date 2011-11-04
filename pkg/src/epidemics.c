@@ -79,7 +79,7 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
 */
 
 /* Function to be called from R */
-void epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, double *beta, int *nStart, int *t1, int *t2, int *Nsample, int *Tsample, int *duration, double *pdisp){
+void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, double *beta, int *nStart, int *t1, int *t2, int *Nsample, int *Tsample, int *duration, double *pdisp){
 	int i, nstep=0, maxnpat;
 
 	/* Initialize random number generator */
@@ -221,7 +221,11 @@ void epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, dou
 		printf("\nfst: %.2f", temp);
 
 
-		printf("\n\n");
+		printf("\n");
+
+		/* write sample to file */
+		printf("\n\nPrinting sample to file 'out-sample.txt'\n");
+		write_sample(samp);
 
 		/* free memory */
 		free_sample(samp);
@@ -234,6 +238,7 @@ void epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, dou
 	/* write group sizes to file */
 	printf("\n\nPrinting group sizes to file 'out-popsize.txt'\n");
 	write_ts_groupsizes(grpsizes);
+
 
 	/* free memory */
 	free_metapopulation(metapop);

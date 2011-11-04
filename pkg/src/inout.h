@@ -23,3 +23,5 @@
 */
 
 void write_ts_groupsizes(struct ts_groupsizes *in);
+
+void write_sample(struct sample *in);
