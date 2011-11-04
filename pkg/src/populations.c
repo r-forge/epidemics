@@ -207,7 +207,8 @@ struct population * create_population(int ns, int ni, int nr){
 
 
 /* Create ts_groupsizes */
-struct ts_groupsizes * create_ts_groupsizes(int nsteps){
+struct ts_groupsizes * create_ts_groupsizes(struct param * par){
+	int nsteps = par->duration;
 	struct ts_groupsizes * out = (struct ts_groupsizes *) calloc(1, sizeof(struct ts_groupsizes));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: population.c->create_ts_groupsizes]\nNo memory left for storing group sizes. Exiting.\n");

@@ -50,6 +50,27 @@ void write_ts_groupsizes(struct ts_groupsizes *in){
 
 
 
+
+/* write summary statistics */
+void write_ts_sumstat(struct ts_sumstat *in){
+	int i;
+	FILE *outfile = fopen( "out-sumstat.txt", "w");
+	if(outfile==NULL){
+		fprintf(stderr, "\n[in: inout.c->write_ts_sumstat]\nUnable to open file 'out-sumstat.txt'.\n");
+		exit(1);
+	}
+
+	fprintf(outfile, "step\tnbSnps\tHs\tmeanNbSnps\tvarNbSnps\tmeanPairwiseDist\tvarPairwiseDist\tFst\n");
+	for(i=0;i<in->length;i++){
+		fprintf(outfile, "%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\n", in->step[i], in->nbSnps[i], in->Hs[i], in->meanNbSnps[i], in->varNbSnps[i], in->meanPairwiseDist[i], in->varPairwiseDist[i], in->Fst[i]);
+	}
+	fclose(outfile);
+}
+
+
+
+
+
 /* write a sample */
 void write_sample(struct sample *in){
 	int i, j, nbSnps;

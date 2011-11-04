@@ -255,6 +255,106 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 
 
 
+
+/* Function to be called from R */
+void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, double *beta, int *nStart, int *t1, int *t2, int *Nsample, int *duration, double *pdisp, int *minSize){
+	int i, nstep=0, maxnpat;
+
+	/* Initialize random number generator */
+	time_t t;
+	t = time(NULL); // time in seconds, used to change the seed of the random generator
+	gsl_rng * rng;
+	const gsl_rng_type *typ;
+	gsl_rng_env_setup();
+	typ=gsl_rng_default;
+	rng=gsl_rng_alloc(typ);
+	gsl_rng_set(rng,t); // changes the seed of the random generator
+
+
+	/* transfer simulation parameters */
+	struct param * par;
+	par = (struct param *) calloc(1, sizeof(struct param));
+	par->L = *seqLength;
+	par->mu = *mutRate;
+	par->muL = par->mu * par->L;
+	par->rng = rng;
+	par->npop = *npop;
+	par->nsus = nHostPerPop;
+	par->beta = *beta;
+	par->nstart = *nStart;
+	par->t1 = *t1;
+	par->t2 = *t2;
+	par->t_sample = Tsample;
+	par->n_sample = *Nsample;
+	par->duration = *duration;
+	par->pdisp = pdisp;
+
+	/* check/print parameters */
+	check_param(par);
+	print_param(par);
+
+	/* dispersal matrix */
+	struct dispmat *D;
+	D = create_dispmat(par);
+	printf("\ndispersal matrix:");
+	print_dispmat(D);
+
+	/* group sizes */
+	struct ts_groupsizes * grpsizes = create_ts_groupsizes(par);
+	struct ts_sumstat * sumstats = create_ts_sumstat(par);
+
+	/* initiate population */
+	struct metapopulation * metapop;
+	metapop = create_metapopulation(par);
+	maxnpat = get_maxnpat(metapop);
+
+	/* memory allocations for sample and results */
+	struct sample *samp;
+	double Hs, meanNbSnps, varNbSnps, meanPairwiseDist, varPairwiseDist;
+	int nbSnps;
+
+	/* make metapopulation evolve */
+	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
+		nstep++;
+
+		/* handle replication for each infection */
+		for(i=0;i<maxnpat;i++){
+			process_infection(get_pathogens(metapop)[i], metapop, par, D);
+		}
+
+		/* age metapopulation */
+		age_metapopulation(metapop, par);
+
+		/* draw sample */
+		samp = draw_sample(metapop, par->n_sample, par);
+
+		/* compute statistics */
+		if(get_total_ninf(metapop)> *minSize) fill_ts_sumstat(sumstats, samp, nstep);
+
+		/* get group sizes */
+		fill_ts_groupsizes(grpsizes, metapop, nstep);
+	}
+
+	/* write group sizes to file */
+	printf("\n\nPrinting results to file...");
+	write_ts_groupsizes(grpsizes);
+	write_ts_sumstat(sumstats);
+	printf("done.\n")
+
+	/* free memory */
+	free_sample(samp);
+	free_metapopulation(metapop);
+	free_param(par);
+	free_dispmat(D);
+	free_ts_groupsizes(grpsizes);
+	free_ts_sumstat(sumstats);
+}
+
+
+
+
+
+
 /* all-in-one function testing epidemics growth, summary statistics, etc. */
 void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, double beta, int nStart, int t1, int t2, int Nsample, int *Tsample, int duration, double *pdisp){
 	int i, nstep=0, maxnpat;

@@ -66,6 +66,40 @@ struct allfreq * create_allfreq(int n){
 
 
 
+/* Create ts_sumstat */
+struct ts_sumstat * create_ts_sumstat(struct param *par){
+	int nsteps = par->duration;
+	struct ts_sumstat * out = (struct ts_sumstat *) calloc(1, sizeof(struct ts_sumstat));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: sumstat.c->create_ts_sumstat]\nNo memory left for storing summary statistics. Exiting.\n");
+		exit(1);
+	}
+
+	out->steps = (int *) calloc(nsteps, sizeof(int));
+	out->nbSnps = (int *) calloc(nsteps, sizeof(int));
+	out->Hs = (double *) calloc(nsteps, sizeof(double));
+	out->meanNbSnps = (double *) calloc(nsteps, sizeof(double));
+	out->varNbSnps = (double *) calloc(nsteps, sizeof(double));
+	out->meanPairwiseDist = (double *) calloc(nsteps, sizeof(double));
+	out->varPairwiseDist = (double *) calloc(nsteps, sizeof(double));
+	out->Fst = (double *) calloc(nsteps, sizeof(double));
+
+	if(out->nbSnps==NULL || out->Hs==NULL || out->meanNbSnps==NULL || out->varNbSnps==NULL || out->meanPairwiseDist==NULL || out->varPairwiseDist==NULL || out->Fst==NULL){
+		fprintf(stderr, "\n[in: sumstat.c->create_ts_sumstat]\nNo memory left for storing summary statistics. Exiting.\n");
+		exit(1);
+	}
+	
+	out->maxlength=par->duration;
+	out->length=0;
+	return out;
+}
+
+
+
+
+
+
+
 
 /*
    ===================
@@ -83,8 +117,19 @@ void free_allfreq(struct allfreq *in){
 	if(in != NULL) free(in);
 }
 
-
-
+void free_ts_sumstat(struct ts_sumstat *in){
+	if(in!=NULL){
+		free(out->steps);
+		free(out->nbSnps);
+		free(out->Hs);
+		free(out->meanNbSnps);
+		free(out->varNbSnps);
+		free(out->meanPairwiseDist);
+		free(out->varPairwiseDist);
+		free(out->Fst);
+	}
+	free(in);
+}
 
 
 
@@ -388,8 +433,32 @@ double fst(struct sample *in, struct param *par){
 
 
 
+
+
+void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step){
+	idx = in->length;
+
+	if(idx > in->maxlength){
+		fprintf(stderr, "\n[in: sumstat.c->fill_ts_sumstat]\n. ts_sumstat object is not long enough to store output of step %d. Exiting.\n", step);
+		exit(1);
+	}
+
+	in->steps[idx] = step;
+	in->nbSnps[idx] = nb_snps(samp, par);
+	in->Hs[idx] = hs(samp, par);
+	in->meanNbSnps[idx] = mean_nb_snps(samp);
+	in->varNbSnps[idx] = var_nb_snps(samp);
+	in->meanPairwiseDist[idx] = mean_pairwise_dist(samp, par);
+	in->varPairwiseDist[idx] = var_pairwise_dist(samp, par);
+	in->Fst[idx] = fst(samp, par);
+	in->length = in->length + 1;
+}
+
+
+
+
 /*
-   =========================
+  =========================
    === TESTING FUNCTIONS ===
    =========================
 */

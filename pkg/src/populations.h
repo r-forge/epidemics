@@ -101,7 +101,7 @@ struct metapopulation * create_metapopulation(struct param *par);
 
 struct population * create_population(int ns, int ni, int nr);
 
-struct ts_groupsizes * create_ts_groupsizes(int nsteps);
+struct ts_groupsizes * create_ts_groupsizes(struct param *par);
 
 
 /*

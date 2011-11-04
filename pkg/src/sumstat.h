@@ -24,6 +24,12 @@ struct allfreq{
 };
 
 
+struct ts_sumstat{
+	double *Hs, *meanNbSnps, *varNbSnps, *meanPairwiseDist, *varPairwiseDist, *Fst;
+	int *steps, *nbSnps, length, maxlength;
+
+};
+
 
 
 
@@ -37,6 +43,7 @@ struct snplist * create_snplist(int n);
 
 struct allfreq * create_allfreq(int n);
 
+struct ts_sumstat * create_ts_sumstat(struct param *par);
 
 
 /*
@@ -49,6 +56,7 @@ void free_snplist(struct snplist *in);
 
 void free_allfreq(struct allfreq *in);
 
+void free_ts_sumstat(struct ts_sumstat *in);
 
 
 
@@ -93,3 +101,7 @@ double mean_pairwise_dist(struct sample *in, struct param *par);
 double var_pairwise_dist(struct sample *in, struct param *par);
 
 double fst(struct sample *in, struct param *par);
+
+void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step);
+
+void write_ts_sumstat(struct ts_sumstat *in);
