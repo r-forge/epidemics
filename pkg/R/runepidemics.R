@@ -3,14 +3,14 @@
 #############
 epidemics <- function(n.sample, duration, t.sample=NULL,
                       seq.length=1e4, mut.rate=1e-5, n.pop=1, connectivity=NULL, p.disp=0.01,
-                      pop.sizes,  beta, n.ini.inf=10, t.infectious=1, t.recover=2){
+                      pop.size,  beta, n.ini.inf=10, t.infectious=1, t.recover=2){
 
     ## check/process arguments ##
     ## n.sample
     n.sample = as.integer(max(n.sample[1],1))
 
     ## duration
-    duration = as.intger(max(duration[1],1))
+    duration = as.integer(max(duration[1],1))
 
     ## t.sample
     if(is.null(t.sample)){
@@ -60,7 +60,7 @@ epidemics <- function(n.sample, duration, t.sample=NULL,
     t.recover <- as.integer(max(t.infectious,t.infectious+1))
 
     ## call run_epidemics ##
-    .C("epidemics", seq.length, mut.rate, n.pop, pop.sizes, beta, n.ini.inf, t.infectious, t.recover, n.sample, t.sample, duration, connectivity)
+    .C("epidemics", seq.length, mut.rate, n.pop, pop.size, beta, n.ini.inf, t.infectious, t.recover, n.sample, t.sample, duration, connectivity)
 
     ## return result ##
 
