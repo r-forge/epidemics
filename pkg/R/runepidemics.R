@@ -2,7 +2,7 @@
 ## epidemics
 #############
 epidemics <- function(n.sample, duration, t.sample=NULL,
-                      seq.length=1e4, mut.rate=1e-5, n.pop=1, connectivity=NULL, p.disp=0.01,
+                      seq.length=1e4, mut.rate=1e-5, n.pop=1, connectivity=NULL, p.disp=0.1,
                       pop.size=1e5,  beta, n.ini.inf=10, t.infectious=1, t.recover=2,
                       plot=TRUE, items=c("nsus", "ninf", "nrec"),
                       col=c("blue", "red", grey(.3)), lty=c(2,1,3), pch=c(20,15,1)){
@@ -35,8 +35,10 @@ epidemics <- function(n.sample, duration, t.sample=NULL,
 
     ## connectivity
     if(is.null(connectivity)){
-        if(p.disp[1]<0 | p.disp[1]>1) stop("pdisp must be comprised between 0 and 1")
-        connectivity <- as.double(diag(p.disp, n.pop))
+        if(p.disp[1]<0 | p.disp[1]>1) stop("p.disp must be comprised between 0 and 1")
+        connectivity <- matrix(p.disp/(n.pop-1), ncol=n.pop, nrow=n.pop)
+        diag(connectivity) <- 1-p.disp
+        connectivity <- as.double(connectivity)
     } else {
         if(!is.matrix(connectivity)) stop("connectivity must provided as a matrix")
         if(nrow(connectivity) != ncol(connectivity)) stop("connectivity matrix must be square")
