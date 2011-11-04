@@ -354,6 +354,40 @@ double var_pairwise_dist(struct sample *in, struct param *par){
 
 
 
+
+double fst(struct sample *in, struct param *par){
+	/* Fst = 1 - Hsbar/Ht with
+	Hsbar: expected H averaged over groups
+	Ht: expected H over all data */
+
+	int i, npop=get_npop_samp(in), sumweights=0;
+	double Ht, Hsbar=0, out;
+	struct sample ** listsamp;
+
+	/* global exp heteroz */
+	Ht = hs(in, par);
+
+	/* get Hs per population*/
+	listsamp = seppop(in, par);
+	for(i=0;i<npop;i++){
+		Hsbar += hs(listsamp[i], par)*get_n(listsamp[i]);
+		sumweights += get_n(listsamp[i]);
+	}
+
+	Hsbar = Hsbar/(double) sumweights;
+
+	/* Fst */
+	out = 1.0 - (Hsbar/Ht);
+
+	/* free local pointers and return */
+	for(i=0;i<npop;i++) free_sample(listsamp[i]);
+	free(listsamp);
+	return out;
+}
+
+
+
+
 /*
    =========================
    === TESTING FUNCTIONS ===

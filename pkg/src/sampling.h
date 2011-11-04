@@ -24,6 +24,7 @@ struct sample{
 
 int get_n(struct sample *in);
 
+int get_npop_samp(struct sample *in);
 
 
 /*
@@ -75,3 +76,6 @@ struct sample *merge_samples(struct sample **in, int n, struct param *par);
 
 /* translate sampling dates into simulation timestep */
 void translate_dates(struct param *par);
+
+/* slit data of a sample by population */
+struct sample ** seppop(struct sample *in, struct param *par);

@@ -12,7 +12,7 @@ o segfault when epidemic stops before duration.
 
 == SUMMARY STATISTICS ==
 
-- implement Fst
+o implement Fst
 
 - implement distance between two statistics (of any type)
 

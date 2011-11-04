@@ -7,6 +7,7 @@
 */
 
 #include "common.h"
+#include "auxiliary.h"
 #include "param.h"
 #include "pathogens.h"
 #include "populations.h"
@@ -23,6 +24,45 @@
 int get_n(struct sample *in){
 	return in->n;
 }
+
+
+/* get nb of populations in a sample */
+int get_npop_samp(struct sample *in){
+	int i, n=get_n(in), *popid, *pool, npop;
+
+	/* get vector of pop id */
+	popid = (int *) calloc(n, sizeof(int));
+	if(popid == NULL){
+		fprintf(stderr, "\n[in: sampling.c->get_npop]\nNo memory left to sample per population. Exiting.\n");
+		exit(1);
+	}
+	for(i=0;i<n;i++) popid[i] = get_popid(in->pathogens[i]);
+
+
+	/* enumerate nb of unique items */
+	/* create pool of unique items */
+	pool = (int *) calloc(n, sizeof(int));
+	if(pool == NULL){
+		fprintf(stderr, "\n[in: sampling.c->get_npop]\nNo memory left to sample per population. Exiting.\n");
+		exit(1);
+	}
+
+	/* list and count all SNPs */
+	npop = 0;
+	for(i=0;i<n;i++){
+		if(int_in_vec(popid[i], pool, npop) < 0){
+			pool[npop++] = popid[i];
+		}
+	}
+
+	/* free memory and return */
+	free(popid);
+	free(pool);
+	return(npop);
+}
+
+
+
 
 
 
@@ -195,6 +235,55 @@ void translate_dates(struct param *par){
 }
 
 
+
+
+/* slit data of a sample by population */
+struct sample ** seppop(struct sample *in, struct param *par){
+	int i, j, counter, *popid, n=get_n(in), npop;
+	struct table_int * tabpop;
+	struct sample ** out;
+
+	/* get table of population sizes */
+	popid = (int *) calloc(n, sizeof(int));
+	if(popid==NULL){
+		fprintf(stderr, "\n[in: sampling.c->seppop]\nNo memory left to separate isolates per population. Exiting.\n");
+		exit(1);
+	}
+
+	for(i=0;i<n;i++) popid[i] = get_popid(in->pathogens[i]);
+	tabpop = get_table_int(popid, n);
+	npop = tabpop->n;
+
+	/* allocate memory */
+	out = (struct sample **) calloc(npop, sizeof(struct sample *));
+	if(out==NULL){
+		fprintf(stderr, "\n[in: sampling.c->seppop]\nNo memory left to separate isolates per population. Exiting.\n");
+		exit(1);
+	}
+
+	for(i=0;i<npop;i++){
+		out[i] = create_sample(tabpop->times[i]);
+		if(out[i]==NULL){
+			fprintf(stderr, "\n[in: sampling.c->seppop]\nNo memory left to separate isolates per population. Exiting.\n");
+			exit(1);
+		}
+	}
+
+	/* copy pathogens */
+	for(i=0;i<npop;i++){
+		counter=0;
+		for(j=0;j<n;j++){
+			if(popid[j]==tabpop->items[i]) {
+				copy_pathogen(in->pathogens[j], out[i]->pathogens[counter++], par);
+			}
+		}
+	}
+
+	/* free memory and return */
+	free(popid);
+	free_table_int(tabpop);
+	return out;
+}
 
 
 /* int main(){ */
