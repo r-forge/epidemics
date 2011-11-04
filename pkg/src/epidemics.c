@@ -101,7 +101,7 @@ void epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, dou
 	par->muL = par->mu * par->L;
 	par->rng = rng;
 	par->npop = *npop;
-	par->nsus = *nHostPerPop;
+	par->nsus = nHostPerPop;
 	par->beta = *beta;
 	par->nstart = *nStart;
 	par->t1 = *t1;
@@ -232,7 +232,7 @@ void epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, dou
 	}
 
 	/* write group sizes to file */
-	printf("\n\nPrinting group sizes to file 'out-popsize.txt'");
+	printf("\n\nPrinting group sizes to file 'out-popsize.txt'\n");
 	write_ts_groupsizes(grpsizes);
 
 	/* free memory */
@@ -251,7 +251,7 @@ void epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, dou
 
 
 /* all-in-one function testing epidemics growth, summary statistics, etc. */
-void test_epidemics(int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2, int Nsample, int *Tsample, int duration, double *pdisp){
+void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, double beta, int nStart, int t1, int t2, int Nsample, int *Tsample, int duration, double *pdisp){
 	int i, nstep=0, maxnpat;
 
 	/* Initialize random number generator */
@@ -424,8 +424,8 @@ int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
 	double mu=1e-5, beta=1.1, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
 	time_t time1,time2;
-	int genoL=1e4, duration=50, npop=3, popsize=1e5, nstart=10, t1=1, t2=3, nsamp=10;
-	int tsamp[10] = {10,9,9,5,5,4,2,1,0,0};
+	int genoL=1e4, duration=30, npop=3, nstart=10, t1=1, t2=3, nsamp=10;
+	int tsamp[10] = {10,9,9,5,5,4,2,1,0,0},popsize[3]={1000,1e4,1e5};
 
 	time(&time1);
 	test_epidemics(genoL, mu, npop, popsize, beta, nstart, t1, t2, nsamp, tsamp, duration, pdisp);

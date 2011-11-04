@@ -3,7 +3,9 @@
 #############
 epidemics <- function(n.sample, duration, t.sample=NULL,
                       seq.length=1e4, mut.rate=1e-5, n.pop=1, connectivity=NULL, p.disp=0.01,
-                      pop.size,  beta, n.ini.inf=10, t.infectious=1, t.recover=2){
+                      pop.size=1e5,  beta, n.ini.inf=10, t.infectious=1, t.recover=2,
+                      plot=TRUE, items=c("nsus", "ninf", "nrec"),
+                      col=c("blue", "red", grey(.3)), lty=c(2,1,3), pch=c(20,15,1)){
 
     ## check/process arguments ##
     ## n.sample
@@ -62,6 +64,17 @@ epidemics <- function(n.sample, duration, t.sample=NULL,
     ## call run_epidemics ##
     .C("epidemics", seq.length, mut.rate, n.pop, pop.size, beta, n.ini.inf, t.infectious, t.recover, n.sample, t.sample, duration, connectivity)
 
+
+    ## PLOT ##
+    if(plot){
+        dat <- read.table("out-popsize.txt", header=TRUE)
+        dat <- dat[, items]
+        dat <- dat[1:(min(which(apply(dat, 1, function(e) all(e<1))))-1), ]
+
+        ## call to matplot
+        matplot(dat, type="b", xlab="time step", ylab="size (number of individuals)", lty=lty, col=col, pch=pch)
+        legend("topright", lty=lty, col=col, pch=pch, legend=items)
+    }
     ## return result ##
 
 }

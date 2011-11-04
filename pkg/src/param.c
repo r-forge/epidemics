@@ -19,7 +19,7 @@ void free_param(struct param *in){
 
 
 void check_param(struct param *in){
-	int i, checkOK=0;
+	int i;
 
 	/* nstart & K */
 	if(in->nstart > in->nsus[0]){
