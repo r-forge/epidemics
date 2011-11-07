@@ -23,9 +23,13 @@ epidemics(n.sample, duration, t.sample = NULL, seq.length = 10000,
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 ## simple epidemic
-epidemics(n.sample=30, beta=1.1, duration=30, t.sample=15)
+epidemics(n.sample=30, beta=1.1, duration=30)
 
 ## several populations - multiple cycles
-epidemics(n.sample=30, beta=1.1, duration=200, n.pop=10,p.disp=2e-5)
+x <- epidemics(n.sample=50, beta=1.1,duration=50,n.pop=20,p.disp=5e-5,pop.size=5e4,t.sample=rep(c(0,10,20,30,40), each=10), mut.rate=3e-5)
 
+## examin and plot result ##
+x
+plot(x)
+plot(x,  type="fan", y=fastme.ols)
 }

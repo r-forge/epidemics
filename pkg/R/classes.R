@@ -55,7 +55,7 @@ plot.isolates <- function(x, y=NULL, ..., plot=TRUE, show.pop=TRUE, col.pal=rain
     ## CHECKS ##
     if(!inherits(x, "isolates")) stop("x is not an 'isolates' object")
     if(!require(ape)) stop("the ape package is needed for phylogenies")
-    if(is.null(y)) y <- nj
+    if(is.null(y)) y <- fastme.ols
     if(!is.function(y)) stop("y argument is not a function")
 
 
