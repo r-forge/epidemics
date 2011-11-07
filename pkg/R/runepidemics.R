@@ -110,8 +110,8 @@ epidemics <- function(n.sample, duration, t.sample=NULL,
 ## monitor.epidemics
 #####################
 monitor.epidemics <- function(n.sample, duration, seq.length=1e4, mut.rate=1e-5, n.pop=1, connectivity=NULL, p.disp=0.1,
-                              pop.size=1e5,  beta, n.ini.inf=10, t.infectious=1, t.recover=2, min.samp.size=100,
-                              plot=TRUE, items=c("nbSnps","Hs","meanNbSnps","varNbSnps","meanPairwiseDistStd","varPairwiseDistStd","Fst"),
+                              pop.size=1e5,  beta, n.ini.inf=10, t.infectious=1, t.recover=2, min.samp.size=100, plot=TRUE,
+                              items=c("nbSnps","Hs","meanNbSnps","varNbSnps","meanPairwiseDist","varPairwiseDist","meanPairwiseDistStd","varPairwiseDistStd","Fst"),
                               file.sizes="out-popsize.txt", file.sumstat="out-sumstat.txt"){
 
     ## check/process arguments ##
