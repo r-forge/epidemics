@@ -81,12 +81,23 @@ epidemics <- function(n.sample, duration, t.sample=NULL,
         legend("topright", lty=lty, col=col, pch=pch, legend=items)
     }
 
+
+    ## GET SAMPLE ##
+    txt <- readLines("out-sample.txt")
+    res <- list(gen=NULL, pop=NULL)
+    res$gen <- txt[seq(2, by=2, length=length(txt)/2)]
+    res$gen <- gsub("[[:blank:]]$", "", res$gen)
+    res$gen <- lapply(res$gen, function(e) unlist(strsplit(e, " ")))
+    res$pop <- factor(txt[seq(1, by=2, length=length(txt)/2)])
+    class(res) <- "isolates"
+
+
     ## RENAME FILES ##
     file.rename("out-popsize.txt", file.sizes)
     file.rename("out-sample.txt", file.sample)
 
     ## return result ##
-    return(invisible())
+    return(res)
 }
 
 
