@@ -82,6 +82,8 @@ struct ts_sumstat * create_ts_sumstat(struct param *par){
 	out->varNbSnps = (double *) calloc(nsteps, sizeof(double));
 	out->meanPairwiseDist = (double *) calloc(nsteps, sizeof(double));
 	out->varPairwiseDist = (double *) calloc(nsteps, sizeof(double));
+	out->meanPairwiseDistStd = (double *) calloc(nsteps, sizeof(double));
+	out->varPairwiseDistStd = (double *) calloc(nsteps, sizeof(double));
 	out->Fst = (double *) calloc(nsteps, sizeof(double));
 
 	if(out->nbSnps==NULL || out->Hs==NULL || out->meanNbSnps==NULL || out->varNbSnps==NULL || out->meanPairwiseDist==NULL || out->varPairwiseDist==NULL || out->Fst==NULL){
@@ -126,6 +128,8 @@ void free_ts_sumstat(struct ts_sumstat *in){
 		free(in->varNbSnps);
 		free(in->meanPairwiseDist);
 		free(in->varPairwiseDist);
+		free(in->meanPairwiseDistStd);
+		free(in->varPairwiseDistStd);
 		free(in->Fst);
 	}
 	free(in);
@@ -379,6 +383,16 @@ double mean_pairwise_dist(struct sample *in, struct param *par){
 
 
 
+double mean_pairwise_dist_std(struct sample *in, struct param *par){
+	double out = mean_pairwise_dist(in, par);
+	int n = nb_snps(in, par);
+	out= out/(double) n;
+	return out;
+}
+
+
+
+
 
 double var_pairwise_dist(struct sample *in, struct param *par){
 	struct distmat_int * mat = pairwise_dist(in, par);
@@ -393,6 +407,17 @@ double var_pairwise_dist(struct sample *in, struct param *par){
 
 	/* free memory and return */
 	free_distmat_int(mat);
+	return out;
+}
+
+
+
+
+
+double var_pairwise_dist_std(struct sample *in, struct param *par){
+	double out = var_pairwise_dist(in, par);
+	int n = nb_snps(in, par);
+	out=out/(double) (n*n);
 	return out;
 }
 
@@ -450,6 +475,8 @@ void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step, struc
 	in->varNbSnps[idx] = var_nb_snps(samp);
 	in->meanPairwiseDist[idx] = mean_pairwise_dist(samp, par);
 	in->varPairwiseDist[idx] = var_pairwise_dist(samp, par);
+	in->meanPairwiseDistStd[idx] = mean_pairwise_dist_std(samp, par);
+	in->varPairwiseDistStd[idx] = var_pairwise_dist_std(samp, par);
 	in->Fst[idx] = fst(samp, par);
 	in->length = in->length + 1;
 }

@@ -29,5 +29,5 @@ monitor.epidemics(300, beta=1.1, duration=100)
 res <- monitor.epidemics(300, beta=1.1, n.pop=20, duration=100,min.samp.size=1e4, p.disp=2e-5)
 
 ## various plots
-
+res <- monitor.epidemics(300, beta=1.1, n.pop=20, duration=100,min.samp.size=1e4, p.disp=2e-5, item=c("meanPairwiseDist","meanPairwiseDistStd", "varPairwiseDist", "varPairwiseDistStd"))
 }

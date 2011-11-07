@@ -25,7 +25,7 @@ struct allfreq{
 
 
 struct ts_sumstat{
-	double *Hs, *meanNbSnps, *varNbSnps, *meanPairwiseDist, *varPairwiseDist, *Fst;
+	double *Hs, *meanNbSnps, *varNbSnps, *meanPairwiseDist, *varPairwiseDist, *meanPairwiseDistStd, *varPairwiseDistStd, *Fst;
 	int *steps, *nbSnps, length, maxlength;
 
 };
@@ -99,6 +99,11 @@ struct distmat_int * pairwise_dist(struct sample *in, struct param *par);
 double mean_pairwise_dist(struct sample *in, struct param *par);
 
 double var_pairwise_dist(struct sample *in, struct param *par);
+
+double var_pairwise_dist_std(struct sample *in, struct param *par);
+
+double mean_pairwise_dist_std(struct sample *in, struct param *par);
+
 
 double fst(struct sample *in, struct param *par);
 
