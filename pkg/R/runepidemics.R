@@ -1,19 +1,19 @@
 #############
 ## epidemics
 #############
-epidemics <- function(n.sample, duration, t.sample=NULL,
-                      seq.length=1e4, mut.rate=1e-5, n.pop=1, connectivity=NULL, p.disp=0.1,
-                      pop.size=1e5,  beta, n.ini.inf=10, t.infectious=1, t.recover=2,
+epidemics <- function(n.sample, duration, beta, t.sample=NULL,
+                      seq.length=1e4, mut.rate=1e-5,
+                      n.ini.inf=10, t.infectious=1, t.recover=2,
                       plot=TRUE, items=c("nsus", "ninf", "nrec"),
                       col=c("blue", "red", grey(.3)), lty=c(2,1,3), pch=c(20,15,1),
                       file.sizes="out-popsize.txt", file.sample="out-sample.txt"){
 
     ## check/process arguments ##
     ## n.sample
-    n.sample = as.integer(max(n.sample[1],1))
+    n.sample <- as.integer(max(n.sample[1],1))
 
     ## duration
-    duration = as.integer(max(duration[1],1))
+    duration <- as.integer(max(duration[1],1))
 
     ## t.sample
     if(is.null(t.sample)){

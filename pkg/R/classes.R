@@ -79,3 +79,120 @@ plot.isolates <- function(x, y=NULL, ..., plot=TRUE, show.pop=TRUE, col.pal=rain
     ## RETURN TREE ##
     return(invisible(res))
 }
+
+
+
+
+
+
+
+#####################
+## print.metaPopInfo
+#####################
+.check.metaPopInfo <- function(x, stopOnError=TRUE){
+    if(stopOnError) {f1 <- stop} else {f1 <- warning}
+    ## GENERAL CHECKS ##
+    if(!inherits(x, "metaPopInfo")) f1("metaPopInfo object is not of class metaPopInfo")
+    if(!is.list(x)) f1("metaPopInfo object is not a list")
+
+    ## CHECK COMPONENT PRESENCE ##
+    x.names <- names(x)
+    if(!"n.pop" %in% x.names) f1("metaPopInfo object has no 'n.pop' component.")
+    if(!"metapop.size" %in% x.names) f1("metaPopInfo object has no 'metapop.size' component.")
+    if(!"pop.sizes" %in% x.names) f1("metaPopInfo object has no 'pop.sizes' component.")
+    if(!"xy" %in% x.names) f1("metaPopInfo object has no 'xy' component.")
+    if(!"cn" %in% x.names) f1("metaPopInfo object has no 'cn' component.")
+    if(!"weights" %in% x.names) f1("metaPopInfo object has no 'weights' component.")
+    if(!"call" %in% x.names) f1("metaPopInfo object has no 'call' component.")
+
+    ## CHECK LENGTHS ##
+    temp <- sapply(x, function(e) ifelse(is.matrix(e), nrow(e), length(e)))
+    temp <- temp[names(temp) %in% c("pop.sizes","xy","cn","weights")]
+    if(!all(temp==x$n.pop)) f1("inconsistent dimensions found in the content of metaPopInfo object.")
+
+    ## CHECK POP SIZES ##
+    if(x$metapop.size != sum(x$pop.sizes)) f1("error in metaPopInfo object: \nsum of population sizes differs from total metapopulation size")
+
+    ## RETURN ##
+    return(invisible())
+}
+
+
+
+
+
+
+#####################
+## print.metaPopInfo
+#####################
+print.metaPopInfo <- function(x, ...){
+    cat(paste("\n-- metapopulation with", x$n.pop, "populations --"))
+    cat("\n- population sizes ($pop.sizes) -\n")
+    print(x$pop.sizes)
+    cat("\n- xy coordinates ($xy) -\n")
+    print(x$xy)
+    cat("\n- connection network ($cn) -\n")
+    print(x$cn)
+    cat("\n- dispersal probabilities ($weights) -\n")
+    print(x$weights)
+    cat("\n- call ($call) -\n")
+    print(x$call)
+    return(invisible())
+} # end print.metaPopInfo
+
+
+
+
+
+
+
+####################
+## plot.metaPopInfo
+####################
+plot.metaPopInfo <- function(x, y=NULL, ..., max.lwd=10, max.cir=0.5, arr=TRUE, annot=TRUE){
+    ## CHECK OBJECT ##
+    .check.metaPopInfo(x, stopOnError=FALSE)
+    xy <- x$xy
+    cn <- x$cn
+
+    ## PLOT STUFF ##
+    ## empty plot
+    rx <- abs(diff(range(xy[,1])))
+    ry <- abs(diff(range(xy[,2])))
+    xlim <- range(xy[,1]) + c(-0.1, 0.1)*rx
+    ylim <- range(xy[,2]) + c(-0.1, 0.1)*ry
+    plot(xy, , xlab="x",ylab="y", type="n", xlim=xlim, ylim=ylim)
+
+    ## add pop sizes
+    symbols(xy, circ=sqrt(x$pop.sizes), xlab="x",ylab="y", inche=max.cir, bg="blue3", add=TRUE)
+
+    ## add arrows
+    f1 <- function(i){ # find arrow parameters
+        startx <- rep(xy[i,1], length(cn[[i]]))
+        starty <- rep(xy[i,2], length(cn[[i]]))
+        endx <- xy[cn[[i]], 1]
+        endy <- xy[cn[[i]], 2]
+        w <- x$weights[[i]]
+        res <- data.frame(startx, starty, endx, endy, w)
+        return(res)
+    }
+
+    temp <- Reduce("rbind.data.frame",lapply(1:length(x$cn), f1))
+    arr.w <- max.lwd*temp$w/max(temp$w)
+    if(arr) {
+        arrows(temp$startx, temp$starty, temp$endx, temp$endy, lwd=arr.w)
+    } else {
+        segments(temp$startx, temp$starty, temp$endx, temp$endy, lwd=arr.w)
+    }
+
+    ## add labels
+    if(annot){
+        text(xy, lab=1:nrow(xy), col="grey", cex=1.5, font=2)
+        text(xy, lab=1:nrow(xy), col="white", cex=1.5)
+    }
+
+
+    ## RETURN RES ##
+    res <- list(xy=xy, circ=sqrt(x$pop.sizes), arrows=temp)
+    return(invisible(res))
+}
