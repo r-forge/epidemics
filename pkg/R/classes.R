@@ -23,8 +23,8 @@ distIsolates <- function(x, add.root = TRUE, res.type = c("dist", "matrix")){
         stop("x is not a isolates object")
     res.type <- match.arg(res.type)
     x <- x$gen
-    if (add.root) {
-        x <- c(list(character(0)), x)
+    if (add.root) { # root added at the end
+        x <- c(x, list(character(0)))
     }
     n <- length(x)
     f1 <- function(a, b){
@@ -62,13 +62,17 @@ plot.isolates <- function(x, y=NULL, ..., plot=TRUE, show.pop=TRUE, col.pal=rain
     ## GET PHYLOGENY ##
     res <- y(distIsolates(x, add.root=add.root, res.type=c("dist")))
     if(!inherits(res, "phylo")) warning("the produced phylogeny is not a 'phylo' object")
-    res <- root(res,1)
+    res$tip.label <- gsub(" ", "", res$tip.label)
+    res <- root(res, as.character(length(res$tip.label)))
 
     ## PLOT RESULTS ##
     if(plot){
         if(show.pop){
             npop <- length(levels(x$pop))
+            ## reorder x$pop
+            x$pop <- x$pop[as.numeric(res$tip.label)]
             myCol <- col.pal(npop)[as.integer(x$pop)]
+            myCol[is.na(myCol)] <- "black"
             plot(res, tip.col=myCol, ...)
         } else {
             plot(res, ...)
@@ -91,9 +95,12 @@ plot.isolates <- function(x, y=NULL, ..., plot=TRUE, show.pop=TRUE, col.pal=rain
 #####################
 .check.metaPopInfo <- function(x, stopOnError=TRUE){
     if(stopOnError) {f1 <- stop} else {f1 <- warning}
+
+
     ## GENERAL CHECKS ##
     if(!inherits(x, "metaPopInfo")) f1("metaPopInfo object is not of class metaPopInfo")
     if(!is.list(x)) f1("metaPopInfo object is not a list")
+
 
     ## CHECK COMPONENT PRESENCE ##
     x.names <- names(x)
@@ -105,10 +112,14 @@ plot.isolates <- function(x, y=NULL, ..., plot=TRUE, show.pop=TRUE, col.pal=rain
     if(!"weights" %in% x.names) f1("metaPopInfo object has no 'weights' component.")
     if(!"call" %in% x.names) f1("metaPopInfo object has no 'call' component.")
 
+
     ## CHECK LENGTHS ##
-    temp <- sapply(x, function(e) ifelse(is.matrix(e), nrow(e), length(e)))
-    temp <- temp[names(temp) %in% c("pop.sizes","xy","cn","weights")]
-    if(!all(temp==x$n.pop)) f1("inconsistent dimensions found in the content of metaPopInfo object.")
+    if(x$n.pop > 1){
+        temp <- sapply(x, function(e) ifelse(is.matrix(e), nrow(e), length(e)))
+        temp <- temp[names(temp) %in% c("pop.sizes","xy","cn","weights")]
+        if(!all(temp==x$n.pop)) f1("inconsistent dimensions found in the content of metaPopInfo object.")
+    }
+
 
     ## CHECK POP SIZES ##
     if(x$metapop.size != sum(x$pop.sizes)) f1("error in metaPopInfo object: \nsum of population sizes differs from total metapopulation size")
@@ -152,6 +163,8 @@ print.metaPopInfo <- function(x, ...){
 plot.metaPopInfo <- function(x, y=NULL, ..., max.lwd=10, max.cir=0.5, arr=TRUE, annot=TRUE){
     ## CHECK OBJECT ##
     .check.metaPopInfo(x, stopOnError=FALSE)
+    if(x$n.pop==1) return(invisible())
+
     xy <- x$xy
     cn <- x$cn
 

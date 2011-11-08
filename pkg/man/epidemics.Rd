@@ -22,14 +22,41 @@ epidemics(n.sample, duration, t.sample = NULL, seq.length = 10000,
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
-## simple epidemic
-epidemics(n.sample=30, beta=1.1, duration=30)
+## SIMPLE EPIDEMIC ##
+metapop <- setMetaPop(1, 1e6)
+x <- epidemics(n.sample=30, beta=1.1, duration=30, meta=metapop)
 
-## several populations - multiple cycles
-x <- epidemics(n.sample=50, beta=1.1,duration=50,n.pop=20,p.disp=5e-5,pop.size=5e4,t.sample=rep(c(0,10,20,30,40), each=10), mut.rate=3e-5)
 
-## examin and plot result ##
+## SEVERAL POPULATIONS - 1 DIM STEPPING STONE ##
+metapop <- setMetaPop(n.pop = 20, metapop.size = 20e5,
+                args.spatial = list(setting="oneDimSS",p.disp = 1e-4))
+
+## show metatpop
+plot(metapop, max.cir=0.1, arr=FALSE, annot=FALSE, max.lwd=1)
+sampTime <- rep(c(0,20,50,100,150), each=10)
+
+## run simulations
+x <- epidemics(n.sample=50, beta=1.1, duration=200, meta=metapop, t.sample=sampTime)
+
+## examine and plot result
 x
 plot(x)
 plot(x,  type="fan", y=fastme.ols)
+
+
+
+## MORE COMPLEX SETTINGS ##
+## define metapop
+metapop <- setMetaPop(n.pop = 100, metapop.size = 100e4,
+                args.spatial = list(setting="Delaun",p.disp = 5e-4,connect="rgam",shape=3,rate=1))
+
+plot(metapop, max.cir=0.15, max.lwd=2, arr=FALSE, annot=FALSE)
+
+## run simulations
+x <- epidemics(n.sample=50, beta=2, duration=50,meta=metapop,t.sample=0, mut=3e-4)
+
+## plot results
+plot(x)
+plot(x,  type="fan")
+
 }

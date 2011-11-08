@@ -225,6 +225,14 @@ chooseCn <- function(xy,ask=TRUE, type=NULL, result.type="nb", d1=NULL, d2=NULL,
 ## setMetaPop
 ##############
 setMetaPop <- function(n.pop, metapop.size, args.pop.size=list(), args.spatial=list(), check.fail.error=TRUE){
+    ## HANDLE N.POP=1 ##
+    if(n.pop==1){
+        res <- list(n.pop=1, metapop.size=metapop.size, pop.sizes=metapop.size, xy=NULL, cn=NULL, weights=NULL)
+        res$call <- match.call()
+        class(res) <- "metaPopInfo"
+        return(res)
+    }
+
     ## HANDLE ARGUMENTS ##
     args.pop.size$n.pop <- n.pop
     args.pop.size$metapop.size <- metapop.size
@@ -296,6 +304,7 @@ setPopSizes <- function(n.pop, metapop.size, distrib=c("equal","runif","rpois","
 
     ## RETURN RESULT ##
     if(sum(res)!=metapop.size) warning("final metapopulation size is not the requested size")
+    if(any(res<1)) warning("some population sizes are 0 and will likely cause simulation issues")
     return(res)
 
 } # end setPopSizes
@@ -426,3 +435,23 @@ setSpatialConfig <- function(n.pop, setting=c("lattice","Delaunay","Gabriel","on
     res <- list(xy=xy, cn=cn, weights=weights)
     return(res)
 } # end setSpatialConfig
+
+
+
+
+
+########################
+## .metaPopInfo2dispmat
+########################
+.metaPopInfo2dispmat <- function(x){
+    res <- matrix(0.0, ncol=x$n.pop, nrow=x$n.pop)
+
+    ## off-diag terms
+    for(i in 1:x$n.pop){
+        res[i, x$cn[[i]]] <- x$weights[[i]]
+    }
+
+    ## diagonal
+    diag(res) <- 1-apply(res,1,sum)
+    return(res)
+}

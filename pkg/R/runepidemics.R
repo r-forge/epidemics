@@ -1,14 +1,34 @@
 #############
 ## epidemics
 #############
-epidemics <- function(n.sample, duration, beta, t.sample=NULL,
+epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
                       seq.length=1e4, mut.rate=1e-5,
                       n.ini.inf=10, t.infectious=1, t.recover=2,
                       plot=TRUE, items=c("nsus", "ninf", "nrec"),
                       col=c("blue", "red", grey(.3)), lty=c(2,1,3), pch=c(20,15,1),
                       file.sizes="out-popsize.txt", file.sample="out-sample.txt"){
 
-    ## check/process arguments ##
+    ## CHECK/PROCESS ARGUMENTS ##
+    ## METAPOP PARAMETERS
+    .check.metaPopInfo(metaPopInfo)
+
+    ## npop
+    n.pop <- as.integer(max(metaPopInfo$n.pop[1],1))
+
+    ## connectivity
+    if(n.pop==1){
+        connectivity <- 1
+    } else {
+        connectivity <- .metaPopInfo2dispmat(metaPopInfo)
+    }
+    connectivity <- as.double(connectivity)
+
+    ## pop.size
+    pop.size <- as.integer(metaPopInfo$pop.sizes)
+    if(any(pop.size<1)) stop("pop.size cannot contain values less than 1")
+
+
+    ## OTHER PARAMETERS
     ## n.sample
     n.sample <- as.integer(max(n.sample[1],1))
 
@@ -30,26 +50,6 @@ epidemics <- function(n.sample, duration, beta, t.sample=NULL,
     ## mut.rate
     mut.rate <- as.double(max(mut.rate[1],0))
     if(mut.rate < 1e-14) warning("mutation rate is zero")
-
-    ## npop
-    n.pop <- as.integer(max(n.pop[1],1))
-
-    ## connectivity
-    if(is.null(connectivity)){
-        if(p.disp[1]<0 | p.disp[1]>1) stop("p.disp must be comprised between 0 and 1")
-        connectivity <- matrix(p.disp/(n.pop-1), ncol=n.pop, nrow=n.pop)
-        diag(connectivity) <- 1-p.disp
-        connectivity <- as.double(connectivity)
-    } else {
-        if(!is.matrix(connectivity)) stop("connectivity must provided as a matrix")
-        if(nrow(connectivity) != ncol(connectivity)) stop("connectivity matrix must be square")
-        if(any(connectivity)<0) stop("connectivity matrix contains negative values")
-        connectivity <- as.double(t(connectivity))
-    }
-
-    ## pop.size
-    pop.size <- as.integer(rep(pop.size, length=n.pop))
-    if(any(pop.size<1)) stop("pop.size cannot contain values less than 1")
 
     ## beta
     beta <- as.double(beta[1])
@@ -98,7 +98,7 @@ epidemics <- function(n.sample, duration, beta, t.sample=NULL,
 
     ## return result ##
     return(res)
-}
+} # end epidemics
 
 
 
@@ -109,12 +109,33 @@ epidemics <- function(n.sample, duration, beta, t.sample=NULL,
 #####################
 ## monitor.epidemics
 #####################
-monitor.epidemics <- function(n.sample, duration, seq.length=1e4, mut.rate=1e-5, n.pop=1, connectivity=NULL, p.disp=0.1,
-                              pop.size=1e5,  beta, n.ini.inf=10, t.infectious=1, t.recover=2, min.samp.size=100, plot=TRUE,
+monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=1e4, mut.rate=1e-5,
+                              n.ini.inf=10, t.infectious=1, t.recover=2, min.samp.size=100, plot=TRUE,
                               items=c("nbSnps","Hs","meanNbSnps","varNbSnps","meanPairwiseDist","varPairwiseDist","meanPairwiseDistStd","varPairwiseDistStd","Fst"),
                               file.sizes="out-popsize.txt", file.sumstat="out-sumstat.txt"){
 
-    ## check/process arguments ##
+    ## CHECK/PROCESS ARGUMENTS ##
+    ## METAPOP PARAMETERS
+    .check.metaPopInfo(metaPopInfo)
+
+    ## npop
+    n.pop <- as.integer(max(metaPopInfo$n.pop[1],1))
+
+    ## connectivity
+    if(n.pop==1){
+        connectivity <- 1
+    } else {
+        connectivity <- .metaPopInfo2dispmat(metaPopInfo)
+    }
+    connectivity <- as.double(connectivity)
+   
+    ## pop.size
+    pop.size <- as.integer(metaPopInfo$pop.sizes)
+    if(any(pop.size<1)) stop("pop.size cannot contain values less than 1")
+
+
+    ## OTHER PARAMETERS
+
     ## define useless arguments but needed by the C function
     t.sample <- rep(0L, n.sample) # by default, all sampled at the end
 
@@ -131,26 +152,6 @@ monitor.epidemics <- function(n.sample, duration, seq.length=1e4, mut.rate=1e-5,
     ## mut.rate
     mut.rate <- as.double(max(mut.rate[1],0))
     if(mut.rate < 1e-14) warning("mutation rate is zero")
-
-    ## npop
-    n.pop <- as.integer(max(n.pop[1],1))
-
-    ## connectivity
-    if(is.null(connectivity)){
-        if(p.disp[1]<0 | p.disp[1]>1) stop("p.disp must be comprised between 0 and 1")
-        connectivity <- matrix(p.disp/(n.pop-1), ncol=n.pop, nrow=n.pop)
-        diag(connectivity) <- 1-p.disp
-        connectivity <- as.double(connectivity)
-    } else {
-        if(!is.matrix(connectivity)) stop("connectivity must provided as a matrix")
-        if(nrow(connectivity) != ncol(connectivity)) stop("connectivity matrix must be square")
-        if(any(connectivity)<0) stop("connectivity matrix contains negative values")
-        connectivity <- as.double(t(connectivity))
-    }
-
-    ## pop.size
-    pop.size <- as.integer(rep(pop.size, length=n.pop))
-    if(any(pop.size<1)) stop("pop.size cannot contain values less than 1")
 
     ## beta
     beta <- as.double(beta[1])
@@ -204,6 +205,6 @@ monitor.epidemics <- function(n.sample, duration, seq.length=1e4, mut.rate=1e-5,
         }
     }
 
-    ## return result ##
+    ## RETURN RESULT ##
     return(res)
-}
+} # end monitor.epidemics

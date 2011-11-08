@@ -20,12 +20,21 @@ monitor.epidemics(n.sample, duration, seq.length=1e4, mut.rate=1e-5, n.pop=1, co
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
-## simple example
-monitor.epidemics(300, beta=1.1, duration=100)
+## SIMPLE EXAMPLE ##
+metapop <- setMetaPop(1, 1e6)
+monitor.epidemics(300, beta=1.1, duration=100, metaPop=metapop)
 
-## multiple populations - several cycles
-res <- monitor.epidemics(300, beta=1.1, n.pop=20, duration=100,min.samp.size=1e4, p.disp=2e-5)
 
-## various plots
-res <- monitor.epidemics(300, beta=1.1, n.pop=20, duration=100,min.samp.size=1e4, p.disp=2e-5, item=c("meanPairwiseDist","meanPairwiseDistStd", "varPairwiseDist", "varPairwiseDistStd"))
+## MULTIPLE POPULATIONS - 2D LATTICE ##
+metapop <- setMetaPop(n.pop = 20, metapop.size = 20e5,
+                args.spatial = list(p.disp = 1e-4))
+plot(metapop)
+
+## run simulation
+res <- monitor.epidemics(300, beta=1.1, duration=100, min.samp.size=1e3, metaPop=metapop)
+
+## again - keep only certain plots
+res <- monitor.epidemics(300, beta=1.1, duration=100, min.samp.size=1e3,
+                   metaPop=metapop,item=c("meanPairwiseDistStd", "varPairwiseDistStd", "Fst"))
+
 }
