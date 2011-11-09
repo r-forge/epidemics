@@ -82,14 +82,18 @@ epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
     }
 
 
+    ## SAVE POPULATION DYNAMICS ##
+    res <- list(popdyn=dat)
+
+
     ## GET SAMPLE ##
     txt <- readLines("out-sample.txt")
-    res <- list(gen=NULL, pop=NULL)
-    res$gen <- txt[seq(2, by=2, length=length(txt)/2)]
-    res$gen <- gsub("[[:blank:]]$", "", res$gen)
-    res$gen <- lapply(res$gen, function(e) unlist(strsplit(e, " ")))
-    res$pop <- factor(txt[seq(1, by=2, length=length(txt)/2)])
-    class(res) <- "isolates"
+    res$sample <- list(gen=NULL, pop=NULL)
+    res$sample$gen <- txt[seq(2, by=2, length=length(txt)/2)]
+    res$sample$gen <- gsub("[[:blank:]]$", "", res$gen)
+    res$sample$gen <- lapply(res$sample$gen, function(e) unlist(strsplit(e, " ")))
+    res$sample$pop <- factor(txt[seq(1, by=2, length=length(txt)/2)])
+    class(res$sample) <- "isolates"
 
 
     ## RENAME FILES ##
@@ -128,7 +132,7 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
         connectivity <- .metaPopInfo2dispmat(metaPopInfo)
     }
     connectivity <- as.double(connectivity)
-   
+
     ## pop.size
     pop.size <- as.integer(metaPopInfo$pop.sizes)
     if(any(pop.size<1)) stop("pop.size cannot contain values less than 1")
@@ -176,7 +180,7 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
 
     ## RETRIEVE OUTPUT ##
     ## rename files ##
-    res <- read.table("out-sumstat.txt", header=TRUE)
+    sumstat <- read.table("out-sumstat.txt", header=TRUE)
     grpsizes <- read.table("out-popsize.txt", header=TRUE)[,1:4]
     file.rename("out-popsize.txt", file.sizes)
     file.rename("out-sumstat.txt", file.sumstat)
@@ -185,11 +189,9 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
         grpsizes <- grpsizes[1:(min(which(apply(grpsizes, 1, function(e) all(e<1))))-1), ]
     }
 
-    grpsizes <- grpsizes[min(res$step):max(res$step),]
+    grpsizes <- grpsizes[min(sumstat$step):max(sumstat$step),]
 
-    ## add relative distances
-    res$relatPairwiseDist <-  res$meanPairwiseDist/res$nbSnps
-
+   
     ## PLOT ##
     if(plot){
         if(length(items)>1 & length(items)<5) par(mfrow = c(2,2))
@@ -201,10 +203,11 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
             axis(side=4)
             ##mtext(side=4, "size (number of individuals)", line=2)
             par(new=TRUE)
-            plot(res$step, res[,item], ylab=item, xlab="", main=item, type="b", lwd=2)
+            plot(sumstat$step, sumstat[,item], ylab=item, xlab="", main=item, type="b", lwd=2)
         }
     }
 
     ## RETURN RESULT ##
+    res <- list(popdyn=grpsizes, sumstat=sumstat)
     return(res)
 } # end monitor.epidemics
