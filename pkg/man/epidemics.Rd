@@ -40,8 +40,8 @@ x <- epidemics(n.sample=50, beta=1.1, duration=200, meta=metapop, t.sample=sampT
 
 ## examine and plot result
 x
-plot(x)
-plot(x,  type="fan", y=fastme.ols)
+plot(x$sample)
+plot(x$sample,  type="fan", y=fastme.ols)
 
 
 
@@ -56,7 +56,7 @@ plot(metapop, max.cir=0.15, max.lwd=2, arr=FALSE, annot=FALSE)
 x <- epidemics(n.sample=50, beta=2, duration=50,meta=metapop,t.sample=0, mut=3e-4)
 
 ## plot results
-plot(x)
-plot(x,  type="fan")
+plot(x$sample)
+plot(x$sample,  type="fan")
 
 }

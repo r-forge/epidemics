@@ -90,7 +90,7 @@ epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
     txt <- readLines("out-sample.txt")
     res$sample <- list(gen=NULL, pop=NULL)
     res$sample$gen <- txt[seq(2, by=2, length=length(txt)/2)]
-    res$sample$gen <- gsub("[[:blank:]]$", "", res$gen)
+    res$sample$gen <- gsub("[[:blank:]]$", "", res$sample$gen)
     res$sample$gen <- lapply(res$sample$gen, function(e) unlist(strsplit(e, " ")))
     res$sample$pop <- factor(txt[seq(1, by=2, length=length(txt)/2)])
     class(res$sample) <- "isolates"
@@ -191,7 +191,7 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
 
     grpsizes <- grpsizes[min(sumstat$step):max(sumstat$step),]
 
-   
+
     ## PLOT ##
     if(plot){
         if(length(items)>1 & length(items)<5) par(mfrow = c(2,2))

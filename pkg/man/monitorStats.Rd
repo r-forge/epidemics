@@ -33,8 +33,18 @@ plot(metapop)
 ## run simulation
 res <- monitor.epidemics(300, beta=1.1, duration=100, min.samp.size=1e3, metaPop=metapop)
 
-## again - keep only certain plots
-res <- monitor.epidemics(300, beta=1.1, duration=100, min.samp.size=1e3,
-                   metaPop=metapop,item=c("meanPairwiseDistStd", "varPairwiseDistStd", "Fst"))
+## check output
+names(res)
+head(res$popdyn)
+head(res$sumstat)
+
+## visualize each plot separately ##
+par(mfrow=c(1,1))
+myCol <- colorRampPalette(c("blue","red"))(ncol(res$sumstat)-1)
+for(i in 2:ncol(res$sumstat)){
+plot(res$popdyn$step, res$popdyn$ninf, type="l",lwd=5, col=grey(.7),yaxt="n",ylab="", xlab="")
+par(new=TRUE)
+plot(res$sumstat$step,res$sumstat[,i],col=myCol[i-1],type="b",lwd=2, pch=20, main=names(res$sumstat)[i])
+}
 
 }
