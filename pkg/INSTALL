@@ -1,0 +1,30 @@
+=================
+= linux systems =
+=================
+On linux platforms, GNU Scientific Library (including headers) is needed.
+- give links to website
+- give name apt of packages on different distro
+- give example on how to find the package and install it
+
+
+
+
+===================
+= Windows systems =
+===================
+To compile/install from the sources.
+Tested on windows XP 32 bits (virtual machine):
+1) Install Rtools:
+http://www.murdoch-sutherland.com/Rtools/
+
+2) install GSL for windows:
+http://gnuwin32.sourceforge.net/packages/gsl.htm
+selecting "Complete package, except sources"
+
+3) create an environment variable called LIB_GSL and define it as the path to GnuWin32. By default, it is:
+"C:\Program Files\GnuWin32\"
+(don't forget the quotes)
+
+4) copy the files "\GnuWin32\bin\libgsl.dll" and "\GnuWin32\bin\libgslcblas.dll" to "\GnuWin32\lib\".
+
+5) then, R CMD build/INSTALL should work nicely
