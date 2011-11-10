@@ -118,8 +118,8 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	/* dispersal matrix */
 	struct dispmat *D;
 	D = create_dispmat(par);
-	printf("\ndispersal matrix:");
-	print_dispmat(D);
+	/* printf("\ndispersal matrix:"); */
+	/* print_dispmat(D); */
 
 	/* group sizes */
 	struct ts_groupsizes * grpsizes = create_ts_groupsizes(par);
@@ -169,58 +169,8 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 		printf("\n\n-- FINAL METAPOPULATION --");
 		print_metapopulation(metapop, FALSE);
 
-		/* test samples */
+		/* merge samples */
 		samp = merge_samples(samplist, tabdates->n, par);
-		print_sample(samp, TRUE);
-
-		/* test allele listing */
-		struct snplist *snpbilan;
-		snpbilan = list_snps(samp, par);
-		print_snplist(snpbilan);
-
-		/* test allele frequencies */
-		struct allfreq *freq;
-		freq = get_frequencies(samp, par);
-		print_allfreq(freq);
-
-		/* test Hs*/
-		double Hs = hs(samp,par);
-		printf("\nHs = %0.3f\n", Hs);
-
-		/* test Hs full genome */
-		Hs = hs_full_genome(samp,par);
-		printf("\nHs (full genome) = %0.5f\n", Hs);
-
-		/* test nb of snps */
-		int nball = nb_snps(samp,par);
-		printf("\nnumber of SNPs = %d\n", nball);
-
-		/* test mean nb of snps */
-		double temp = mean_nb_snps(samp);
-		printf("\nmean number of SNPs = %.2f\n", temp);
-
-		/* test var nb of snps */
-		temp = var_nb_snps(samp);
-		printf("\nvariance of number of alleles = %.2f\n", temp);
-
-		/* test pairwise distances */
-		struct distmat_int *mat = pairwise_dist(samp, par);
-		print_distmat_int(mat);
-
-		/* test mean pairwise distances */
-		temp = mean_pairwise_dist(samp,par);
-		printf("\nmean pairwise distance: %.2f", temp);
-
-		/* test variance of pairwise distances */
-		temp = var_pairwise_dist(samp,par);
-		printf("\nvar pairwise distance: %.2f", temp);
-
-		/* test Fst */
-		temp = fst(samp,par);
-		printf("\nfst: %.2f", temp);
-
-
-		printf("\n");
 
 		/* write sample to file */
 		printf("\n\nPrinting sample to file 'out-sample.txt'\n");
@@ -228,9 +178,6 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 
 		/* free memory */
 		free_sample(samp);
-		free_snplist(snpbilan);
-		free_allfreq(freq);
-		free_distmat_int(mat);
 
 	}
 
