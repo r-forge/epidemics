@@ -28,6 +28,7 @@ monitor.epidemics(300, beta=1.1, duration=100, metaPop=metapop)
 ## MULTIPLE POPULATIONS - 2D LATTICE ##
 metapop <- setMetaPop(n.pop = 20, metapop.size = 20e5,
                 args.spatial = list(p.disp = 1e-4))
+par(mfrow=c(1,1))
 plot(metapop)
 
 ## run simulation

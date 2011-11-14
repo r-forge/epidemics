@@ -1,12 +1,11 @@
 \encoding{UTF-8}
 \name{setMetaPop}
 \alias{setMetaPop}
+\alias{setPopSizes}
+\alias{setSpatialConfig}
 \alias{metaPopInfo}
 \alias{print.metaPopInfo}
 \alias{plot.metaPopInfo}
-\alias{chooseCn}
-\alias{setPopSizes}
-\alias{setSpatialConfig}
 % \alias{}
 % \alias{}
 \title{Generate metapopulation settings for epidemic simulation}
@@ -16,20 +15,51 @@
 }
 \usage{
 setMetaPop(n.pop, metapop.size, args.pop.size=list(),
-           args.spatial=list(), check.fail.error=TRUE)
+    args.spatial=list(), check.fail.error=TRUE)
 
-setPopSizes(n.pop, metapop.size, distrib=c("equal","runif","rpois","rgamma"),
-            lambda=NULL, shape=NULL, rate=NULL)
+setPopSizes(n.pop, metapop.size, distrib = c("equal", "runif",
+    "rpois", "rgamma"), lambda = NULL, shape = NULL, rate = NULL)
 
-setSpatialConfig(n.pop, setting=c("lattice","Delaunay","Gabriel","oneDimSS","panmix"),
-                 n.row=NULL, link=c("rook", "queen"), connect=c("uniform","rgamma"),
-                 p.disp=NULL, shape=NULL, rate=NULL, xy=NULL, cn=NULL)
+setSpatialConfig(n.pop, setting = c("lattice", "Delaunay", "Gabriel", 
+    "oneDimSS", "panmix"), n.row = NULL, link = c("rook", "queen"), 
+    connect = c("uniform", "rgamma"), p.disp = NULL, shape = NULL, 
+    rate = NULL, xy = NULL, cn = NULL)
+
+\method{print}{metaPopInfo}(x, \dots)
+
+\method{plot}{metaPopInfo}(x, y = NULL, \dots, max.lwd = 10, max.cir = 0.5, arr = TRUE, 
+    annot = TRUE)
 
 }
 \arguments{
-
+  \item{n.pop}{the number of populations in the metapopulation.}
+  \item{metapop.size}{the total size of the metapopulation.}
+  \item{args.pop.size}{a list of named arguments passed to \code{setPopSizes}.}
+  \item{args.spatial}{a list of named arguments passed to \code{setSpatialConfig}.}
+  \item{check.fail.error}{a logical indicating if in case of issue
+    detected in the output, the function should stop with an error
+    message (alternative gives warnings only).}
+  \item{distrib}{a character string indicating the distribution of
+    population sizes - see details.}
+  \item{lambda}{parameter of a Poisson distribution.}
+  \item{shape, rate}{parameters of a gamma distribution.}
+  \item{setting}{a character string indicating the spatial distribution of
+    the populations - see details.}
+  \item{n.row}{the number of rows to be used for the lattice.}
+  \item{link}{the type of link to be used for the lattice, 'rook' or
+    'queen'.}
+  \item{connect}{a character string indicating the distribution of the
+    dispersal probabilities for each population - see details.}
+  \item{p.disp}{the probability of dispersal from any given population.}
+  \item{xy}{a matrix with two columns containing spatial (x,y) coordinates.}
+  \item{cn}{a connectivity network with class \code{nb} (\code{spdep} package).}
 }
 \value{
+  For \code{setMetaPop}, a \code{metaPopInfo} object.
+
+  For \code{chooseCn}, a connectivity network.
+
+  For \code{plot.metaPopInfo}, a \code{list} containing plot information.
 
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
