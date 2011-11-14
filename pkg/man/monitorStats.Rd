@@ -7,16 +7,49 @@
   using them for published results.
 }
 \usage{
-monitor.epidemics(n.sample, duration, seq.length=1e4, mut.rate=1e-5, n.pop=1, connectivity=NULL, p.disp=0.1,
-                  pop.size=1e5,  beta, n.ini.inf=10, t.infectious=1, t.recover=2, min.samp.size=100, plot=TRUE
-                  items=c("nbSnps","Hs","meanNbSnps","varNbSnps","meanPairwiseDist","varPairwiseDist","meanPairwiseDistStd","varPairwiseDistStd","Fst"),
-                  file.sizes="out-popsize.txt", file.sumstat="out-sumstat.txt")
+monitor.epidemics(n.sample, duration, beta, metaPopInfo, seq.length = 10000, 
+    mut.rate = 1e-05, n.ini.inf = 10, t.infectious = 1, t.recover = 2, 
+    min.samp.size = 100, plot = TRUE, items = c("nbSnps", "Hs", 
+        "meanNbSnps", "varNbSnps", "meanPairwiseDist", "varPairwiseDist", 
+        "meanPairwiseDistStd", "varPairwiseDistStd", "Fst"), 
+    file.sizes = "out-popsize.txt", file.sumstat = "out-sumstat.txt")
 }
 \arguments{
-
+  \item{n.sample}{the number of samples required.}
+  \item{duration}{the duration of the simulation.}
+  \item{beta}{the transmission rate.}
+  \item{metaPopInfo}{a \code{metaPopInfo} object containing information
+    on the infected metapopulation; see \code{\link{setMetaPop}}.}
+  \item{seq.length}{the length of the pathogenic genome, in number of nucleotides.}
+  \item{mut.rate}{the mutation rate of the pathogenic genome, in number
+    of mutation per site and per time step.}
+  \item{n.ini.inf}{the initial number of (identical) pathogens seeding
+    the original infection. Used to avoid stochatistc extinctions during
+    the early stages of the epidemic.}
+  \item{t.infectious}{the age, in number of time steps, at which
+    pathogens start being infectious.}
+  \item{t.recover}{the age, in number of time steps, at which
+    pathogens stops being infectious, causing the host to move to
+    'recovered' state.}
+  \item{min.samp.size}{the minimum number of pathogens in the
+    metapopulations required to compute summary statistics at a given
+    time step.}
+  \item{plot}{a logical indicating whether plots should be created at
+    the end of the simulation.}
+  \item{items}{a vector of character strings indicating which data
+    should be plotted.}
+  \item{file.sizes}{a character string indicating the name of the output
+    file for population dynamics.}
+  \item{file.sumstat}{a character string indicating the name of the output
+    file for the summary statistics computed.}
 }
 \value{
+  A list containing two slots:
 
+  - \code{$popdyn}: a \code{data.frame} containing the number of susceptible,
+  infected, and recovered hosts over time.
+
+  - \code{$sumstat}: a \code{data.frame} containing computed summary statistics.
 }
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{

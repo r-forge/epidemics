@@ -62,6 +62,41 @@ setSpatialConfig(n.pop, setting = c("lattice", "Delaunay", "Gabriel",
   For \code{plot.metaPopInfo}, a \code{list} containing plot information.
 
 }
+\details{
+  == DISTRIBUTION OF POPULATION SIZES ==\cr
+  \code{distrib} indicates the distribution of population sizes in the
+  metapopulation; it can take the values:\cr
+  - "equal": all populations have the same size (if possible).\cr
+  - "runif": population sizes are drawn from a uniform distribution.\cr
+  - "rpois": population sizes are drawn from a Poisson distribution with
+  parameter \code{lambda}.\cr
+  - "rgamma": population sizes are drawn from a gamma distribution with
+  parameters \code{shape} and \code{rate}.\cr
+  - - - - - - - - - - - - - - - - - -\cr
+  == SPATIAL DISTRIBUTION OF THE POPULATIONS ==\cr
+  \code{setting} indicates the spatial distribution of the populations;
+  it can take the following values:\cr
+  - "lattice": populations are arranged on a lattice, aiming for a
+  square lattice by default, unless \code{n.row} is provided.\cr
+  - "Delaunay": populations locations are drawn from uniform
+  distributions, and links are defined according to Delaunay
+  triangulation.\cr
+  - "Gabriel": populations locations are drawn from uniform
+  distributions, and links are defined according to the graph of
+  Gabriel.\cr
+  - "oneDimSS": populations are arranged on a one-dimensional stepping stone.\cr
+  - "panmix": all populations are connected (i.e., panmixie).\cr
+  - - - - - - - - - - - - - - - - - -\cr
+  == DISTRIBUTION OF THE DISPERSAL PROBABILITIES ==\cr
+  \code{connect} indicates the distribution of the dispersal
+  probabilities for any given population. Probabilities are rescaled to
+  ensure that the overal dispersal probability equals
+  \code{p.disp}.\cr
+  Possible values are:\cr
+  - "uniform": dispersal probabilities are equal for all connections.\cr
+  - "rgamma": dispersal probabilities are drawn from a gamma
+  distribution with parameters \code{shape} and \code{rate}.
+}
 \author{ Thibaut Jombart \email{t.jombart@imperial.ac.uk} }
 \examples{
 ## 10 pop in a lattice ##
