@@ -5,7 +5,7 @@ epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
                       seq.length=1e4, mut.rate=1e-5,
                       n.ini.inf=10, t.infectious=1, t.recover=2,
                       plot=TRUE, items=c("nsus", "ninf", "nrec"),
-                      col=c("blue", "red", grey(.3)), lty=c(2,1,3), pch=c(20,15,1),
+                      col=c("blue", "red", grey(.3)), lty=c(2,1,3), pch=c(2,20,1),
                       file.sizes="out-popsize.txt", file.sample="out-sample.txt"){
 
     ## CHECK/PROCESS ARGUMENTS ##
@@ -199,7 +199,7 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
         if(length(items)>6) par(mfrow = c(3,3))
         for(item in items){
             par(mar=c(5,4,3,4))
-            matplot(grpsizes$step, grpsizes[,-1], type="l", xlab="time step", col=c("blue", "red", grey(.3)), lty=c(2,1,3), pch=c(20,15,1), yaxt="n", ylab="")
+            matplot(grpsizes$step, grpsizes[,-1], type="l", xlab="time step", col=c("blue", "red", grey(.3)), lty=c(2,1,3), pch=c(2,20,1), yaxt="n", ylab="")
             axis(side=4)
             ##mtext(side=4, "size (number of individuals)", line=2)
             par(new=TRUE)

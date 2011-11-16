@@ -166,8 +166,8 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 		printf("\nEpidemics ended at time %d, before last sampling time (%d).\n", nstep, par->duration);
 	} else {
 
-		printf("\n\n-- FINAL METAPOPULATION --");
-		print_metapopulation(metapop, FALSE);
+		/* printf("\n\n-- FINAL METAPOPULATION --"); */
+		/* print_metapopulation(metapop, FALSE); */
 
 		/* merge samples */
 		samp = merge_samples(samplist, tabdates->n, par);
