@@ -49,6 +49,12 @@ int get_popid(struct pathogen *in){
 
 
 
+/* Returns the ancestor of the pathogen */
+struct pathogen * get_ances(struct pathogen *in){
+	return in->ances;
+}
+
+
 
 
 
@@ -71,6 +77,7 @@ struct pathogen * create_pathogen(){
 	out->length = 0;
 	out->age = 0;
 	out->popid = 0;
+	out->ances = NULL;
 	return out;
 }
 
@@ -91,7 +98,6 @@ struct pathogen * create_pathogen(){
 void free_pathogen(struct pathogen *in){
 	if(in != NULL){
 		free(in->snps);
-		/*free(in->host);*/
 		free(in);
 	}
 }
@@ -128,6 +134,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 	out->length = N;
 	out->age = get_age(in);
 	out->popid = get_popid(in);
+	out->ances = get_ances(in);
 }
 
 
@@ -150,6 +157,14 @@ int make_unique_mutation(struct pathogen *in, struct param *par){
 	} while (i != N);
 
 	return x;
+}
+
+
+
+
+/* generate a mutation (possibly an existing one) */
+int make_mutation(struct pathogen *in, struct param *par){
+	return gsl_rng_uniform_int(par->rng,par->L)+1;
 }
 
 
@@ -178,6 +193,67 @@ void print_pathogen(struct pathogen *in){
 */
 /* Function replicating a genome, with mutations and back-mutations */
 void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
+	int i, nbmut=0, nbbackmut=0, newsize, N;
+	double p;
+
+	nbmut = gsl_ran_poisson(par->rng, par->muL);
+
+	/* check that output is OK */
+	if(out == NULL){
+		fprintf(stderr, "\n[in: pathogen.c->replicate]\nTrying to create a new pathogen but pointer is NULL. Exiting.\n");
+		exit(1);
+	}
+
+	/* determine the number of reverse mutations */
+	if(nbmut>0 && get_nb_snps(in)>0){
+		p = ((double) get_nb_snps(in)) / ((double) par->L);
+		nbbackmut =  gsl_ran_binomial(par->rng,p,nbmut);
+		if(nbbackmut > get_nb_snps(in)) nbbackmut = get_nb_snps(in); /* can revert more than to wild genotype */
+	}
+
+	nbmut -= nbbackmut; /* remove back mutations from new mutations */
+	newsize = get_nb_snps(in) + nbmut - nbbackmut;
+
+	/* check that new size is not negative */
+	if(newsize < 1){ /* go back to wild type */
+		out->snps = NULL;
+		out->length = 0;
+	} else { /* new genotype */
+		/* reallocate memory for new vector */
+		out->snps = (int *) calloc(newsize, sizeof(int));
+		if(get_snps(out) == NULL){
+			fprintf(stderr, "\n[in: pathogen.c->replicate]\nNo memory left for replicating pathogen genome. Exiting.\n");
+			exit(1);
+		}
+
+		/* inherit parental snps vector (except back mutations) */
+		N = get_nb_snps(in)-nbbackmut; /* indices<N, ancestral snps; indices>=N, new snps */
+		for(i=0;i<N;i++){ /* copy snps */
+			out->snps[i] = get_snps(in)[i];
+		}
+
+		out->length=N;
+
+		/* add new mutations */
+		for(i=0;i<nbmut;i++){
+			(out->snps)[N+i] = make_unique_mutation(out, par);
+			out->length += 1;
+		}
+	} /* the genotype has been handled at this point */
+
+	out->age = 0;
+	out->popid = get_popid(in);
+
+} /*end replicate*/
+
+
+
+
+
+
+
+/* Function replicating a genome, new version */
+void replicate_new(struct pathogen *in, struct pathogen *out, struct param *par){
 	int i, nbmut=0, nbbackmut=0, newsize, N;
 	double p;
 

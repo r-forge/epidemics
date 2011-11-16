@@ -49,6 +49,12 @@ int get_popid(struct pathogen *in){
 
 
 
+/* Returns the population of the pathogen (-1 for inactive pathogen) */
+struct pathogen * get_ances(struct pathogen *in){
+	return in->ances;
+}
+
+
 
 
 
@@ -71,6 +77,7 @@ struct pathogen * create_pathogen(){
 	out->length = 0;
 	out->age = 0;
 	out->popid = 0;
+	out->ances = NULL;
 	return out;
 }
 
@@ -91,7 +98,6 @@ struct pathogen * create_pathogen(){
 void free_pathogen(struct pathogen *in){
 	if(in != NULL){
 		free(in->snps);
-		/*free(in->host);*/
 		free(in);
 	}
 }
@@ -128,7 +134,10 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 	out->length = N;
 	out->age = get_age(in);
 	out->popid = get_popid(in);
+	out->ances = get_ances(in);
 }
+
+
 
 
 
@@ -155,6 +164,14 @@ int make_unique_mutation(struct pathogen *in, struct param *par){
 
 
 
+/* generate a mutation (possibly an existing one) */
+int make_mutation(struct pathogen *in, struct param *par){
+	return gsl_rng_uniform_int(par->rng,par->L)+1;
+}
+
+
+
+
 /* Print pathogen content */
 void print_pathogen(struct pathogen *in){
 	int i, N=get_nb_snps(in);
@@ -176,7 +193,8 @@ void print_pathogen(struct pathogen *in){
    === MAIN EXTERNAL FUNCTIONS ===
    ===============================
 */
-/* Function replicating a genome, with mutations and back-mutations */
+/* Function replicating a genome */
+/* Create a new pathogen */
 void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 	int i, nbmut=0, nbbackmut=0, newsize, N;
 	double p;

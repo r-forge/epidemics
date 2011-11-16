@@ -21,13 +21,12 @@
    - 'length' is the length if this array
    - 'age' gives the age of the pathogen
    - 'popid' gives the index of the population in which the pathogen is
-   - 'birth' gives the timestep at which the pathogen appeared
-   - 'death' gives the timestep at which the pathogen disappeared
+   - 'ances' is a pointer to the ancestor
  */
 struct pathogen{
 	int *snps;
 	int length, age, popid;
-	/*struct host *host;*/
+	struct pathogen *ances;
 };
 
 
@@ -59,6 +58,9 @@ int get_age(struct pathogen *in);
 /* (-1 for inactive pathogen) */
 int get_popid(struct pathogen *in);
 
+
+/* Returns the ancestor of the pathogen */
+struct pathogen * get_ances(struct pathogen *in);
 
 
 
@@ -108,6 +110,10 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 
 /* generate a new, unique mutation (i.e., not a reverse mutation) */
 int make_unique_mutation(struct pathogen *in, struct param *par);
+
+
+/* generate a mutation (possibly an existing one) */
+int make_mutation(struct pathogen *in, struct param *par);
 
 
 /* Print pathogen content */
