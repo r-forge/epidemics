@@ -24,44 +24,52 @@
 */
 
 /* seed new infections from a single pathogen */
-void process_infection(struct pathogen * pat, struct metapopulation * metapop, int nbnewinf, struct dispmat *D, struct param * par){
+void process_infection(struct pathogen * pat, struct metapopulation * metapop, int nbnewinf, int nbmut, struct dispmat *D, struct param * par){
 	struct population * pop;
 	int i, Nsus, Npop, Ninfcum, newpopid;
+	struct vec_int * nbmutvec;
 
+	/* GENERATE ERROR IF PATHOGEN IS INATIVATED */
 	if(isNULL_pathogen(pat)){
 		fprintf(stderr, "\n[in: epidemics.c->process_infection]\nTried to process infection of an inactivated pathogen. Exiting.\n");
 		exit(1);
 	}
 
-		/* determine the pathogen's original population , Nsus, Ninfcum*/
-		newpopid = disperse(pat, D, par);
-		/* printf("\n new pop id %d", newpopid); */
-		pop = get_populations(metapop)[newpopid]; /* with dispersal */
-		/* pop = get_populations(metapop)[get_popid(pat)]; */ /* no dispersal*/
-		Nsus=get_nsus(pop);
-		Npop=get_popsize(pop);
-		Ninfcum=get_total_ninfcum(metapop);
+	/* GET POPULATION INFORMATION */
+	/* determine the pathogen's original population , Nsus, Ninfcum*/
+	newpopid = disperse(pat, D, par);
+	/* printf("\n new pop id %d", newpopid); */
+	pop = get_populations(metapop)[newpopid]; /* with dispersal */
+	/* pop = get_populations(metapop)[get_popid(pat)]; */ /* no dispersal*/
+	Nsus=get_nsus(pop);
+	Npop=get_popsize(pop);
+	Ninfcum=get_total_ninfcum(metapop);
 
-		/* determine the number of descendents */
-		/* for each infection, nb new infec = \beta * (nb sus)/(pop size) */
-		/* if(get_age(pat) >= par->t1){ */
-
-		/* } */
-
-		/* for each new infection, add new pathogen */
-		for(i=Ninfcum;i<(Ninfcum+nbnewinf);i++){
+	/* HANDLE GENETIC STUFF */
+	/* determine the distribution of mutations */
+	if(nbmut>0){
+		nbmutvec = sample_int_unif(nbmut, nbnewinf, par->rng);
+		for(i=0;i<nbnewinf;i++){
 			/* printf("\n## trying to write on pathogen %d", i); */
-			replicate(pat, (get_pathogens(metapop))[i], par);
+			replicate(pat, (get_pathogens(metapop))[Ninfcum+i], nbmutvec[i], par);
 			/* add dispersal here later */
-			(metapop->pathogens[i])->popid = newpopid;
+			(metapop->pathogens[Ninfcum+i])->popid = newpopid;
 		}
-
-		/* update number of susceptibles and infected in the population */
-		pop->nsus = pop->nsus - nbnewinf;
-		pop->ninfcum = pop->ninfcum + nbnewinf;
-		pop->ninf = pop->ninf + nbnewinf;
-
+		free_vec_int(nbmutvec);
+	} else {
+		for(i=0;i<nbnewinf;i++){
+			/* printf("\n## trying to write on pathogen %d", i); */
+			replicate(pat, (get_pathogens(metapop))[Ninfcum+i], 0, par);
+			/* add dispersal here later */
+			(metapop->pathogens[Ninfcum+i])->popid = newpopid;
+		}
 	}
+
+	/* UPDATE NUMBER OF SUSCEPTIBLES AND INFECTED IN THE POPULATION */
+	pop->nsus = pop->nsus - nbnewinf;
+	pop->ninfcum = pop->ninfcum + nbnewinf;
+	pop->ninf = pop->ninf + nbnewinf;
+
 } /* end process_infection */
 
 
