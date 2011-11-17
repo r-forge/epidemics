@@ -9,6 +9,7 @@
 
 #include "common.h"
 #include "param.h"
+#include "auxiliary.h"
 #include "pathogens.h"
 
 
@@ -23,16 +24,21 @@
 
 /* Returns the number of mutated SNPs, i.e. length of in->snps array */
 int get_nb_snps(struct pathogen *in){
-	return in->length;
+	return in->snps->n;
 }
 
 
 
 /* Returns SNP vector */
-int * get_snps(struct pathogen *in){
+struct vec_int * get_snps_vec(struct pathogen *in){
 	return in->snps;
 }
 
+
+/* Returns SNP integer pointer */
+int * get_snps(struct pathogen *in){
+	return in->snps->values;
+}
 
 
 /* Returns the age of the pathogen - 0 when created */
@@ -73,7 +79,7 @@ struct pathogen * create_pathogen(){
 		fprintf(stderr, "\n[in: pathogen.c->create_pathogen]\nNo memory left for creating initial pathogen. Exiting.\n");
 		exit(1);
 	}
-	out->snps = NULL;
+	out->snps = create_vec_int(0);
 	out->length = 0;
 	out->age = 0;
 	out->popid = 0;
@@ -97,7 +103,7 @@ struct pathogen * create_pathogen(){
 /* Free pathogen */
 void free_pathogen(struct pathogen *in){
 	if(in != NULL){
-		free(in->snps);
+		free_vec_int(in->snps);
 		free(in);
 	}
 }
@@ -122,16 +128,17 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 
 	N=get_nb_snps(in);
 
-	out->snps = (int *) calloc(N, sizeof(int)); /* allocate memory for snps vector*/
+	/* out->snps = (int *) calloc(N, sizeof(int)); /\* allocate memory for snps vector*\/ */
+	out->snps = create_vec_int(N)
 	if(get_snps(out) == NULL){
 		fprintf(stderr, "\n[in: pathogen.c->copy_pathogen]\nNo memory left for copying pathogen genome. Exiting.\n");
 		exit(1);
 	}
 
 	for(i=0;i<N;i++){ /* copy snps */
-		(out->snps)[i] = get_snps(in)[i];
+		out->snps->values[i] = get_snps(in)[i];
 	}
-	out->length = N;
+	
 	out->age = get_age(in);
 	out->popid = get_popid(in);
 	out->ances = get_ances(in);
@@ -165,7 +172,7 @@ int make_unique_mutation(struct pathogen *in, struct param *par){
 
 
 /* generate a mutation (possibly an existing one) */
-int make_mutation(struct pathogen *in, struct param *par){
+int make_mutation(struct param *par){
 	return gsl_rng_uniform_int(par->rng,par->L)+1;
 }
 
@@ -204,26 +211,17 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 		exit(1);
 	}
 
-	if(nbmut>0){
-		/* allocate memory for new vector */
-		out->snps = (int *) calloc(nbmut, sizeof(int));
-		if(get_snps(out) == NULL){
-			fprintf(stderr, "\n[in: pathogen.c->replicate]\nNo memory left for replicating pathogen genome. Exiting.\n");
-			exit(1);
-		}
+	/* allocate memory for new vector */
+	out->snps = create_vec_int(nbmut);
 
-		/* add new mutations */
-		for(i=0;i<nbmut;i++){
-			(out->snps)[i] = make_mutation(out, par);
-		}
-	} else {
-		out->snps = NULL;
+	/* add new mutations */
+	for(i=0;i<nbmut;i++){
+		out->snps->values[i] = make_mutation(par);
 	}
-	out->length = nbmut;
+
 	out->age = 0;
 	out->popid = get_popid(in);
 	out->ances = in;
-
 } /*end replicate*/
 
 
@@ -232,13 +230,48 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 
 
 int isNULL_pathogen(struct pathogen *in){
-	if(in==NULL) {  
+	if(in==NULL) {
 		fprintf(stderr, "\n[in: pathogen.c->isNULL_pathogen]\nPointer to a pathogen is NULL. Exiting.\n");
 		exit(1);
 	}
 	if(get_age(in)<0) return(1);
 	return 0;
 }
+
+
+
+
+/* reconstruct genome of an isolate */
+void reconstruct_genome(struct pathogen *in, struct metapopulation * metapop){
+	int i, lineagesize=1;
+	struct pathogen *curAnces = get_ances(in);
+	struct vec_int ** lineage, *genome;
+	
+	/* identify lineage */
+	
+	while(!is.null(curAnces)){
+		lineagesize++;
+		curAnces = get_ances(curAnces);
+	}
+
+	/* get all snps in the lineage */
+	lineage = (struct vec_int **) calloc(lineagesize, sizeof(struct vec_int *));
+
+	lineage[0] = get_snp_vec(in);
+	for(i=1;i<lineagesize;i++){
+		lineage[i] = get_snp_vec(curAnces);
+		curAnces = get_ances(curAnces);
+	}
+
+	/* merge snps */
+	genome = merge_vec_int(lineage, lineagesize);
+
+	/* remove reverse mutations */
+	genome = remove_reverse(genome);
+
+	/* free previous genotype and replace with new */
+}
+
 
 
 
@@ -249,66 +282,66 @@ int isNULL_pathogen(struct pathogen *in){
 */
 
 
-int main(){
-	/* Initialize random number generator */
-	time_t t;
-	t = time(NULL); // time in seconds, used to change the seed of the random generator
-	gsl_rng * rng;
-	const gsl_rng_type *typ;
-	gsl_rng_env_setup();
-	typ=gsl_rng_default;
-	rng=gsl_rng_alloc(typ);
-	gsl_rng_set(rng,t); // changes the seed of the random generator
+/* int main(){ */
+/* 	/\* Initialize random number generator *\/ */
+/* 	time_t t; */
+/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
+/* 	gsl_rng * rng; */
+/* 	const gsl_rng_type *typ; */
+/* 	gsl_rng_env_setup(); */
+/* 	typ=gsl_rng_default; */
+/* 	rng=gsl_rng_alloc(typ); */
+/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
 
-	int i;
+/* 	int i; */
 
-	/* simulation parameters */
-	struct param * par;
-	par = (struct param *) calloc(1, sizeof(struct param));
-	par->L = 100;
-	par->mu = 0.01;
-	par->muL = par->mu * par->L;
-	par->rng = rng;
+/* 	/\* simulation parameters *\/ */
+/* 	struct param * par; */
+/* 	par = (struct param *) calloc(1, sizeof(struct param)); */
+/* 	par->L = 100; */
+/* 	par->mu = 0.01; */
+/* 	par->muL = par->mu * par->L; */
+/* 	par->rng = rng; */
 
 
-	int NREPLI = 1e3;
+/* 	int NREPLI = 1e3; */
 
-	struct pathogen ** ppat;
+/* 	struct pathogen ** ppat; */
 
-	/* allocate memory */
-	ppat = (struct pathogen **) calloc(NREPLI, sizeof(struct pathogen *));
-	if(ppat==NULL){
-			fprintf(stderr, "\nNo memory left for creating new array of pathogens. Exiting.\n");
-			exit(1);
-	}
-	for(i=1;i<NREPLI;i++){
-		ppat[i] = (struct pathogen *) calloc(1, sizeof(struct pathogen));
-		if(ppat[i]==NULL){
-			fprintf(stderr, "\nNo memory left for expanding the array of pathogens. Exiting.\n");
-			exit(1);
-		}
-	}
+/* 	/\* allocate memory *\/ */
+/* 	ppat = (struct pathogen **) calloc(NREPLI, sizeof(struct pathogen *)); */
+/* 	if(ppat==NULL){ */
+/* 			fprintf(stderr, "\nNo memory left for creating new array of pathogens. Exiting.\n"); */
+/* 			exit(1); */
+/* 	} */
+/* 	for(i=1;i<NREPLI;i++){ */
+/* 		ppat[i] = (struct pathogen *) calloc(1, sizeof(struct pathogen)); */
+/* 		if(ppat[i]==NULL){ */
+/* 			fprintf(stderr, "\nNo memory left for expanding the array of pathogens. Exiting.\n"); */
+/* 			exit(1); */
+/* 		} */
+/* 	} */
 
-	/* initiate array of pathogens */
-	ppat[0] = create_pathogen();
+/* 	/\* initiate array of pathogens *\/ */
+/* 	ppat[0] = create_pathogen(); */
 
-	/* replications */
-	for(i=0;i<(NREPLI-1);i++){
-		replicate(ppat[i],ppat[i+1],par);
-	}
+/* 	/\* replications *\/ */
+/* 	for(i=0;i<(NREPLI-1);i++){ */
+/* 		replicate(ppat[i],ppat[i+1],par); */
+/* 	} */
 
-	for(i=0;i<NREPLI;i++){
-		printf("\npathogen %d",i);
-		print_pathogen(ppat[i]);
-	}
+/* 	for(i=0;i<NREPLI;i++){ */
+/* 		printf("\npathogen %d",i); */
+/* 		print_pathogen(ppat[i]); */
+/* 	} */
 
-	/* free memory */
-	for(i=0;i<NREPLI;i++) free_pathogen(ppat[i]);
-	free(ppat);
-	free_param(par);
+/* 	/\* free memory *\/ */
+/* 	for(i=0;i<NREPLI;i++) free_pathogen(ppat[i]); */
+/* 	free(ppat); */
+/* 	free_param(par); */
 
-	return 0;
-}
+/* 	return 0; */
+/* } */
 
 
 

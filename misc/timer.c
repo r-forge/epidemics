@@ -53,4 +53,7 @@ main()
 
 	printf("\nMethod 2: %d\n ", (int) t2-t1);
 
+
+       
+
 }

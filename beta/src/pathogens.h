@@ -24,8 +24,8 @@
    - 'ances' is a pointer to the ancestor
  */
 struct pathogen{
-	int *snps;
-	int length, age, popid;
+	struct vec_int *snps;
+	int age, popid;
 	struct pathogen *ances;
 };
 
@@ -45,8 +45,10 @@ struct pathogen{
 /* Returns the number of mutated SNPs, i.e. length of in->snps array */
 int get_nb_snps(struct pathogen *in);
 
-
 /* Returns SNP vector */
+struct vec_int * get_snps_vec(struct pathogen *in);
+
+/* Returns SNP integer pointer */
 int * get_snps(struct pathogen *in);
 
 
@@ -113,7 +115,7 @@ int make_unique_mutation(struct pathogen *in, struct param *par);
 
 
 /* generate a mutation (possibly an existing one) */
-int make_mutation(struct pathogen *in, struct param *par);
+int make_mutation(struct param *par);
 
 
 /* Print pathogen content */
