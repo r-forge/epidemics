@@ -223,6 +223,27 @@ struct vec_int * sample_int_multinom(int N, int I, double * proba, gsl_rng * rng
 
 
 
+/* merge K vectors together */
+struct vec_int * merge_vec_int(struct vec_int ** in, int nbvec){
+	int i, j, newsize=0, count=0;
+	/* find size of new vector */
+	for(i=0;i<nbvec;i++){
+		newsize += in[i]->n;
+	}
+
+	/* allocate output and fill it in */
+	struct vec_int * out = create_vec_int(newsize);
+	for(i=0;i<nbvec;i++){
+		for(j=0;j<in[i]->n;j++){
+			out->values[count++] = in[i]->values[j];
+		}
+	}
+
+	return out;
+}
+
+
+
 
 
 void print_table_int(struct table_int *in){
@@ -239,9 +260,7 @@ void print_table_int(struct table_int *in){
 
 void print_vec_int(struct vec_int *in){
 	int i;
-	printf("\nItems: ");
-	for(i=0;i<in->n;i++) printf("%d\t", i);
-	printf("\nTimes: ");
+	printf("\nVector of %d values: ", in->n);
 	for(i=0;i<in->n;i++) printf("%d\t", in->values[i]);
 	printf("\n");
 }
@@ -316,6 +335,7 @@ void print_distmat_int(struct distmat_int *in){
 
 
 /* 	/\* test binomial vs poisson *\/ */
+/* 	/\* convergence ok *\/ */
 /* 	time_t t1,t2; */
 /* 	n=1e7; */
 /* 	double p=1e-8, lambda=p*n; */
@@ -331,9 +351,46 @@ void print_distmat_int(struct distmat_int *in){
 
 /* 	printf("\n tirage poisson: %d seconds\n ", (int) t2-t1); */
 
+
+/* 	/\* test binomial vs poisson *\/ */
+/* 	/\* convergence not ok *\/ */
+/* 	n=1e6; */
+/* 	p=1e-4; */
+/* 	lambda=p*n; */
+/* 	time(&t1); */
+/* 	for(i=0;i<1e7;i++) gsl_ran_binomial (rng, p, n); */
+/* 	time(&t2); */
+
+/* 	printf("\n tirage binomial: %d seconds\n ", (int) t2-t1); */
+
+/* 	time(&t1); */
+/* 	for(i=0;i<1e7;i++) gsl_ran_poisson (rng, lambda); */
+/* 	time(&t2); */
+
+/* 	printf("\n tirage poisson: %d seconds\n ", (int) t2-t1); */
+
+
+/* 	/\* test vector merging *\/ */
+/* 	printf("\nmerging vectors:"); */
+/* 	print_vec_int(out2); */
+/* 	print_vec_int(out2); */
+/* 	print_vec_int(out3); */
+
+/* 	struct vec_int ** in = calloc(3, sizeof(struct vec_int *)); */
+/* 	in[0] = out2; */
+/* 	in[1] = out2; */
+/* 	in[2] = out3; */
+
+/* 	struct vec_int *out4; */
+/* 	out4 = merge_vec_int(in, 3); */
+/* 	print_vec_int(out4); */
+
+
 /* 	free_table_int(out); */
 /* 	free_vec_int(out2); */
 /* 	free_vec_int(out3); */
+/* 	free_vec_int(out4); */
 /* 	gsl_rng_free(rng); */
+/* 	free(in); */
 /* 	return 0; */
 /* } */
