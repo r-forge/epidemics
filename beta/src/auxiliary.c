@@ -44,6 +44,27 @@ struct distmat_int * create_distmat_int(int n){
 
 
 
+/* create a vector of integers of size n */
+struct vec_int * create_vec_int(int n){
+	struct vec_int *out = calloc(1, sizeof(struct vec_int));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
+		exit(1);
+	}
+
+	out->values = calloc(n, sizeof(int));
+	if(out->values == NULL){
+		fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
+		exit(1);
+	}
+
+	out->n = n;
+
+	return(out);
+}
+
+
+
 
 
 /*
@@ -63,6 +84,12 @@ void free_table_int(struct table_int *in){
 	if(in->times != NULL) free(in->times);
 	if(in != NULL) free(in);
 }
+
+void free_vec_int(struct vec_int *in){
+	if(in->values != NULL) free(in->values);
+	if(in != NULL) free(in);
+}
+
 
 
 
@@ -104,12 +131,12 @@ int min_int(int *vec, int length){
    === MAIN EXTERNAL FUNCTIONS ===
    ===============================
 */
-
+/* compute the number of occurence of items in a vect of integers */
 struct table_int * get_table_int(int *vec, int length){
 	int i, j, *pool, poolsize;
 	struct table_int *out = calloc(1, sizeof(struct table_int));
 	if(out == NULL){
-		fprintf(stderr, "\n[in: auxiliary.c->create_table_int]\nNo memory left for creating table of integers. Exiting.\n");
+		fprintf(stderr, "\n[in: auxiliary.c->get_table_int]\nNo memory left for creating table of integers. Exiting.\n");
 		exit(1);
 	}
 
@@ -160,6 +187,28 @@ struct table_int * get_table_int(int *vec, int length){
 
 
 
+
+/* sample N times from I items - with replacement, uniform proba */
+/* returns a vector of size I with number of times each item was sampled */
+/* the sum of all values being N.*/
+struct vec_int * draw_int_vec(int N, int I, gsl_rng * rng){
+	int i, temp;
+	struct vec_int * out = create_vec_int(I);
+
+	/* draw values */
+	for(i=0;i<N;i++){
+		temp=gsl_rng_uniform_int(rng, I);
+		out->values[temp] = out->values[temp] + 1;
+	}
+
+	/* free local pointers and return result */
+	return out;
+}
+
+
+
+
+
 void print_table_int(struct table_int *in){
 	int i;
 	printf("\nItems: ");
@@ -168,6 +217,19 @@ void print_table_int(struct table_int *in){
 	for(i=0;i<in->n;i++) printf("%d\t", in->times[i]);
 	printf("\n");
 }
+
+
+
+
+void print_vec_int(struct vec_int *in){
+	int i;
+	printf("\nItems: ");
+	for(i=0;i<in->n;i++) printf("%d\t", i);
+	printf("\nTimes: ");
+	for(i=0;i<in->n;i++) printf("%d\t", in->values[i]);
+	printf("\n");
+}
+
 
 
 
@@ -196,7 +258,6 @@ void print_distmat_int(struct distmat_int *in){
 
 
 
-
 /*
    =========================
    === TESTING FUNCTIONS ===
@@ -205,8 +266,20 @@ void print_distmat_int(struct distmat_int *in){
 
 
 /* int main(){ */
+/* 	/\* Initialize random number generator *\/ */
+/* 	time_t t; */
+/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
+/* 	gsl_rng * rng; */
+/* 	const gsl_rng_type *typ; */
+/* 	gsl_rng_env_setup(); */
+/* 	typ=gsl_rng_default; */
+/* 	rng=gsl_rng_alloc(typ); */
+/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
+
+
 /* 	int  i, vec[10]={1,2,1,4,3,2,2,2,1,5}, n=10; */
 /* 	struct table_int *out; */
+/* 	struct vec_int *out2; */
 
 /* 	printf("\ninput: "); */
 /* 	for(i=0;i<n;i++) printf("%d\t", vec[i]); */
@@ -216,6 +289,13 @@ void print_distmat_int(struct distmat_int *in){
 /* 	printf("\noutput"); */
 /* 	print_table_int(out); */
 
+/* 	printf("\ndrawing 100 times amongst 4 items\n"); */
+/* 	out2 = draw_int_vec(100, 4, rng); */
+/* 	print_vec_int(out2); */
+
 /* 	free_table_int(out); */
+/* 	free_vec_int(out2); */
+/* 	gsl_rng_free(rng); */
+
 /* 	return 0; */
 /* } */

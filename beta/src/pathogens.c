@@ -195,11 +195,8 @@ void print_pathogen(struct pathogen *in){
 */
 /* Function replicating a genome */
 /* Create a new pathogen */
-void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
-	int i, nbmut=0, nbbackmut=0, newsize, N;
-	double p;
-
-	nbmut = gsl_ran_poisson(par->rng, par->muL);
+void replicate(struct pathogen *in, struct pathogen *out, int nbmut, struct param *par){
+	int i;
 
 	/* check that output is OK */
 	if(out == NULL){
@@ -207,45 +204,21 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 		exit(1);
 	}
 
-	/* determine the number of reverse mutations */
-	if(nbmut>0 && get_nb_snps(in)>0){
-		p = ((double) get_nb_snps(in)) / ((double) par->L);
-		nbbackmut =  gsl_ran_binomial(par->rng,p,nbmut);
-		if(nbbackmut > get_nb_snps(in)) nbbackmut = get_nb_snps(in); /* can revert more than to wild genotype */
+	/* allocate memory for new vector */
+	out->snps = (int *) calloc(nbmut, sizeof(int));
+	if(get_snps(out) == NULL){
+		fprintf(stderr, "\n[in: pathogen.c->replicate]\nNo memory left for replicating pathogen genome. Exiting.\n");
+		exit(1);
 	}
 
-	nbmut -= nbbackmut; /* remove back mutations from new mutations */
-	newsize = get_nb_snps(in) + nbmut - nbbackmut;
-
-	/* check that new size is not negative */
-	if(newsize < 1){ /* go back to wild type */
-		out->snps = NULL;
-		out->length = 0;
-	} else { /* new genotype */
-		/* reallocate memory for new vector */
-		out->snps = (int *) calloc(newsize, sizeof(int));
-		if(get_snps(out) == NULL){
-			fprintf(stderr, "\n[in: pathogen.c->replicate]\nNo memory left for replicating pathogen genome. Exiting.\n");
-			exit(1);
-		}
-
-		/* inherit parental snps vector (except back mutations) */
-		N = get_nb_snps(in)-nbbackmut; /* indices<N, ancestral snps; indices>=N, new snps */
-		for(i=0;i<N;i++){ /* copy snps */
-			out->snps[i] = get_snps(in)[i];
-		}
-
-		out->length=N;
-
-		/* add new mutations */
-		for(i=0;i<nbmut;i++){
-			(out->snps)[N+i] = make_unique_mutation(out, par);
-			out->length += 1;
-		}
-	} /* the genotype has been handled at this point */
+	/* add new mutations */
+	for(i=0;i<nbmut;i++){
+		(out->snps)[i] = make_mutation(out, par);
+	}
 
 	out->age = 0;
 	out->popid = get_popid(in);
+	out->ances = in;
 
 } /*end replicate*/
 

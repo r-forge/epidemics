@@ -24,11 +24,15 @@
 */
 
 /* seed new infections from a single pathogen */
-void process_infection(struct pathogen * pat, struct metapopulation * metapop, struct param * par, struct dispmat *D){
+void process_infection(struct pathogen * pat, struct metapopulation * metapop, int nbnewinf, struct dispmat *D, struct param * par){
 	struct population * pop;
-	int i, nbnewinf=0, Nsus, Npop, Ninfcum, newpopid;
+	int i, Nsus, Npop, Ninfcum, newpopid;
 
-	if(!isNULL_pathogen(pat)){ /* if infection is not a gost */
+	if(isNULL_pathogen(pat)){
+		fprintf(stderr, "\n[in: epidemics.c->process_infection]\nTried to process infection of an inactivated pathogen. Exiting.\n");
+		exit(1);
+	}
+
 		/* determine the pathogen's original population , Nsus, Ninfcum*/
 		newpopid = disperse(pat, D, par);
 		/* printf("\n new pop id %d", newpopid); */
@@ -40,28 +44,23 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
 
 		/* determine the number of descendents */
 		/* for each infection, nb new infec = \beta * (nb sus)/(pop size) */
-		if(get_age(pat) >= par->t1){
-			/*nbnewinf = gsl_ran_poisson(par->rng, par->beta);*/
-			nbnewinf = gsl_ran_poisson(par->rng, par->beta * Nsus/Npop);
+		/* if(get_age(pat) >= par->t1){ */
 
-			/* adjust number of new infections to number of susceptibles */
-			if(nbnewinf > Nsus) nbnewinf =  Nsus;
+		/* } */
+
+		/* for each new infection, add new pathogen */
+		for(i=Ninfcum;i<(Ninfcum+nbnewinf);i++){
+			/* printf("\n## trying to write on pathogen %d", i); */
+			replicate(pat, (get_pathogens(metapop))[i], par);
+			/* add dispersal here later */
+			(metapop->pathogens[i])->popid = newpopid;
 		}
 
-		if(nbnewinf>0){
-			/* for each new infection, add new pathogen */
-			for(i=Ninfcum;i<(Ninfcum+nbnewinf);i++){
- 				/* printf("\n## trying to write on pathogen %d", i); */
-				replicate(pat, (get_pathogens(metapop))[i], par);
-				/* add dispersal here later */
-				(metapop->pathogens[i])->popid = newpopid;
-			}
+		/* update number of susceptibles and infected in the population */
+		pop->nsus = pop->nsus - nbnewinf;
+		pop->ninfcum = pop->ninfcum + nbnewinf;
+		pop->ninf = pop->ninf + nbnewinf;
 
-			/* update number of susceptibles and infected */
-			pop->nsus = pop->nsus - nbnewinf;
-			pop->ninfcum = pop->ninfcum + nbnewinf;
-			pop->ninf = pop->ninf + nbnewinf;
-		}
 	}
 } /* end process_infection */
 
@@ -146,7 +145,7 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
-			process_infection(get_pathogens(metapop)[i], metapop, par, D);
+			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
 
 		/* age metapopulation */
@@ -265,7 +264,7 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
-			process_infection(get_pathogens(metapop)[i], metapop, par, D);
+			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
 
 		/* age metapopulation */
@@ -372,7 +371,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
-			process_infection(get_pathogens(metapop)[i], metapop, par, D);
+			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
 
 		/* age metapopulation */
