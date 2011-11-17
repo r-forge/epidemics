@@ -79,7 +79,9 @@ int min_int(int *vec, int length);
 */
 struct table_int * get_table_int(int *vec, int length);
 
-struct vec_int * draw_int_vec(int N, int I, gsl_rng * rng);
+struct vec_int * sample_int_unif(int N, int I, gsl_rng * rng);
+
+struct vec_int * sample_int_multinom(int N, int I, double * proba, gsl_rng * rng);
 
 void print_table_int(struct table_int *in);
 

@@ -191,7 +191,7 @@ struct table_int * get_table_int(int *vec, int length){
 /* sample N times from I items - with replacement, uniform proba */
 /* returns a vector of size I with number of times each item was sampled */
 /* the sum of all values being N.*/
-struct vec_int * draw_int_vec(int N, int I, gsl_rng * rng){
+struct vec_int * sample_int_unif(int N, int I, gsl_rng * rng){
 	int i, temp;
 	struct vec_int * out = create_vec_int(I);
 
@@ -204,6 +204,22 @@ struct vec_int * draw_int_vec(int N, int I, gsl_rng * rng){
 	/* free local pointers and return result */
 	return out;
 }
+
+
+
+
+/* sample N times from I items - with replacement, specified proba */
+/* returns a vector of size I with number of times each item was sampled */
+/* the sum of all values being N.*/
+struct vec_int * sample_int_multinom(int N, int I, double * proba, gsl_rng * rng){
+	struct vec_int * out = create_vec_int(I);
+
+	gsl_ran_multinomial (rng, I, N, proba, (unsigned int *) out->values);
+
+	/* free local pointers and return result */
+	return out;
+}
+
 
 
 
@@ -279,7 +295,7 @@ void print_distmat_int(struct distmat_int *in){
 
 /* 	int  i, vec[10]={1,2,1,4,3,2,2,2,1,5}, n=10; */
 /* 	struct table_int *out; */
-/* 	struct vec_int *out2; */
+/* 	struct vec_int *out2, *out3; */
 
 /* 	printf("\ninput: "); */
 /* 	for(i=0;i<n;i++) printf("%d\t", vec[i]); */
@@ -289,12 +305,18 @@ void print_distmat_int(struct distmat_int *in){
 /* 	printf("\noutput"); */
 /* 	print_table_int(out); */
 
-/* 	printf("\ndrawing 100 times amongst 4 items\n"); */
-/* 	out2 = draw_int_vec(100, 4, rng); */
+/* 	printf("\ndrawing 1000 times amongst 4 items, uniform proba\n"); */
+/* 	out2 = sample_int_unif(1000, 4, rng); */
+/* 	print_vec_int(out2); */
+
+/* 	double proba[4] = {1.0, 2.0, 3.0, 4.0}; */
+/* 	printf("\ndrawing 1000 times amongst 4 items, weights 1,2,3,4\n"); */
+/* 	out3 = sample_int_multinom(1000, 4 , proba, rng); */
 /* 	print_vec_int(out2); */
 
 /* 	free_table_int(out); */
 /* 	free_vec_int(out2); */
+/* 	free_vec_int(out3); */
 /* 	gsl_rng_free(rng); */
 
 /* 	return 0; */
