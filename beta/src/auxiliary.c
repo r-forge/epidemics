@@ -314,10 +314,26 @@ void print_distmat_int(struct distmat_int *in){
 /* 	out3 = sample_int_multinom(1000, 4 , proba, rng); */
 /* 	print_vec_int(out2); */
 
+
+/* 	/\* test binomial vs poisson *\/ */
+/* 	time_t t1,t2; */
+/* 	n=1e7; */
+/* 	double p=1e-8, lambda=p*n; */
+/* 	time(&t1); */
+/* 	for(i=0;i<1e8;i++) gsl_ran_binomial (rng, p, n); */
+/* 	time(&t2); */
+
+/* 	printf("\n tirage binomial: %d seconds\n ", (int) t2-t1); */
+
+/* 	time(&t1); */
+/* 	for(i=0;i<1e8;i++) gsl_ran_poisson (rng, lambda); */
+/* 	time(&t2); */
+
+/* 	printf("\n tirage poisson: %d seconds\n ", (int) t2-t1); */
+
 /* 	free_table_int(out); */
 /* 	free_vec_int(out2); */
 /* 	free_vec_int(out3); */
 /* 	gsl_rng_free(rng); */
-
 /* 	return 0; */
 /* } */

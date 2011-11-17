@@ -132,7 +132,7 @@ void print_pathogen(struct pathogen *in);
    ===============================
 */
 /* Function replicating a genome, with mutations and back-mutations */
-void replicate(struct pathogen *in, struct pathogen *out, int nbmut, struct param *par);
+void replicate(struct pathogen *in, struct pathogen *out, struct param *par);
 
 
 /* return 1 if pathogen is neutralized, i.e. aged -1; issues error if pointer is NULL */
