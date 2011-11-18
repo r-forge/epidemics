@@ -26,8 +26,7 @@
 /* seed new infections from a single pathogen */
 void process_infection(struct pathogen * pat, struct metapopulation * metapop, struct dispmat *D, struct param * par){
 	struct population * pop;
-	int i, Nsus, Npop, Ninfcum, newpopid;
-	struct vec_int * nbmutvec;
+	int i, Nsus, Npop, Ninfcum, newpopid, nbnewinf;
 
 	/* GENERATE ERROR IF PATHOGEN IS INACTIVATED */
 	if(isNULL_pathogen(pat)){
@@ -45,24 +44,14 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
 	Npop=get_popsize(pop);
 	Ninfcum=get_total_ninfcum(metapop);
 
-	/* HANDLE GENETIC STUFF */
-	/* determine the distribution of mutations */
-	if(nbmut>0){
-		nbmutvec = sample_int_unif(nbmut, nbnewinf, par->rng);
-		for(i=0;i<nbnewinf;i++){
-			/* printf("\n## trying to write on pathogen %d", i); */
-			replicate(pat, (get_pathogens(metapop))[Ninfcum+i], nbmutvec[i], par);
-			/* add dispersal here later */
-			(metapop->pathogens[Ninfcum+i])->popid = newpopid;
-		}
-		free_vec_int(nbmutvec);
-	} else {
-		for(i=0;i<nbnewinf;i++){
-			/* printf("\n## trying to write on pathogen %d", i); */
-			replicate(pat, (get_pathogens(metapop))[Ninfcum+i], 0, par);
-			/* add dispersal here later */
-			(metapop->pathogens[Ninfcum+i])->popid = newpopid;
-		}
+	/* DETERMINE NUMBER OF NEW INFECTIONS */
+	nbnewinf = gsl_ran_binomial(par->rng, par->beta/((double) Npop), Nsus); /* ~ B(beta/N_t, S_t) */
+
+	/* HANDLE GENOME REPLICATION */
+	for(i=0;i<nbnewinf;i++){
+		/* printf("\n## trying to write on pathogen %d", i); */
+		replicate(pat, (get_pathogens(metapop))[Ninfcum+i], par);
+		(metapop->pathogens[Ninfcum+i])->popid = newpopid;
 	}
 
 	/* UPDATE NUMBER OF SUSCEPTIBLES AND INFECTED IN THE POPULATION */
@@ -361,6 +350,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	struct metapopulation * metapop;
 	metapop = create_metapopulation(par);
 	maxnpat = get_maxnpat(metapop);
+
 
 	/* get sampling schemes (timestep+effectives) */
 	translate_dates(par);
