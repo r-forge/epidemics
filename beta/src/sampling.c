@@ -154,6 +154,7 @@ void print_sample(struct sample *in, bool showGen){
 struct sample * draw_sample(struct metapopulation *in, int n, struct param *par){
 	int i, j, id, nIsolates=0, maxnpat=get_maxnpat(in);
 	int *availIsolates;
+	struct vec_int *temp;
 
 	/* create pointer to pathogens */
 	struct sample *out=create_sample(n);
@@ -194,6 +195,11 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 		id=gsl_rng_uniform_int(par->rng,nIsolates);
 		/* (out->pathogens)[i] = (in->pathogens)[availIsolates[id]]; */ /* this just copies addresses; need to copy content! */
 		copy_pathogen(in->pathogens[availIsolates[id]], out->pathogens[i], par);
+
+		/* reconstruct genomes */
+		temp = reconstruct_genome(out->pathogens[i], in);
+		free_vec_int(out->pathogens[i]->snps); /* free old snps */
+		out->pathogens[i]->snps = temp; /* replace with reconstructed genome */
 	}
 
 	/* free local pointers */

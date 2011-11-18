@@ -324,108 +324,108 @@ void print_distmat_int(struct distmat_int *in){
 */
 
 
-int main(){
-	/* Initialize random number generator */
-	time_t t;
-	t = time(NULL); // time in seconds, used to change the seed of the random generator
-	gsl_rng * rng;
-	const gsl_rng_type *typ;
-	gsl_rng_env_setup();
-	typ=gsl_rng_default;
-	rng=gsl_rng_alloc(typ);
-	gsl_rng_set(rng,t); // changes the seed of the random generator
+/* int main(){ */
+/* 	/\* Initialize random number generator *\/ */
+/* 	time_t t; */
+/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
+/* 	gsl_rng * rng; */
+/* 	const gsl_rng_type *typ; */
+/* 	gsl_rng_env_setup(); */
+/* 	typ=gsl_rng_default; */
+/* 	rng=gsl_rng_alloc(typ); */
+/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
 
 
-	int  i, vec[10]={1,2,1,4,3,2,2,2,1,5}, n=10;
-	struct table_int *out;
-	struct vec_int *out2, *out3;
+/* 	int  i, vec[10]={1,2,1,4,3,2,2,2,1,5}, n=10; */
+/* 	struct table_int *out; */
+/* 	struct vec_int *out2, *out3; */
 
-	printf("\ninput: ");
-	for(i=0;i<n;i++) printf("%d\t", vec[i]);
+/* 	printf("\ninput: "); */
+/* 	for(i=0;i<n;i++) printf("%d\t", vec[i]); */
 
-	out = get_table_int(vec,n);
+/* 	out = get_table_int(vec,n); */
 
-	printf("\noutput");
-	print_table_int(out);
+/* 	printf("\noutput"); */
+/* 	print_table_int(out); */
 
-	printf("\ndrawing 1000 times amongst 4 items, uniform proba\n");
-	out2 = sample_int_unif(1000, 4, rng);
-	print_vec_int(out2);
+/* 	printf("\ndrawing 1000 times amongst 4 items, uniform proba\n"); */
+/* 	out2 = sample_int_unif(1000, 4, rng); */
+/* 	print_vec_int(out2); */
 
-	double proba[4] = {1.0, 2.0, 3.0, 4.0};
-	printf("\ndrawing 1000 times amongst 4 items, weights 1,2,3,4\n");
-	out3 = sample_int_multinom(1000, 4 , proba, rng);
-	print_vec_int(out2);
-
-
-	/* /\* test binomial vs poisson *\/ */
-	/* /\* convergence ok *\/ */
-	/* time_t t1,t2; */
-	/* n=1e7; */
-	/* double p=1e-8, lambda=p*n; */
-	/* time(&t1); */
-	/* for(i=0;i<1e8;i++) gsl_ran_binomial (rng, p, n); */
-	/* time(&t2); */
-
-	/* printf("\n tirage binomial: %d seconds\n ", (int) t2-t1); */
-
-	/* time(&t1); */
-	/* for(i=0;i<1e8;i++) gsl_ran_poisson (rng, lambda); */
-	/* time(&t2); */
-
-	/* printf("\n tirage poisson: %d seconds\n ", (int) t2-t1); */
+/* 	double proba[4] = {1.0, 2.0, 3.0, 4.0}; */
+/* 	printf("\ndrawing 1000 times amongst 4 items, weights 1,2,3,4\n"); */
+/* 	out3 = sample_int_multinom(1000, 4 , proba, rng); */
+/* 	print_vec_int(out2); */
 
 
-	/* /\* test binomial vs poisson *\/ */
-	/* /\* convergence not ok *\/ */
-	/* n=1e6; */
-	/* p=1e-4; */
-	/* lambda=p*n; */
-	/* time(&t1); */
-	/* for(i=0;i<1e7;i++) gsl_ran_binomial (rng, p, n); */
-	/* time(&t2); */
+/* 	/\* /\\* test binomial vs poisson *\\/ *\/ */
+/* 	/\* /\\* convergence ok *\\/ *\/ */
+/* 	/\* time_t t1,t2; *\/ */
+/* 	/\* n=1e7; *\/ */
+/* 	/\* double p=1e-8, lambda=p*n; *\/ */
+/* 	/\* time(&t1); *\/ */
+/* 	/\* for(i=0;i<1e8;i++) gsl_ran_binomial (rng, p, n); *\/ */
+/* 	/\* time(&t2); *\/ */
 
-	/* printf("\n tirage binomial: %d seconds\n ", (int) t2-t1); */
+/* 	/\* printf("\n tirage binomial: %d seconds\n ", (int) t2-t1); *\/ */
 
-	/* time(&t1); */
-	/* for(i=0;i<1e7;i++) gsl_ran_poisson (rng, lambda); */
-	/* time(&t2); */
+/* 	/\* time(&t1); *\/ */
+/* 	/\* for(i=0;i<1e8;i++) gsl_ran_poisson (rng, lambda); *\/ */
+/* 	/\* time(&t2); *\/ */
 
-	/* printf("\n tirage poisson: %d seconds\n ", (int) t2-t1); */
-
-
-	/* test vector merging */
-	printf("\nmerging vectors:");
-	print_vec_int(out2);
-	print_vec_int(out2);
-	print_vec_int(out3);
-
-	struct vec_int ** in = calloc(3, sizeof(struct vec_int *));
-	in[0] = out2;
-	in[1] = out2;
-	in[2] = out3;
-
-	struct vec_int *out4;
-	out4 = merge_vec_int(in, 3);
-	print_vec_int(out4);
+/* 	/\* printf("\n tirage poisson: %d seconds\n ", (int) t2-t1); *\/ */
 
 
-	/* test retain only items appearing an odd number of times */
-	printf("\nkeeping elements appearing odd nb of times:");
-	struct vec_int *out5;
-	print_vec_int(out4);
-	out5 = keep_odd_int(out4);
-	print_vec_int(out5);
+/* 	/\* /\\* test binomial vs poisson *\\/ *\/ */
+/* 	/\* /\\* convergence not ok *\\/ *\/ */
+/* 	/\* n=1e6; *\/ */
+/* 	/\* p=1e-4; *\/ */
+/* 	/\* lambda=p*n; *\/ */
+/* 	/\* time(&t1); *\/ */
+/* 	/\* for(i=0;i<1e7;i++) gsl_ran_binomial (rng, p, n); *\/ */
+/* 	/\* time(&t2); *\/ */
+
+/* 	/\* printf("\n tirage binomial: %d seconds\n ", (int) t2-t1); *\/ */
+
+/* 	/\* time(&t1); *\/ */
+/* 	/\* for(i=0;i<1e7;i++) gsl_ran_poisson (rng, lambda); *\/ */
+/* 	/\* time(&t2); *\/ */
+
+/* 	/\* printf("\n tirage poisson: %d seconds\n ", (int) t2-t1); *\/ */
 
 
-	/* free & return */
-	free_table_int(out);
-	free_vec_int(out2);
-	free_vec_int(out3);
-	free_vec_int(out4);
-	free_vec_int(out5);
+/* 	/\* test vector merging *\/ */
+/* 	printf("\nmerging vectors:"); */
+/* 	print_vec_int(out2); */
+/* 	print_vec_int(out2); */
+/* 	print_vec_int(out3); */
 
-	gsl_rng_free(rng);
-	free(in);
-	return 0;
-}
+/* 	struct vec_int ** in = calloc(3, sizeof(struct vec_int *)); */
+/* 	in[0] = out2; */
+/* 	in[1] = out2; */
+/* 	in[2] = out3; */
+
+/* 	struct vec_int *out4; */
+/* 	out4 = merge_vec_int(in, 3); */
+/* 	print_vec_int(out4); */
+
+
+/* 	/\* test retain only items appearing an odd number of times *\/ */
+/* 	printf("\nkeeping elements appearing odd nb of times:"); */
+/* 	struct vec_int *out5; */
+/* 	print_vec_int(out4); */
+/* 	out5 = keep_odd_int(out4); */
+/* 	print_vec_int(out5); */
+
+
+/* 	/\* free & return *\/ */
+/* 	free_table_int(out); */
+/* 	free_vec_int(out2); */
+/* 	free_vec_int(out3); */
+/* 	free_vec_int(out4); */
+/* 	free_vec_int(out5); */
+
+/* 	gsl_rng_free(rng); */
+/* 	free(in); */
+/* 	return 0; */
+/* } */

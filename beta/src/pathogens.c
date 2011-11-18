@@ -245,7 +245,7 @@ int isNULL_pathogen(struct pathogen *in){
 struct vec_int * reconstruct_genome(struct pathogen *in, struct metapopulation * metapop){
 	int i, lineagesize=1;
 	struct pathogen *curAnces = get_ances(in);
-	struct vec_int ** lineage, *genome;
+	struct vec_int ** lineage, *temp, *genome;
 
 	/* identify lineage */
 	while(!is.null(curAnces)){
@@ -263,13 +263,14 @@ struct vec_int * reconstruct_genome(struct pathogen *in, struct metapopulation *
 	}
 
 	/* merge snps */
-	genome = merge_vec_int(lineage, lineagesize);
+	temp = merge_vec_int(lineage, lineagesize);
 
 	/* remove reverse mutations */
-	genome = remove_reverse(genome);
+	genome = keep_odd_int(temp);
 
 	/* free temporary allocation & return */
 	free(lineage);
+	free_int_vec(temp);
 	return genome;
 }
 
