@@ -376,7 +376,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 		/* age metapopulation */
 		age_metapopulation(metapop, par);
 
-		/* /\* draw samples *\/ */
+		/* draw samples */
 		/* if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){ */
 		/* 	samplist[counter_sample++] = draw_sample(metapop, tabdates->times[tabidx], par); */
 		/* } */
