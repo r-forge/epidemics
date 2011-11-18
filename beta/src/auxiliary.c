@@ -52,10 +52,12 @@ struct vec_int * create_vec_int(int n){
 		exit(1);
 	}
 
-	out->values = (int *) calloc(n, sizeof(int));
-	if(out->values == NULL){
-		fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
-		exit(1);
+	if(n>0){
+		out->values = (int *) calloc(n, sizeof(int));
+		if(out->values == NULL){
+			fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
+			exit(1);
+		}
 	}
 
 	out->n = n;

@@ -128,6 +128,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 	N=get_nb_snps(in);
 
 	/* out->snps = (int *) calloc(N, sizeof(int)); /\* allocate memory for snps vector*\/ */
+	free_vec_int(out->snps);
 	out->snps = create_vec_int(N);
 	if(get_snps(out) == NULL){
 		fprintf(stderr, "\n[in: pathogen.c->copy_pathogen]\nNo memory left for copying pathogen genome. Exiting.\n");
@@ -211,6 +212,7 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 	}
 
 	/* allocate memory for new vector */
+	free_vec_int(out->snps);
 	out->snps = create_vec_int(nbmut);
 
 	/* add new mutations */
