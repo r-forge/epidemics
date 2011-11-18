@@ -29,36 +29,33 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
 	int i, Nsus, Npop, Ninfcum, newpopid, nbnewinf;
 
 	/* GENERATE ERROR IF PATHOGEN IS INACTIVATED */
-	if(isNULL_pathogen(pat)){
-		fprintf(stderr, "\n[in: epidemics.c->process_infection]\nTried to process infection of an inactivated pathogen. Exiting.\n");
-		exit(1);
+	if(!isNULL_pathogen(pat) && get_age(pat) >= par->t1){ /* if infection is not a gost and age is OK */
+
+		/* GET POPULATION INFORMATION */
+		/* determine the pathogen's original population , Nsus, Ninfcum*/
+		newpopid = disperse(pat, D, par);
+		/* printf("\n new pop id %d", newpopid); */
+		pop = get_populations(metapop)[newpopid]; /* with dispersal */
+		/* pop = get_populations(metapop)[get_popid(pat)]; */ /* no dispersal*/
+		Nsus=get_nsus(pop);
+		Npop=get_popsize(pop);
+		Ninfcum=get_total_ninfcum(metapop);
+
+		/* DETERMINE NUMBER OF NEW INFECTIONS */
+		nbnewinf = gsl_ran_binomial(par->rng, par->beta/((double) Npop), Nsus); /* ~ B(beta/N_t, S_t) */
+
+		/* HANDLE GENOME REPLICATION */
+		for(i=0;i<nbnewinf;i++){
+			/* printf("\n## trying to write on pathogen %d", Ninfcum+i); */
+			replicate(pat, (get_pathogens(metapop))[Ninfcum+i], par);
+			(metapop->pathogens[Ninfcum+i])->popid = newpopid;
+		}
+
+		/* UPDATE NUMBER OF SUSCEPTIBLES AND INFECTED IN THE POPULATION */
+		pop->nsus = pop->nsus - nbnewinf;
+		pop->ninfcum = pop->ninfcum + nbnewinf;
+		pop->ninf = pop->ninf + nbnewinf;
 	}
-
-	/* GET POPULATION INFORMATION */
-	/* determine the pathogen's original population , Nsus, Ninfcum*/
-	newpopid = disperse(pat, D, par);
-	/* printf("\n new pop id %d", newpopid); */
-	pop = get_populations(metapop)[newpopid]; /* with dispersal */
-	/* pop = get_populations(metapop)[get_popid(pat)]; */ /* no dispersal*/
-	Nsus=get_nsus(pop);
-	Npop=get_popsize(pop);
-	Ninfcum=get_total_ninfcum(metapop);
-
-	/* DETERMINE NUMBER OF NEW INFECTIONS */
-	nbnewinf = gsl_ran_binomial(par->rng, par->beta/((double) Npop), Nsus); /* ~ B(beta/N_t, S_t) */
-
-	/* HANDLE GENOME REPLICATION */
-	for(i=0;i<nbnewinf;i++){
-		/* printf("\n## trying to write on pathogen %d", i); */
-		replicate(pat, (get_pathogens(metapop))[Ninfcum+i], par);
-		(metapop->pathogens[Ninfcum+i])->popid = newpopid;
-	}
-
-	/* UPDATE NUMBER OF SUSCEPTIBLES AND INFECTED IN THE POPULATION */
-	pop->nsus = pop->nsus - nbnewinf;
-	pop->ninfcum = pop->ninfcum + nbnewinf;
-	pop->ninf = pop->ninf + nbnewinf;
-
 } /* end process_infection */
 
 
@@ -367,6 +364,10 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
 		nstep++;
 
+		/* printf("\nmetapop check, time step %d", nstep); */
+		/* for(i=0;i<maxnpat;i++) if(metapop->pathogens[i]==NULL) printf("\npathogen %d is NULL", i); */
+		/* printf("...ok"); */
+
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
 			process_infection(get_pathogens(metapop)[i], metapop, D, par);
@@ -472,10 +473,10 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 
 int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
-	double mu=1e-5, beta=1.1, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
+	double mu=1e-5, beta=1.1, pdisp[1]={1.0}; //pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
 	time_t time1,time2;
-	int genoL=1e4, duration=30, npop=3, nstart=10, t1=1, t2=3, nsamp=10;
-	int tsamp[10] = {10,9,9,5,5,4,2,1,0,0},popsize[3]={1000,1e4,1e5};
+	int genoL=1e4, duration=30, npop=1, nstart=10, t1=1, t2=3, nsamp=10;
+	int tsamp[10] = {10,9,9,5,5,4,2,1,0,0}, popsize[1]={100}; //popsize[3]={10,1,1};
 
 	time(&time1);
 	test_epidemics(genoL, mu, npop, popsize, beta, nstart, t1, t2, nsamp, tsamp, duration, pdisp);

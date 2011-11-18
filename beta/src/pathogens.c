@@ -137,7 +137,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 	for(i=0;i<N;i++){ /* copy snps */
 		out->snps->values[i] = get_snps(in)[i];
 	}
-	
+
 	out->age = get_age(in);
 	out->popid = get_popid(in);
 	out->ances = get_ances(in);
