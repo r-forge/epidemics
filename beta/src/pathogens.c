@@ -242,13 +242,12 @@ int isNULL_pathogen(struct pathogen *in){
 
 
 /* reconstruct genome of an isolate */
-void reconstruct_genome(struct pathogen *in, struct metapopulation * metapop){
+struct vec_int * reconstruct_genome(struct pathogen *in, struct metapopulation * metapop){
 	int i, lineagesize=1;
 	struct pathogen *curAnces = get_ances(in);
 	struct vec_int ** lineage, *genome;
-	
+
 	/* identify lineage */
-	
 	while(!is.null(curAnces)){
 		lineagesize++;
 		curAnces = get_ances(curAnces);
@@ -269,7 +268,9 @@ void reconstruct_genome(struct pathogen *in, struct metapopulation * metapop){
 	/* remove reverse mutations */
 	genome = remove_reverse(genome);
 
-	/* free previous genotype and replace with new */
+	/* free temporary allocation & return */
+	free(lineage);
+	return genome;
 }
 
 

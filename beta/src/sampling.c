@@ -149,6 +149,8 @@ void print_sample(struct sample *in, bool showGen){
 */
 
 /* Get sample of isolates */
+/* Isolates are COPIED, so that any modification of the sample does not alter */
+/* the metapopulation. */
 struct sample * draw_sample(struct metapopulation *in, int n, struct param *par){
 	int i, j, id, nIsolates=0, maxnpat=get_maxnpat(in);
 	int *availIsolates;

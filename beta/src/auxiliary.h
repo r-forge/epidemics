@@ -85,6 +85,8 @@ struct vec_int * sample_int_multinom(int N, int I, double * proba, gsl_rng * rng
 
 struct vec_int * merge_vec_int(struct vec_int ** in, int nbvec);
 
+struct vec_int * keep_odd_int(struct vec_int *in);
+
 void print_table_int(struct table_int *in);
 
 void print_vec_int(struct vec_int *in);
