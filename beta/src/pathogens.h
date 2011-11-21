@@ -130,7 +130,7 @@ void print_pathogen(struct pathogen *in);
 /* Get the lineage of a pathogen */
 struct lineage * get_lineage(struct pathogen *in);
 
-/* reconstruct genome of an isolate */
+/* Reconstruct genome of an isolate */
 struct pathogen * reconstruct_genome(struct pathogen *in);
 
 

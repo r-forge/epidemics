@@ -153,7 +153,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 	N=get_nb_snps(in);
 
 	/* out->snps = (int *) calloc(N, sizeof(int)); /\* allocate memory for snps vector*\/ */
-	free_vec_int(out->snps);
+	if(out->snps != NULL) free_vec_int(out->snps); /* erase previous content */
 	out->snps = create_vec_int(N);
 	if(N>0 && get_snps(out) == NULL){
 		fprintf(stderr, "\n[in: pathogen.c->copy_pathogen]\nNo memory left for copying pathogen genome. Exiting.\n");
@@ -267,6 +267,7 @@ struct pathogen * reconstruct_genome(struct pathogen *in){
 
 	/* create output and fill it in */
 	out = create_pathogen();
+	free_vec_int(out->snps);
 	out->snps = genome;
 
 	/* free temporary allocation & return */
@@ -290,6 +291,7 @@ struct pathogen * reconstruct_genome(struct pathogen *in){
 void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 	int i, nbmut=gsl_ran_poisson(par->rng, par->muL);
 
+
 	/* check that output is OK */
 	if(out == NULL){
 		fprintf(stderr, "\n[in: pathogen.c->replicate]\nTrying to create a new pathogen but pointer is NULL. Exiting.\n");
@@ -297,7 +299,7 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 	}
 
 	/* allocate memory for new vector */
-	free_vec_int(out->snps);
+	if(out->snps != NULL) free_vec_int(out->snps);
 	out->snps = create_vec_int(nbmut);
 
 	/* add new mutations */
@@ -354,13 +356,13 @@ int main(){
 	/* simulation parameters */
 	struct param * par;
 	par = (struct param *) calloc(1, sizeof(struct param));
-	par->L = 1000;
-	par->mu = 0.001;
+	par->L = 10;
+	par->mu = 0.1;
 	par->muL = par->mu * par->L;
 	par->rng = rng;
 
 
-	int NREPLI = 30;
+	int NREPLI = 100;
 
 	struct pathogen ** ppat;
 
@@ -390,6 +392,15 @@ int main(){
 	struct lineage * myline = get_lineage(ppat[10]);
 	printf("\n\nChosen pathogen has a lineage of length %d", myline->n);
 	for(i=0;i<myline->n;i++) print_pathogen(myline->pathogens[i]);
+
+	/* TEST RECONSTRUCTION OF THE GENOME */
+	struct pathogen * mypat;
+	for(i=0;i<NREPLI;i++){
+		mypat = reconstruct_genome(ppat[i]);
+		printf("\n\n RECONSTRUCTED PATHOGEN %d: ", i);
+		print_pathogen(mypat);
+		free_pathogen(mypat);
+	}
 
 	/* free memory */
 	for(i=0;i<NREPLI;i++) free_pathogen(ppat[i]);
