@@ -244,33 +244,37 @@ struct lineage * get_lineage(struct pathogen *in){
 
 
 
-/* /\* reconstruct genome of an isolate *\/ */
-/* struct vec_int * reconstruct_genome(struct pathogen *in, struct metapopulation * metapop){ */
-/* 	int i, lineagesize=0; */
-/* 	struct pathogen *curIsolate; */
-/* 	struct vec_int ** listSnpVec, *temp, *genome; */
+/* reconstruct genome of an isolate */
+struct pathogen * reconstruct_genome(struct pathogen *in){
+	int i;
+	struct lineage *line = get_lineage(in);
+	struct pathogen *out;
+	struct vec_int ** listSnpVec, *temp, *genome;
 
 
-/* 	/\* get all snps in the lineage *\/ */
-/* 	listSnpVec = (struct vec_int **) calloc(lineagesize, sizeof(struct vec_int *)); */
+	/* get all snps in the lineage */
+	listSnpVec = (struct vec_int **) calloc(line->n, sizeof(struct vec_int *));
 
-/* 	curIsolate = in; */
-/* 	for(i=0;i<lineagesize;i++){ */
-/* 		listSnpVec[i] = get_snps_vec(curIsolate); */
-/* 		curIsolate = get_ances(curIsolate); */
-/* 	} */
+	for(i=0;i<line->n;i++){
+		listSnpVec[i] = get_snps_vec(line->pathogens[i]);
+	}
 
-/* 	/\* merge snps *\/ */
-/* 	temp = merge_vec_int(listSnpVec, lineagesize); */
+	/* merge snps */
+	temp = merge_vec_int(listSnpVec, line->n);
 
-/* 	/\* remove reverse mutations *\/ */
-/* 	genome = keep_odd_int(temp); */
+	/* remove reverse mutations */
+	genome = keep_odd_int(temp);
 
-/* 	/\* free temporary allocation & return *\/ */
-/* 	free(listSnpVec); */
-/* 	free_vec_int(temp); */
-/* 	return genome; */
-/* } */
+	/* create output and fill it in */
+	out = create_pathogen();
+	out->snps = genome;
+
+	/* free temporary allocation & return */
+	free_lineage(line);
+	free(listSnpVec);
+	free_vec_int(temp);
+	return out;
+}
 
 
 
