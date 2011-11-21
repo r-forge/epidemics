@@ -232,9 +232,13 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 		copy_pathogen(in->pathogens[availIsolates[id]], out->pathogens[i], par);
 
 		/* reconstruct genomes */
+		printf("\npathogen %d before", i);
+		print_pathogen(out->pathogens[i]);
 		temp = reconstruct_genome(out->pathogens[i], in);
 		free_vec_int(out->pathogens[i]->snps); /* free old snps */
 		out->pathogens[i]->snps = temp; /* replace with reconstructed genome */
+		printf("\npathogen %d after", i);
+		print_pathogen(out->pathogens[i]);
 	}
 
 	/* free local pointers */

@@ -130,7 +130,7 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 	/* out->snps = (int *) calloc(N, sizeof(int)); /\* allocate memory for snps vector*\/ */
 	free_vec_int(out->snps);
 	out->snps = create_vec_int(N);
-	if(get_snps(out) == NULL){
+	if(N>0 && get_snps(out) == NULL){
 		fprintf(stderr, "\n[in: pathogen.c->copy_pathogen]\nNo memory left for copying pathogen genome. Exiting.\n");
 		exit(1);
 	}
@@ -201,7 +201,7 @@ void print_pathogen(struct pathogen *in){
    ===============================
 */
 /* Function replicating a genome */
-/* Create a new pathogen */
+/* Assignment is done outside the function */
 void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 	int i, nbmut=gsl_ran_poisson(par->rng, par->muL);
 
@@ -253,66 +253,60 @@ int isNULL_pathogen(struct pathogen *in){
 */
 
 
-/* int main(){ */
-/* 	/\* Initialize random number generator *\/ */
-/* 	time_t t; */
-/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
-/* 	gsl_rng * rng; */
-/* 	const gsl_rng_type *typ; */
-/* 	gsl_rng_env_setup(); */
-/* 	typ=gsl_rng_default; */
-/* 	rng=gsl_rng_alloc(typ); */
-/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
+int main(){
+	Initialize random number generator
+	time_t t;
+	t = time(NULL); time in seconds, used to change the seed of the random generator
+	gsl_rng * rng;
+	const gsl_rng_type *typ;
+	gsl_rng_env_setup();
+	typ=gsl_rng_default;
+	rng=gsl_rng_alloc(typ);
+	gsl_rng_set(rng,t); changes the seed of the random generator
 
-/* 	int i; */
+	int i;
 
-/* 	/\* simulation parameters *\/ */
-/* 	struct param * par; */
-/* 	par = (struct param *) calloc(1, sizeof(struct param)); */
-/* 	par->L = 100; */
-/* 	par->mu = 0.01; */
-/* 	par->muL = par->mu * par->L; */
-/* 	par->rng = rng; */
+	simulation parameters
+	struct param * par;
+	par = (struct param *) calloc(1, sizeof(struct param));
+	par->L = 1000;
+	par->mu = 0.001;
+	par->muL = par->mu * par->L;
+	par->rng = rng;
 
 
-/* 	int NREPLI = 1e3; */
+	int NREPLI = 100;
 
-/* 	struct pathogen ** ppat; */
+	struct pathogen ** ppat;
 
-/* 	/\* allocate memory *\/ */
-/* 	ppat = (struct pathogen **) calloc(NREPLI, sizeof(struct pathogen *)); */
-/* 	if(ppat==NULL){ */
-/* 			fprintf(stderr, "\nNo memory left for creating new array of pathogens. Exiting.\n"); */
-/* 			exit(1); */
-/* 	} */
-/* 	for(i=1;i<NREPLI;i++){ */
-/* 		ppat[i] = (struct pathogen *) calloc(1, sizeof(struct pathogen)); */
-/* 		if(ppat[i]==NULL){ */
-/* 			fprintf(stderr, "\nNo memory left for expanding the array of pathogens. Exiting.\n"); */
-/* 			exit(1); */
-/* 		} */
-/* 	} */
+	allocate memory
+	ppat = (struct pathogen **) calloc(NREPLI, sizeof(struct pathogen *));
+	if(ppat==NULL){
+			fprintf(stderr, "\nNo memory left for creating new array of pathogens. Exiting.\n");
+			exit(1);
+	}
 
-/* 	/\* initiate array of pathogens *\/ */
-/* 	ppat[0] = create_pathogen(); */
+	initiate array of pathogens
+	for(i=0;i<NREPLI;i++) ppat[i] = create_pathogen();
 
-/* 	/\* replications *\/ */
-/* 	for(i=0;i<(NREPLI-1);i++){ */
-/* 		replicate(ppat[i],ppat[i+1],par); */
-/* 	} */
+	replications
+	for(i=0;i<(NREPLI-1);i++){
+		printf("\n replication %d", i);
+		replicate(ppat[i],ppat[i+1],par);
+	}
 
-/* 	for(i=0;i<NREPLI;i++){ */
-/* 		printf("\npathogen %d",i); */
-/* 		print_pathogen(ppat[i]); */
-/* 	} */
+	for(i=0;i<NREPLI;i++){
+		printf("\npathogen %d",i);
+		print_pathogen(ppat[i]);
+	}
 
-/* 	/\* free memory *\/ */
-/* 	for(i=0;i<NREPLI;i++) free_pathogen(ppat[i]); */
-/* 	free(ppat); */
-/* 	free_param(par); */
+	free memory
+	for(i=0;i<NREPLI;i++) free_pathogen(ppat[i]);
+	free(ppat);
+	free_param(par);
 
-/* 	return 0; */
-/* } */
+	return 0;
+}
 
 
 
