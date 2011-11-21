@@ -56,7 +56,6 @@ void free_sample(struct sample *in);
 
 void print_sample(struct sample *in, bool showGen);
 
-struct vec_int * reconstruct_genome(struct pathogen *in, struct metapopulation * metapop);
 
 
 /*

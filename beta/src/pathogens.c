@@ -244,7 +244,7 @@ struct lineage * get_lineage(struct pathogen *in){
 
 
 
-/* reconstruct genome of an isolate */
+/* RECONSTRUCT GENOME OF AN ISOLATE */
 struct pathogen * reconstruct_genome(struct pathogen *in){
 	int i;
 	struct lineage *line = get_lineage(in);
@@ -269,6 +269,9 @@ struct pathogen * reconstruct_genome(struct pathogen *in){
 	out = create_pathogen();
 	free_vec_int(out->snps);
 	out->snps = genome;
+	out->age = in->age;
+	out->popid = in->popid;
+	out->ances = in->ances;
 
 	/* free temporary allocation & return */
 	free_lineage(line);
@@ -340,76 +343,76 @@ int isNULL_pathogen(struct pathogen *in){
 */
 
 
-int main(){
-	/* Initialize random number generator */
-	time_t t;
-	t = time(NULL); /* time in seconds, used to change the seed of the random generator */
-	gsl_rng * rng;
-	const gsl_rng_type *typ;
-	gsl_rng_env_setup();
-	typ=gsl_rng_default;
-	rng=gsl_rng_alloc(typ);
-	gsl_rng_set(rng,t); /* changes the seed of the random generator */
+/* int main(){ */
+/* 	/\* Initialize random number generator *\/ */
+/* 	time_t t; */
+/* 	t = time(NULL); /\* time in seconds, used to change the seed of the random generator *\/ */
+/* 	gsl_rng * rng; */
+/* 	const gsl_rng_type *typ; */
+/* 	gsl_rng_env_setup(); */
+/* 	typ=gsl_rng_default; */
+/* 	rng=gsl_rng_alloc(typ); */
+/* 	gsl_rng_set(rng,t); /\* changes the seed of the random generator *\/ */
 
-	int i;
+/* 	int i; */
 
-	/* simulation parameters */
-	struct param * par;
-	par = (struct param *) calloc(1, sizeof(struct param));
-	par->L = 10;
-	par->mu = 0.1;
-	par->muL = par->mu * par->L;
-	par->rng = rng;
-
-
-	int NREPLI = 100;
-
-	struct pathogen ** ppat;
-
-	/* allocate memory */
-	ppat = (struct pathogen **) calloc(NREPLI, sizeof(struct pathogen *));
-	if(ppat==NULL){
-			fprintf(stderr, "\nNo memory left for creating new array of pathogens. Exiting.\n");
-			exit(1);
-	}
-
-	/* INITIATE ARRAY OF PATHOGENS */
-	for(i=0;i<NREPLI;i++) ppat[i] = create_pathogen();
-
-	/* REPLICATIONS */
-	for(i=0;i<(NREPLI-1);i++){
-		printf("\n replication %d", i);
-		replicate(ppat[i],ppat[i+1],par);
-	}
-
-	for(i=0;i<NREPLI;i++){
-		printf("\npathogen %d",i);
-		print_pathogen(ppat[i]);
-	}
+/* 	/\* simulation parameters *\/ */
+/* 	struct param * par; */
+/* 	par = (struct param *) calloc(1, sizeof(struct param)); */
+/* 	par->L = 10; */
+/* 	par->mu = 0.1; */
+/* 	par->muL = par->mu * par->L; */
+/* 	par->rng = rng; */
 
 
-	/* TEST LINEAGES */
-	struct lineage * myline = get_lineage(ppat[10]);
-	printf("\n\nChosen pathogen has a lineage of length %d", myline->n);
-	for(i=0;i<myline->n;i++) print_pathogen(myline->pathogens[i]);
+/* 	int NREPLI = 100; */
 
-	/* TEST RECONSTRUCTION OF THE GENOME */
-	struct pathogen * mypat;
-	for(i=0;i<NREPLI;i++){
-		mypat = reconstruct_genome(ppat[i]);
-		printf("\n\n RECONSTRUCTED PATHOGEN %d: ", i);
-		print_pathogen(mypat);
-		free_pathogen(mypat);
-	}
+/* 	struct pathogen ** ppat; */
 
-	/* free memory */
-	for(i=0;i<NREPLI;i++) free_pathogen(ppat[i]);
-	free(ppat);
-	free_param(par);
-	free_lineage(myline);
+/* 	/\* allocate memory *\/ */
+/* 	ppat = (struct pathogen **) calloc(NREPLI, sizeof(struct pathogen *)); */
+/* 	if(ppat==NULL){ */
+/* 			fprintf(stderr, "\nNo memory left for creating new array of pathogens. Exiting.\n"); */
+/* 			exit(1); */
+/* 	} */
 
-	return 0;
-}
+/* 	/\* INITIATE ARRAY OF PATHOGENS *\/ */
+/* 	for(i=0;i<NREPLI;i++) ppat[i] = create_pathogen(); */
+
+/* 	/\* REPLICATIONS *\/ */
+/* 	for(i=0;i<(NREPLI-1);i++){ */
+/* 		printf("\n replication %d", i); */
+/* 		replicate(ppat[i],ppat[i+1],par); */
+/* 	} */
+
+/* 	for(i=0;i<NREPLI;i++){ */
+/* 		printf("\npathogen %d",i); */
+/* 		print_pathogen(ppat[i]); */
+/* 	} */
+
+
+/* 	/\* TEST LINEAGES *\/ */
+/* 	struct lineage * myline = get_lineage(ppat[10]); */
+/* 	printf("\n\nChosen pathogen has a lineage of length %d", myline->n); */
+/* 	for(i=0;i<myline->n;i++) print_pathogen(myline->pathogens[i]); */
+
+/* 	/\* TEST RECONSTRUCTION OF THE GENOME *\/ */
+/* 	struct pathogen * mypat; */
+/* 	for(i=0;i<NREPLI;i++){ */
+/* 		mypat = reconstruct_genome(ppat[i]); */
+/* 		printf("\n\n RECONSTRUCTED PATHOGEN %d: ", i); */
+/* 		print_pathogen(mypat); */
+/* 		free_pathogen(mypat); */
+/* 	} */
+
+/* 	/\* free memory *\/ */
+/* 	for(i=0;i<NREPLI;i++) free_pathogen(ppat[i]); */
+/* 	free(ppat); */
+/* 	free_param(par); */
+/* 	free_lineage(myline); */
+
+/* 	return 0; */
+/* } */
 
 
 
