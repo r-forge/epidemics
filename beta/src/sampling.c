@@ -141,42 +141,6 @@ void print_sample(struct sample *in, bool showGen){
 
 
 
-/* reconstruct genome of an isolate */
-struct vec_int * reconstruct_genome(struct pathogen *in, struct metapopulation * metapop){
-	int i, lineagesize=1;
-	struct pathogen *curAnces = get_ances(in);
-	struct vec_int ** lineage, *temp, *genome;
-
-	/* identify lineage */
-	while(curAnces != NULL){
-		lineagesize++;
-		curAnces = get_ances(curAnces);
-	}
-
-	/* get all snps in the lineage */
-	lineage = (struct vec_int **) calloc(lineagesize, sizeof(struct vec_int *));
-
-	lineage[0] = get_snps_vec(in);
-	for(i=1;i<lineagesize;i++){
-		lineage[i] = get_snps_vec(curAnces);
-		curAnces = get_ances(curAnces);
-	}
-
-	/* merge snps */
-	temp = merge_vec_int(lineage, lineagesize);
-
-	/* remove reverse mutations */
-	genome = keep_odd_int(temp);
-
-	/* free temporary allocation & return */
-	free(lineage);
-	free_vec_int(temp);
-	return genome;
-}
-
-
-
-
 /*
    ===============================
    === MAIN EXTERNAL FUNCTIONS ===

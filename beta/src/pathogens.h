@@ -31,6 +31,10 @@ struct pathogen{
 
 
 
+struct lineage{
+	struct pathogen ** pathogens;
+	int n;
+};
 
 
 
@@ -76,8 +80,8 @@ struct pathogen * get_ances(struct pathogen *in);
 /* Create empty pathogen */
 struct pathogen * create_pathogen();
 
-
-
+/* Create empty lineage */
+struct lineage * create_lineage(int n);
 
 
 
@@ -93,7 +97,9 @@ struct pathogen * create_pathogen();
 void free_pathogen(struct pathogen *in);
 
 
-
+/* Free lineage */
+/* Note: free only pointers to pathogens, does not free pathogens themselves. */
+void free_lineage(struct lineage *in);
 
 
 
@@ -121,6 +127,12 @@ int make_mutation(struct param *par);
 /* Print pathogen content */
 void print_pathogen(struct pathogen *in);
 
+/* Get the lineage of a pathogen */
+struct lineage * get_lineage(struct pathogen *in);
+
+
+/* reconstruct the genome of an isolate */
+/* struct vec_int * reconstruct_genome(struct pathogen *in, struct metapopulation * metapop); */
 
 
 
