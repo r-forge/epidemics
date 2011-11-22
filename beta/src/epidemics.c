@@ -138,13 +138,13 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
 		nstep++;
 
+		/* age metapopulation */
+		age_metapopulation(metapop, par);
+
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
 			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
-
-		/* age metapopulation */
-		age_metapopulation(metapop, par);
 
 		/* draw samples */
 		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){
@@ -251,20 +251,18 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 
 	/* memory allocations for sample and results */
 	struct sample *samp;
-	double Hs, meanNbSnps, varNbSnps, meanPairwiseDist, varPairwiseDist;
-	int nbSnps;
 
 	/* make metapopulation evolve */
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
 		nstep++;
 
+		/* age metapopulation */
+		age_metapopulation(metapop, par);
+
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
 			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
-
-		/* age metapopulation */
-		age_metapopulation(metapop, par);
 
 		/* draw sample */
 		samp = draw_sample(metapop, par->n_sample, par);
@@ -370,13 +368,13 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 		/* for(i=0;i<maxnpat;i++) if(metapop->pathogens[i]==NULL) printf("\npathogen %d is NULL", i); */
 		/* printf("...ok"); */
 
+		/* age metapopulation */
+		age_metapopulation(metapop, par);
+
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
 			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
-
-		/* age metapopulation */
-		age_metapopulation(metapop, par);
 
 		/* draw samples */
 		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){
@@ -477,16 +475,16 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 
 
 
-/* int main(){ */
-/* /\* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) *\/ */
-/* 	double mu=1e-4, beta=1.1, pdisp[1]={1.0}; //pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0}; */
-/* 	time_t time1,time2; */
-/* 	int genoL=1e4, duration=3, npop=1, nstart=10, t1=1, t2=3, nsamp=10; */
-/* 	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1]={1e6}; //popsize[3]={10,1,1}; */
+int main(){
+/* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
+	double mu=1e-4, beta=1.1, pdisp[1]={1.0}; //pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
+	time_t time1,time2;
+	int genoL=1e4, duration=50, npop=1, nstart=10, t1=1, t2=3, nsamp=10;
+	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1]={1e6}; //popsize[3]={10,1,1};
 
-/* 	time(&time1); */
-/* 	test_epidemics(genoL, mu, npop, popsize, beta, nstart, t1, t2, nsamp, tsamp, duration, pdisp); */
-/* 	time(&time2); */
-/* 	printf("\ntime ellapsed: %d seconds \n", (int) (time2-time1)); */
-/* 	return 0; */
-/* } */
+	time(&time1);
+	test_epidemics(genoL, mu, npop, popsize, beta, nstart, t1, t2, nsamp, tsamp, duration, pdisp);
+	time(&time2);
+	printf("\ntime ellapsed: %d seconds \n", (int) (time2-time1));
+	return 0;
+}

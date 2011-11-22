@@ -49,12 +49,6 @@ int get_popid(struct pathogen *in){
 
 
 
-/* Returns the ancestor of the pathogen */
-struct pathogen * get_ances(struct pathogen *in){
-	return in->ances;
-}
-
-
 
 
 
@@ -77,7 +71,6 @@ struct pathogen * create_pathogen(){
 	out->length = 0;
 	out->age = 0;
 	out->popid = 0;
-	out->ances = NULL;
 	return out;
 }
 
@@ -134,7 +127,6 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 	out->length = N;
 	out->age = get_age(in);
 	out->popid = get_popid(in);
-	out->ances = get_ances(in);
 }
 
 

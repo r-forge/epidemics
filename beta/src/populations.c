@@ -342,7 +342,7 @@ void age_metapopulation(struct metapopulation * metapop, struct param * par){
 		ppat = (metapop->pathogens)[i]; /* to make code more readable*/
 		if(!isNULL_pathogen(ppat)){ /* if pathogen exists */
 			ppat->age = ppat->age+1; /* get older */
-			if(get_age(ppat) > par->t2) { /* die if you must */
+			if(get_age(ppat) >= par->t2) { /* die if you must */
 				ppat->age = -1; /* inactivate pathogen */
 
 				/* update nrec and ninf in corresponding population */
