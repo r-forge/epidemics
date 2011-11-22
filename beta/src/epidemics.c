@@ -479,7 +479,7 @@ int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
 	double mu=1e-4, beta=1.1, pdisp[1]={1.0}; //pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
 	time_t time1,time2;
-	int genoL=1e4, duration=50, npop=1, nstart=10, t1=1, t2=3, nsamp=10;
+	int genoL=1e4, duration=50, npop=1, nstart=10, t1=1, t2=2, nsamp=10;
 	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1]={1e6}; //popsize[3]={10,1,1};
 
 	time(&time1);

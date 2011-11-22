@@ -161,7 +161,7 @@ struct metapopulation * create_metapopulation(struct param *par){
 	for(i=0;i<maxnpat;i++){
 		(out->pathogens)[i] = create_pathogen();
 		if(i<nini){ /* there are nini intial pathogens in the metapopulation */
-			(out->pathogens[i])->age = 1; /* 'active' pathogen */
+			(out->pathogens[i])->age = 0; /* 'active' pathogen */
 			(out->pathogens[i])->popid = 0;
 
 		} else {
