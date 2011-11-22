@@ -59,7 +59,7 @@ epidemics(n.sample, duration, beta, metaPopInfo, t.sample = NULL,
 \examples{
 ## SIMPLE EPIDEMIC ##
 metapop <- setMetaPop(1, 1e6)
-x <- epidemics(n.sample=30, beta=1.1, duration=30, meta=metapop)
+x <- epidemics(n.sample=30, beta=1.5, duration=100, meta=metapop, n.ini=10)
 
 
 ## SEVERAL POPULATIONS - 1 DIM STEPPING STONE ##
@@ -71,7 +71,7 @@ plot(metapop, max.cir=0.1, arr=FALSE, annot=FALSE, max.lwd=1)
 sampTime <- rep(c(0,20,50,100,150), each=10)
 
 ## run simulations
-x <- epidemics(n.sample=50, beta=1.1, duration=200, meta=metapop, t.sample=sampTime)
+x <- epidemics(n.sample=50, beta=2, duration=200, meta=metapop,t.sample=sampTime, n.ini=10)
 
 ## examine and plot result
 x
@@ -88,7 +88,7 @@ metapop <- setMetaPop(n.pop = 100, metapop.size = 100e4,
 plot(metapop, max.cir=0.15, max.lwd=2, arr=FALSE, annot=FALSE)
 
 ## run simulations
-x <- epidemics(n.sample=50, beta=2, duration=50,meta=metapop,t.sample=0, mut=3e-4)
+x <- epidemics(n.sample=50, beta=2,duration=100,meta=metapop,t.sample=0, mut=3e-4, n.ini=10)
 
 ## plot results
 plot(x$sample)

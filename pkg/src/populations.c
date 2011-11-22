@@ -161,7 +161,7 @@ struct metapopulation * create_metapopulation(struct param *par){
 	for(i=0;i<maxnpat;i++){
 		(out->pathogens)[i] = create_pathogen();
 		if(i<nini){ /* there are nini intial pathogens in the metapopulation */
-			(out->pathogens[i])->age = 1; /* 'active' pathogen */
+			(out->pathogens[i])->age = 0; /* 'active' pathogen */
 			(out->pathogens[i])->popid = 0;
 
 		} else {
@@ -342,7 +342,7 @@ void age_metapopulation(struct metapopulation * metapop, struct param * par){
 		ppat = (metapop->pathogens)[i]; /* to make code more readable*/
 		if(!isNULL_pathogen(ppat)){ /* if pathogen exists */
 			ppat->age = ppat->age+1; /* get older */
-			if(get_age(ppat) > par->t2) { /* die if you must */
+			if(get_age(ppat) >= par->t2) { /* die if you must */
 				ppat->age = -1; /* inactivate pathogen */
 
 				/* update nrec and ninf in corresponding population */

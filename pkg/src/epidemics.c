@@ -144,14 +144,15 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
 		nstep++;
 
+		/* age metapopulation */
+		age_metapopulation(metapop, par);
+
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
 			process_infection(get_pathogens(metapop)[i], metapop, par, D);
 		}
 
-		/* age metapopulation */
-		age_metapopulation(metapop, par);
-
+	
 		/* draw samples */
 		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){
 			samplist[counter_sample++] = draw_sample(metapop, tabdates->times[tabidx], par);
@@ -263,14 +264,15 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
 		nstep++;
 
+		/* age metapopulation */
+		age_metapopulation(metapop, par);
+
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
 			process_infection(get_pathogens(metapop)[i], metapop, par, D);
 		}
 
-		/* age metapopulation */
-		age_metapopulation(metapop, par);
-
+	
 		/* draw sample */
 		samp = draw_sample(metapop, par->n_sample, par);
 
@@ -370,14 +372,15 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
 		nstep++;
 
+		/* age metapopulation */
+		age_metapopulation(metapop, par);
+
 		/* handle replication for each infection */
 		for(i=0;i<maxnpat;i++){
 			process_infection(get_pathogens(metapop)[i], metapop, par, D);
 		}
 
-		/* age metapopulation */
-		age_metapopulation(metapop, par);
-
+	
 		/* draw samples */
 		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){
 			samplist[counter_sample++] = draw_sample(metapop, tabdates->times[tabidx], par);

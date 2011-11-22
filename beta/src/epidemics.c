@@ -133,6 +133,8 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	struct sample ** samplist = (struct sample **) calloc(tabdates->n, sizeof(struct sample *));
 	struct sample *samp;
 	int counter_sample = 0, tabidx;
+	int firstActiveIdx=0; /* idx of first active pathogens */
+	bool activeMark; /* TRUE if active pathogens have been reached */
 
 	/* make metapopulation evolve */
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
@@ -142,9 +144,18 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 		age_metapopulation(metapop, par);
 
 		/* handle replication for each infection */
-		for(i=0;i<maxnpat;i++){
+		activeMark = FALSE;
+		for(i=firstActiveIdx;i<get_total_ninfcum(metapop);i++){
+			if(!activeMark && !isNULL_pathogen(get_pathogens(metapop)[i])) {
+				firstActiveIdx = i;
+				activeMark=TRUE;
+			}
 			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
+
+		/* for(i=0;i<maxnpat;i++){ */
+		/* 	process_infection(get_pathogens(metapop)[i], metapop, D, par); */
+		/* } */
 
 		/* draw samples */
 		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){
@@ -251,6 +262,8 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 
 	/* memory allocations for sample and results */
 	struct sample *samp;
+	int firstActiveIdx=0; /* idx of first active pathogens */
+	bool activeMark=FALSE; /* TRUE if active pathogens have been reached */
 
 	/* make metapopulation evolve */
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
@@ -260,9 +273,17 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 		age_metapopulation(metapop, par);
 
 		/* handle replication for each infection */
-		for(i=0;i<maxnpat;i++){
+		for(i=firstActiveIdx;i<get_total_ninfcum(metapop);i++){
+			if(!activeMark && !isNULL_pathogen(get_pathogens(metapop)[i])) {
+				firstActiveIdx = i;
+				activeMark=TRUE;
+			}
 			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
+
+		/* for(i=0;i<maxnpat;i++){ */
+		/* 	process_infection(get_pathogens(metapop)[i], metapop, D, par); */
+		/* } */
 
 		/* draw sample */
 		samp = draw_sample(metapop, par->n_sample, par);
@@ -358,7 +379,8 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	/* create sample */
 	struct sample ** samplist = (struct sample **) calloc(tabdates->n, sizeof(struct sample *));
 	struct sample *samp;
-	int counter_sample = 0, tabidx;
+	int counter_sample = 0, tabidx, firstActiveIdx=0;
+	bool activeMark=FALSE;
 
 	/* make metapopulation evolve */
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
@@ -372,7 +394,11 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 		age_metapopulation(metapop, par);
 
 		/* handle replication for each infection */
-		for(i=0;i<maxnpat;i++){
+		for(i=firstActiveIdx;i<get_total_ninfcum(metapop);i++){
+			if(!activeMark && !isNULL_pathogen(get_pathogens(metapop)[i])) {
+				firstActiveIdx = i;
+				activeMark=TRUE;
+			}
 			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
 

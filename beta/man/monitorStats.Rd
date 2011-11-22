@@ -55,7 +55,7 @@ monitor.epidemics(n.sample, duration, beta, metaPopInfo, seq.length = 10000,
 \examples{
 ## SIMPLE EXAMPLE ##
 metapop <- setMetaPop(1, 1e6)
-monitor.epidemics(300, beta=1.1, duration=100, metaPop=metapop)
+monitor.epidemics(300, beta=1.1, duration=100, metaPop=metapop, n.ini=10)
 
 
 ## MULTIPLE POPULATIONS - 2D LATTICE ##
@@ -65,7 +65,7 @@ par(mfrow=c(1,1))
 plot(metapop)
 
 ## run simulation
-res <- monitor.epidemics(300, beta=1.1, duration=100, min.samp.size=1e3, metaPop=metapop)
+res <- monitor.epidemics(300, beta=2, duration=100,min.samp.size=1e3,metaPop=metapop, n.ini=10)
 
 ## check output
 names(res)
