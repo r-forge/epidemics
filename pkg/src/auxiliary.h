@@ -19,6 +19,11 @@ struct table_int{
 
 
 
+struct vec_int{
+	int *values, n;
+};
+
+
 struct distmat_int{
 	int *x, n, length;
 };
@@ -35,6 +40,8 @@ struct distmat_int{
 
 struct distmat_int * create_distmat_int(int n);
 
+struct vec_int * create_vec_int(int n);
+
 
 
 /*
@@ -46,8 +53,10 @@ struct distmat_int * create_distmat_int(int n);
 
 void free_distmat_int(struct distmat_int *in);
 
-
 void free_table_int(struct table_int *in);
+
+void free_vec_int(struct vec_int *in);
+
 
 
 
@@ -70,7 +79,17 @@ int min_int(int *vec, int length);
 */
 struct table_int * get_table_int(int *vec, int length);
 
+struct vec_int * sample_int_unif(int N, int I, gsl_rng * rng);
+
+struct vec_int * sample_int_multinom(int N, int I, double * proba, gsl_rng * rng);
+
+struct vec_int * merge_vec_int(struct vec_int ** in, int nbvec);
+
+struct vec_int * keep_odd_int(struct vec_int *in);
+
 void print_table_int(struct table_int *in);
+
+void print_vec_int(struct vec_int *in);
 
 void print_distmat_int(struct distmat_int *in);
 

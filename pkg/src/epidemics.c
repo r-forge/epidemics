@@ -24,11 +24,14 @@
 */
 
 /* seed new infections from a single pathogen */
-void process_infection(struct pathogen * pat, struct metapopulation * metapop, struct param * par, struct dispmat *D){
+void process_infection(struct pathogen * pat, struct metapopulation * metapop, struct dispmat *D, struct param * par){
 	struct population * pop;
-	int i, nbnewinf=0, Nsus, Npop, Ninfcum, newpopid;
+	int i, Nsus, Npop, Ninfcum, newpopid, nbnewinf;
 
-	if(!isNULL_pathogen(pat)){ /* if infection is not a gost */
+	/* GENERATE ERROR IF PATHOGEN IS INACTIVATED */
+	if(!isNULL_pathogen(pat) && get_age(pat) >= par->t1){ /* if infection is not a gost and age is OK */
+
+		/* GET POPULATION INFORMATION */
 		/* determine the pathogen's original population , Nsus, Ninfcum*/
 		newpopid = disperse(pat, D, par);
 		/* printf("\n new pop id %d", newpopid); */
@@ -38,30 +41,20 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
 		Npop=get_popsize(pop);
 		Ninfcum=get_total_ninfcum(metapop);
 
-		/* determine the number of descendents */
-		/* for each infection, nb new infec = \beta * (nb sus)/(pop size) */
-		if(get_age(pat) >= par->t1){
-			/*nbnewinf = gsl_ran_poisson(par->rng, par->beta);*/
-			nbnewinf = gsl_ran_poisson(par->rng, par->beta * Nsus/Npop);
+		/* DETERMINE NUMBER OF NEW INFECTIONS */
+		nbnewinf = gsl_ran_binomial(par->rng, par->beta/((double) Npop), Nsus); /* ~ B(beta/N_t, S_t) */
 
-			/* adjust number of new infections to number of susceptibles */
-			if(nbnewinf > Nsus) nbnewinf =  Nsus;
+		/* HANDLE GENOME REPLICATION */
+		for(i=0;i<nbnewinf;i++){
+			/* printf("\n## trying to write on pathogen %d", Ninfcum+i); */
+			replicate(pat, (get_pathogens(metapop))[Ninfcum+i], par);
+			(metapop->pathogens[Ninfcum+i])->popid = newpopid;
 		}
 
-		if(nbnewinf>0){
-			/* for each new infection, add new pathogen */
-			for(i=Ninfcum;i<(Ninfcum+nbnewinf);i++){
- 				/* printf("\n## trying to write on pathogen %d", i); */
-				replicate(pat, (get_pathogens(metapop))[i], par);
-				/* add dispersal here later */
-				(metapop->pathogens[i])->popid = newpopid;
-			}
-
-			/* update number of susceptibles and infected */
-			pop->nsus = pop->nsus - nbnewinf;
-			pop->ninfcum = pop->ninfcum + nbnewinf;
-			pop->ninf = pop->ninf + nbnewinf;
-		}
+		/* UPDATE NUMBER OF SUSCEPTIBLES AND INFECTED IN THE POPULATION */
+		pop->nsus = pop->nsus - nbnewinf;
+		pop->ninfcum = pop->ninfcum + nbnewinf;
+		pop->ninf = pop->ninf + nbnewinf;
 	}
 } /* end process_infection */
 
@@ -113,6 +106,7 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 
 	/* check/print parameters */
 	check_param(par);
+	/* printf("\n ! Beta version used !\n"); */
 	print_param(par);
 
 	/* dispersal matrix */
@@ -139,6 +133,8 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	struct sample ** samplist = (struct sample **) calloc(tabdates->n, sizeof(struct sample *));
 	struct sample *samp;
 	int counter_sample = 0, tabidx;
+	int firstActiveIdx=0; /* idx of first active pathogens */
+	bool activeMark; /* TRUE if active pathogens have been reached */
 
 	/* make metapopulation evolve */
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
@@ -148,11 +144,19 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 		age_metapopulation(metapop, par);
 
 		/* handle replication for each infection */
-		for(i=0;i<maxnpat;i++){
-			process_infection(get_pathogens(metapop)[i], metapop, par, D);
+		activeMark = FALSE;
+		for(i=firstActiveIdx;i<get_total_ninfcum(metapop);i++){
+			if(!activeMark && !isNULL_pathogen(get_pathogens(metapop)[i])) {
+				firstActiveIdx = i;
+				activeMark=TRUE;
+			}
+			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
 
-	
+		/* for(i=0;i<maxnpat;i++){ */
+		/* 	process_infection(get_pathogens(metapop)[i], metapop, D, par); */
+		/* } */
+
 		/* draw samples */
 		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){
 			samplist[counter_sample++] = draw_sample(metapop, tabdates->times[tabidx], par);
@@ -238,6 +242,7 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 
 	/* check/print parameters */
 	check_param(par);
+	printf("\n ! Beta version used !\n");
 	print_param(par);
 
 	/* dispersal matrix */
@@ -257,8 +262,8 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 
 	/* memory allocations for sample and results */
 	struct sample *samp;
-	double Hs, meanNbSnps, varNbSnps, meanPairwiseDist, varPairwiseDist;
-	int nbSnps;
+	int firstActiveIdx=0; /* idx of first active pathogens */
+	bool activeMark=FALSE; /* TRUE if active pathogens have been reached */
 
 	/* make metapopulation evolve */
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
@@ -268,11 +273,18 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 		age_metapopulation(metapop, par);
 
 		/* handle replication for each infection */
-		for(i=0;i<maxnpat;i++){
-			process_infection(get_pathogens(metapop)[i], metapop, par, D);
+		for(i=firstActiveIdx;i<get_total_ninfcum(metapop);i++){
+			if(!activeMark && !isNULL_pathogen(get_pathogens(metapop)[i])) {
+				firstActiveIdx = i;
+				activeMark=TRUE;
+			}
+			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
 
-	
+		/* for(i=0;i<maxnpat;i++){ */
+		/* 	process_infection(get_pathogens(metapop)[i], metapop, D, par); */
+		/* } */
+
 		/* draw sample */
 		samp = draw_sample(metapop, par->n_sample, par);
 
@@ -357,6 +369,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	metapop = create_metapopulation(par);
 	maxnpat = get_maxnpat(metapop);
 
+
 	/* get sampling schemes (timestep+effectives) */
 	translate_dates(par);
 	struct table_int *tabdates = get_table_int(par->t_sample, par->n_sample);
@@ -366,21 +379,29 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	/* create sample */
 	struct sample ** samplist = (struct sample **) calloc(tabdates->n, sizeof(struct sample *));
 	struct sample *samp;
-	int counter_sample = 0, tabidx;
+	int counter_sample = 0, tabidx, firstActiveIdx=0;
+	bool activeMark=FALSE;
 
 	/* make metapopulation evolve */
 	while(get_total_nsus(metapop)>0 && get_total_ninf(metapop)>0 && nstep<par->duration){
 		nstep++;
 
+		/* printf("\nmetapop check, time step %d", nstep); */
+		/* for(i=0;i<maxnpat;i++) if(metapop->pathogens[i]==NULL) printf("\npathogen %d is NULL", i); */
+		/* printf("...ok"); */
+
 		/* age metapopulation */
 		age_metapopulation(metapop, par);
 
 		/* handle replication for each infection */
-		for(i=0;i<maxnpat;i++){
-			process_infection(get_pathogens(metapop)[i], metapop, par, D);
+		for(i=firstActiveIdx;i<get_total_ninfcum(metapop);i++){
+			if(!activeMark && !isNULL_pathogen(get_pathogens(metapop)[i])) {
+				firstActiveIdx = i;
+				activeMark=TRUE;
+			}
+			process_infection(get_pathogens(metapop)[i], metapop, D, par);
 		}
 
-	
 		/* draw samples */
 		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){
 			samplist[counter_sample++] = draw_sample(metapop, tabdates->times[tabidx], par);
@@ -396,10 +417,14 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	} else {
 
 		printf("\n\n-- FINAL METAPOPULATION --");
-		print_metapopulation(metapop, FALSE);
+		print_metapopulation(metapop, TRUE);
 
 		/* test samples */
-		samp = merge_samples(samplist, tabdates->n, par);
+		for(i=0;i<tabdates->n;i++) {
+			printf("\nsample %d\n", i);
+			print_sample(samplist[i], TRUE);
+		}
+		samp = merge_samples(samplist, tabdates->n, par) ;
 		print_sample(samp, TRUE);
 
 		/* test allele listing */
@@ -478,10 +503,10 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 
 int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
-	double mu=1e-5, beta=1.1, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
+	double mu=1e-4, beta=1.1, pdisp[1]={1.0}; //pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
 	time_t time1,time2;
-	int genoL=1e4, duration=30, npop=3, nstart=10, t1=1, t2=3, nsamp=10;
-	int tsamp[10] = {10,9,9,5,5,4,2,1,0,0},popsize[3]={1000,1e4,1e5};
+	int genoL=1e4, duration=50, npop=1, nstart=10, t1=1, t2=2, nsamp=10;
+	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1]={1e6}; //popsize[3]={10,1,1};
 
 	time(&time1);
 	test_epidemics(genoL, mu, npop, popsize, beta, nstart, t1, t2, nsamp, tsamp, duration, pdisp);

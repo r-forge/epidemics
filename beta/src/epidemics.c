@@ -64,7 +64,6 @@ void process_infection(struct pathogen * pat, struct metapopulation * metapop, s
 
 
 
-
 /*
    ===============================
    === MAIN EXTERNAL FUNCTIONS ===
@@ -121,7 +120,9 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	/* initiate population */
 	struct metapopulation * metapop;
 	metapop = create_metapopulation(par);
+	
 	maxnpat = get_maxnpat(metapop);
+	
 
 	/* get sampling schemes (timestep+effectives) */
 	translate_dates(par);

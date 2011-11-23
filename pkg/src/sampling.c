@@ -88,6 +88,7 @@ struct sample * create_sample(int n){
 	}
 
 	for(i=0;i<n;i++) out->pathogens[i] = create_pathogen();
+	/* for(i=0;i<n;i++) out->pathogens[i] = NULL; */
 	out->n = n;
 	return out;
 
@@ -141,7 +142,6 @@ void print_sample(struct sample *in, bool showGen){
 
 
 
-
 /*
    ===============================
    === MAIN EXTERNAL FUNCTIONS ===
@@ -149,6 +149,8 @@ void print_sample(struct sample *in, bool showGen){
 */
 
 /* Get sample of isolates */
+/* Isolates are COPIED, so that any modification of the sample does not alter */
+/* the metapopulation. */
 struct sample * draw_sample(struct metapopulation *in, int n, struct param *par){
 	int i, j, id, nIsolates=0, maxnpat=get_maxnpat(in);
 	int *availIsolates;
@@ -190,8 +192,9 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 	/* choose from available pathogens */
 	for(i=0;i<n;i++){
 		id=gsl_rng_uniform_int(par->rng,nIsolates);
-		/* (out->pathogens)[i] = (in->pathogens)[availIsolates[id]]; */ /* this just copies addresses; need to copy content! */
-		copy_pathogen(in->pathogens[availIsolates[id]], out->pathogens[i], par);
+		/* copy_pathogen(in->pathogens[availIsolates[id]], out->pathogens[i], par); */
+		free_pathogen(out->pathogens[i]);
+		out->pathogens[i] = reconstruct_genome(in->pathogens[availIsolates[id]]);
 	}
 
 	/* free local pointers */

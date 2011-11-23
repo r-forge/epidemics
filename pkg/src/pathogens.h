@@ -21,17 +21,20 @@
    - 'length' is the length if this array
    - 'age' gives the age of the pathogen
    - 'popid' gives the index of the population in which the pathogen is
-   - 'birth' gives the timestep at which the pathogen appeared
-   - 'death' gives the timestep at which the pathogen disappeared
+   - 'ances' is a pointer to the ancestor
  */
 struct pathogen{
-	int *snps;
-	int length, age, popid;
-	/*struct host *host;*/
+	struct vec_int *snps;
+	int age, popid;
+	struct pathogen *ances;
 };
 
 
 
+struct lineage{
+	struct pathogen ** pathogens;
+	int n;
+};
 
 
 
@@ -46,8 +49,10 @@ struct pathogen{
 /* Returns the number of mutated SNPs, i.e. length of in->snps array */
 int get_nb_snps(struct pathogen *in);
 
-
 /* Returns SNP vector */
+struct vec_int * get_snps_vec(struct pathogen *in);
+
+/* Returns SNP integer pointer */
 int * get_snps(struct pathogen *in);
 
 
@@ -59,6 +64,9 @@ int get_age(struct pathogen *in);
 /* (-1 for inactive pathogen) */
 int get_popid(struct pathogen *in);
 
+
+/* Returns the ancestor of the pathogen */
+struct pathogen * get_ances(struct pathogen *in);
 
 
 
@@ -72,8 +80,8 @@ int get_popid(struct pathogen *in);
 /* Create empty pathogen */
 struct pathogen * create_pathogen();
 
-
-
+/* Create empty lineage */
+struct lineage * create_lineage(int n);
 
 
 
@@ -89,7 +97,9 @@ struct pathogen * create_pathogen();
 void free_pathogen(struct pathogen *in);
 
 
-
+/* Free lineage */
+/* Note: free only pointers to pathogens, does not free pathogens themselves. */
+void free_lineage(struct lineage *in);
 
 
 
@@ -110,9 +120,18 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 int make_unique_mutation(struct pathogen *in, struct param *par);
 
 
+/* generate a mutation (possibly an existing one) */
+int make_mutation(struct param *par);
+
+
 /* Print pathogen content */
 void print_pathogen(struct pathogen *in);
 
+/* Get the lineage of a pathogen */
+struct lineage * get_lineage(struct pathogen *in);
+
+/* Reconstruct genome of an isolate */
+struct pathogen * reconstruct_genome(struct pathogen *in);
 
 
 

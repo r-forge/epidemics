@@ -58,7 +58,6 @@ void print_sample(struct sample *in, bool showGen);
 
 
 
-
 /*
    ==========================
    === EXTERNAL FUNCTIONS ===
