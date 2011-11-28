@@ -1,0 +1,425 @@
+/*
+  Coded by Thibaut Jombart (t.jombart@imperial.ac.uk), September 2011.
+  Distributed with the epidemics package for the R software.
+  Licence: GPL >=2.
+
+  These functions are basic routines for simulating sequence evolution.
+*/
+
+#include "common.h"
+#include "param.h"
+#include "pathogens.h"
+#include "populations.h"
+
+
+
+/*
+   =================
+   === ACCESSORS ===
+   =================
+*/
+
+/* FOR POPULATIONS */
+int get_nsus(struct population *in){
+	return in->nsus;
+}
+
+
+int get_ninf(struct population *in){
+	return in->ninf;
+}
+
+
+int get_nrec(struct population *in){
+	return in->nrec;
+}
+
+
+int get_ninfcum(struct population *in){
+	return in->ninfcum;
+}
+
+
+int get_popsize(struct population *in){
+	return in->popsize;
+}
+
+
+struct pathogen ** get_pathogens(struct population *in){
+	return in->pathogens;
+}
+
+
+
+
+/* FOR METAPOPULATIONS */
+struct population ** get_populations(struct metapopulation *in){
+	return in->populations;
+}
+
+
+int get_npop(struct metapopulation *in){
+	return in->npop;
+}
+
+
+int * get_popsizes(struct metapopulation *in){
+	return in->popsizes;
+}
+
+
+int get_total_nsus(struct metapopulation *in){
+	int i, k=get_npop(in), out=0;
+	for(i=0;i<k;i++) {
+		out += get_nsus(get_populations(in)[i]);
+	}
+	return out;
+}
+
+
+int get_total_ninf(struct metapopulation *in){
+	int i, k=get_npop(in), out=0;
+	for(i=0;i<k;i++) {
+		out += get_ninf(get_populations(in)[i]);
+	}
+	return out;
+}
+
+
+int get_total_nrec(struct metapopulation *in){
+	int i, k=get_npop(in), out=0;
+	for(i=0;i<k;i++) {
+		out += get_nrec(get_populations(in)[i]);
+	}
+	return out;
+}
+
+
+int get_total_ninfcum(struct metapopulation *in){
+	int i, k=get_npop(in), out=0;
+	for(i=0;i<k;i++) {
+		out += get_ninfcum(get_populations(in)[i]);
+	}
+	return out;
+}
+
+
+int get_total_popsize(struct metapopulation *in){
+	int i, k=get_npop(in), out=0;
+	for(i=0;i<k;i++) {
+		out += get_popsize(get_populations(in)[i]);
+	}
+	return out;
+}
+
+
+
+
+/*
+   ====================
+   === CONSTRUCTORS ===
+   ====================
+*/
+
+/* Create new population */
+struct population * create_population(int popsize, int nini){
+	/* allocate output */
+	struct population *out;
+	out = (struct population *) calloc(1, sizeof(struct population));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating new population. Exiting.\n");
+		exit(1);
+	}
+
+	/* fill the content */
+	out->popsize = popsize;
+	out->ninf = nini;
+	out->nsus = popsize-nini; /* remove susc. because of initial infections */
+	out->nrec = 0;
+	out->ninfcum = nini;
+
+	/* allocate pathogen array */
+	out->pathogens = (struct pathogen **) calloc(popsize, sizeof(struct pathogen *));
+	if(out->pathogens == NULL){
+		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating pathogen array in the population. Exiting.\n");
+		exit(1);
+	}
+
+	/* fill in the pathogens array */
+	for(i=0;i<popsize;i++){
+		(out->pathogens)[i] = create_pathogen();
+		if(i<nini){ /* there are nini intial pathogens in the metapopulation */
+			(out->pathogens[i])->age = 0; /* 'active' pathogen */
+		} else {
+			(out->pathogens[i])->age = -1; /* 'neutralised' pathogen */
+		}
+	}
+
+	return out;
+}
+
+
+
+
+/* Create new metapopulation */
+struct metapopulation * create_metapopulation(struct param *par){
+	int i, nini = par->nstart;
+	out->npop = par->npop;
+	out->popsizes = par->popsizes;
+	popsizes = par->popsizes;
+
+	/* allocate output */
+	struct metapopulation *out;
+	out = (struct metapopulation *) calloc(1, sizeof(struct metapopulation));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: population.c->create_metapopulation]\nNo memory left for creating new metapopulation. Exiting.\n");
+		exit(1);
+	}
+
+
+	/* allocate population array */
+	out->populations = (struct population **) calloc(out->npop, sizeof(struct population *));
+	if(out->populations == NULL){
+		fprintf(stderr, "\n[in: population.c->create_metapopulation]\nNo memory left for creating populations array in the metapopulation. Exiting.\n");
+		exit(1);
+	}
+
+	out->populations[0] = create_population(popsizes[0], nini); /* pop 0 has some active pathogens */
+	for(i=1;i<npop;i++) {
+		out->populations[i] = create_population(out->popsizes[i], 0);
+	}
+
+	return out;
+}
+
+
+
+
+
+
+
+
+
+
+/* Create ts_groupsizes */
+struct ts_groupsizes * create_ts_groupsizes(struct param * par){
+	int nsteps = par->duration;
+	struct ts_groupsizes * out = (struct ts_groupsizes *) calloc(1, sizeof(struct ts_groupsizes));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: population.c->create_ts_groupsizes]\nNo memory left for storing group sizes. Exiting.\n");
+		exit(1);
+	}
+
+	out->nsus = (int *) calloc(nsteps, sizeof(int));
+	out->ninf = (int *) calloc(nsteps, sizeof(int));
+	out->nrec = (int *) calloc(nsteps, sizeof(int));
+	out->ninfcum = (int *) calloc(nsteps, sizeof(int));
+	out->length = nsteps;
+
+	if(out->nsus==NULL || out->ninf==NULL || out->nrec==NULL || out->ninfcum==NULL){
+		fprintf(stderr, "\n[in: population.c->create_ts_groupsizes]\nNo memory left for storing group sizes. Exiting.\n");
+		exit(1);
+	}
+
+	return out;
+}
+
+
+
+
+/*
+   ===================
+   === DESTRUCTORS ===
+   ===================
+*/
+
+
+/* Free metapopulation */
+void free_population(struct population *in){
+	int i;
+
+	for(i=0;i<in->popsize;i++){
+		if(in->pathogens[i] != NULL) free_pathogen((in->pathogens)[i]);
+	}
+
+	free(in->pathogens);
+	free(in);
+}
+
+
+
+/* Free metapopulation */
+void free_metapopulation(struct metapopulation *in){
+	int i, npop=get_npop(in);
+
+	for(i=0;i<npop;i++){
+		if(in->populations[i] != NULL) free_population(in->populations[i]);
+	}
+
+	free(in->populations);
+	free(in);
+}
+
+
+
+
+
+
+/* Free ts_groupsizes */
+void free_ts_groupsizes(struct ts_groupsizes *in){
+	if(in!=NULL){
+		free(in->nsus);
+		free(in->ninf);
+		free(in->nrec);
+		free(in->ninfcum);
+		free(in);
+	}
+}
+
+
+
+
+
+/*
+  ===========================
+  === AUXILIARY FUNCTIONS ===
+  ===========================
+*/
+/* PRINT POPULATION CONTENT */
+void print_population(struct population *in){
+	int i, nrec=get_nrec(in), ninfcum=get_ninfcum(in);
+
+	printf("\nnb susceptible: %d", get_nsus(in));
+	printf("\nnb infected: %d", get_ninf(in));
+	printf("\nnb recovered: %d\n", get_nrec(in));
+	printf("\nPathogens:");
+	for(i=nrec;i<ninfcum;i++){
+		print_pathogen(get_pathogens(in)[i]);
+	}
+}
+
+
+
+/* PRINT METAPOPULATION CONTENT */
+void print_metapopulation(struct metapopulation *in, bool showPop){
+	int i, npop=get_npop(in);
+	struct population *curPop;
+
+	/* display general info */
+	printf("\nnb of populations: %d", npop);
+	printf("\ntotal nb susceptible: %d", get_total_nsus(in));
+	printf("\ntotal nb infected: %d", get_total_ninf(in));
+	printf("\ntotal nb recovered: %d", get_total_nrec(in));
+	printf("\ntotal population size: %d\n", get_total_popsize(in));
+
+	/* display populations */
+	if(showPop){
+		for(i=0;i<npop;i++){
+			curPop = get_populations(in)[i];
+			printf("\npopulation %d", i);
+			print_population(curPop);
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+/*
+   ===============================
+   === MAIN EXTERNAL FUNCTIONS ===
+   ===============================
+*/
+void age_population(struct population * in, struct param *par){
+	int i, nrec=get_nrec(in), ninfcum=get_ninfcum(in);
+	struct pathogen *ppat;
+
+	for(i=nrec;i<ninfcum;i++){
+		ppat = get_pathogens(in)[i];
+		if(!isNULL_pathogen(ppat)){ /* if pathogen is active */
+			ppat->age = ppat->age + 1; /* get older */
+			if(get_age(ppat) >= par->t2) { /* die if you must! */
+				ppat->age = -1; /* inactivate pathogen */
+
+				/* update nrec and ninf in corresponding population */
+				in->ninf = in->ninf - 1;
+				in->nrec = in->nrec + 1;
+			}
+		}
+	}
+} /* end age_population */
+
+
+
+
+void age_metapopulation(struct metapopulation * in, struct param * par){
+	int i, npop=get_npop(in);
+
+	/* age each population */
+	for(i=0;i<npop;i++){
+		age_population(get_populations(in)[i], par);
+	}
+} /* end age_metapopulation */
+
+
+
+
+
+/* keep track of group sizes */
+void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step){
+	if(step>in->length){
+		fprintf(stderr, "\n[in: population.c->fill_ts_groupsizes]\n. ts_groupsizes object is not long enough to store output of step %d. Exiting.\n", step);
+		exit(1);
+	}
+
+	in->nsus[step-1] = get_total_nsus(metapop);
+	in->ninf[step-1] = get_total_ninf(metapop);
+	in->nrec[step-1] = get_total_nrec(metapop);
+	in->ninfcum[step-1] = get_total_ninfcum(metapop);
+}
+
+
+
+
+
+
+
+
+/* int main(){ */
+/* 	/\* Initialize random number generator *\/ */
+/* 	time_t t; */
+/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
+/* 	gsl_rng * rng; */
+/* 	const gsl_rng_type *typ; */
+/* 	gsl_rng_env_setup(); */
+/* 	typ=gsl_rng_default; */
+/* 	rng=gsl_rng_alloc(typ); */
+/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
+
+
+/* 	/\* simulation parameters *\/ */
+/* 	/\* struct param * par; *\/ */
+/* 	/\* par = (struct param *) calloc(1, sizeof(struct param)); *\/ */
+/* 	/\* par->L = 100; *\/ */
+/* 	/\* par->mu = 0.01; *\/ */
+/* 	/\* par->muL = par->mu * par->L; *\/ */
+/* 	/\* par->rng = rng; *\/ */
+
+
+/* 	struct population * pop; */
+
+/* 	pop = create_population(1000,10,0); */
+
+/* 	print_population(pop); */
+
+/* 	/\* free memory *\/ */
+/* 	free_population(pop); */
+/* 	gsl_rng_free(rng); */
+
+/* 	return 0; */
+/* } */
