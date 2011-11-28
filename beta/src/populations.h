@@ -16,17 +16,16 @@
 
 
 struct metapopulation{
-	struct pathogen ** pathogens;
 	struct population ** populations;
-	int maxnpat, npop;
+	int npop, *popsizes;
 };
 
 
 
 
 struct population{
-	/* nb of items */
-	int nsus, ninf, nrec, ninfcum, orinsus;
+	int nsus, ninf, nrec, ninfcum, maxnpat, firstActivPat;
+	struct pathogens ** pathogens;
 };
 
 
@@ -51,7 +50,7 @@ struct pathogen ** get_pathogens(struct metapopulation *in);
 struct population ** get_populations(struct metapopulation *in);
 
 
-int get_maxnpat(struct metapopulation *in);
+int get_maxnpat(struct population *in);
 
 
 int get_npop(struct metapopulation *in);
@@ -69,9 +68,6 @@ int get_nrec(struct population *in);
 int get_ninfcum(struct population *in);
 
 
-int get_orinsus(struct population *in);
-
-
 int get_popsize(struct population *in);
 
 
@@ -87,8 +83,7 @@ int get_total_nrec(struct metapopulation *in);
 int get_total_ninfcum(struct metapopulation *in);
 
 
-int get_total_orinsus(struct metapopulation *in);
-
+int get_total_maxnpat(struct metapopulation *in);
 
 
 
