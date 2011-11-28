@@ -123,6 +123,8 @@ int get_total_popsize(struct metapopulation *in){
 
 /* Create new population */
 struct population * create_population(int popsize, int nini){
+	int i;
+
 	/* allocate output */
 	struct population *out;
 	out = (struct population *) calloc(1, sizeof(struct population));
@@ -164,9 +166,6 @@ struct population * create_population(int popsize, int nini){
 /* Create new metapopulation */
 struct metapopulation * create_metapopulation(struct param *par){
 	int i, nini = par->nstart;
-	out->npop = par->npop;
-	out->popsizes = par->popsizes;
-	popsizes = par->popsizes;
 
 	/* allocate output */
 	struct metapopulation *out;
@@ -176,6 +175,9 @@ struct metapopulation * create_metapopulation(struct param *par){
 		exit(1);
 	}
 
+	/* set content */
+	out->npop = par->npop;
+	out->popsizes = par->popsizes;
 
 	/* allocate population array */
 	out->populations = (struct population **) calloc(out->npop, sizeof(struct population *));
@@ -184,8 +186,8 @@ struct metapopulation * create_metapopulation(struct param *par){
 		exit(1);
 	}
 
-	out->populations[0] = create_population(popsizes[0], nini); /* pop 0 has some active pathogens */
-	for(i=1;i<npop;i++) {
+	out->populations[0] = create_population(out->popsizes[0], nini); /* pop 0 has some active pathogens */
+	for(i=1;i<out->npop;i++) {
 		out->populations[i] = create_population(out->popsizes[i], 0);
 	}
 
@@ -389,37 +391,58 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 
 
 
+/* gcc line:
 
-/* int main(){ */
-/* 	/\* Initialize random number generator *\/ */
-/* 	time_t t; */
-/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
-/* 	gsl_rng * rng; */
-/* 	const gsl_rng_type *typ; */
-/* 	gsl_rng_env_setup(); */
-/* 	typ=gsl_rng_default; */
-/* 	rng=gsl_rng_alloc(typ); */
-/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
+   gcc -o populations param.c auxiliary.c pathogens.c populations.c -Wall -O0 -lgsl -lgslcblas
 
+   valgrind --leak-check=yes populations
 
-/* 	/\* simulation parameters *\/ */
-/* 	/\* struct param * par; *\/ */
-/* 	/\* par = (struct param *) calloc(1, sizeof(struct param)); *\/ */
-/* 	/\* par->L = 100; *\/ */
-/* 	/\* par->mu = 0.01; *\/ */
-/* 	/\* par->muL = par->mu * par->L; *\/ */
-/* 	/\* par->rng = rng; *\/ */
+*/
+
+int main(){
+	/* Initialize random number generator */
+	time_t t;
+	t = time(NULL); // time in seconds, used to change the seed of the random generator
+	gsl_rng * rng;
+	const gsl_rng_type *typ;
+	gsl_rng_env_setup();
+	typ=gsl_rng_default;
+	rng=gsl_rng_alloc(typ);
+	gsl_rng_set(rng,t); // changes the seed of the random generator
 
 
-/* 	struct population * pop; */
+	/* simulation parameters */
+	struct param * par;
+	par = (struct param *) calloc(1, sizeof(struct param));
+	par->rng = rng;
+	par->npop = 3;
+	int popsizes[3] = {1000,200,300};
+	par->popsizes = popsizes;
+	par->nstart = 10;
+	par->t1 = 1;
+	par->t2 = 2;
 
-/* 	pop = create_population(1000,10,0); */
+	/* TRY POPULATION */
+	struct population * pop = create_population(1000,10);
+	printf("\nPOPULATION");
+	print_population(pop);
 
-/* 	print_population(pop); */
+	/* TRY METAPOPULATION */
+	struct metapopulation * metapop = create_metapopulation(par);
+	printf("\nMETAPOPULATION");
+	print_metapopulation(metapop, TRUE);
 
-/* 	/\* free memory *\/ */
-/* 	free_population(pop); */
-/* 	gsl_rng_free(rng); */
+	/* TRY AGEING */
+	age_metapopulation(metapop, par);
+	printf("\nAGED METAPOPULATION");
+	print_metapopulation(metapop, TRUE);
 
-/* 	return 0; */
-/* } */
+
+	/* free memory */
+	free_population(pop);
+	free_metapopulation(metapop);
+	free(par);
+	gsl_rng_free(rng);
+
+	return 0;
+}

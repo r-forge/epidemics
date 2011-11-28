@@ -313,7 +313,9 @@ int isNULL_pathogen(struct pathogen *in){
 /* gcc line:
 
    gcc -o pathogens param.c auxiliary.c pathogens.c -Wall -O0 -lgsl -lgslcblas
+  
    valgrind --leak-check=yes pathogens
+
 */
 
 /* int main(){ */
