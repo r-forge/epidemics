@@ -111,9 +111,9 @@ void free_ts_groupsizes(struct ts_groupsizes *in);
    === AUXILIARY FUNCTIONS ===
    ===========================
 */
-void print_population(struct population *in);
+void print_population(struct population *in, bool showPat);
 
-void print_metapopulation(struct metapopulation *in, bool showPop);
+void print_metapopulation(struct metapopulation *in, bool showPat);
 
 
 

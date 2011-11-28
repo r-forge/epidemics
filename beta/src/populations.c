@@ -288,40 +288,44 @@ void free_ts_groupsizes(struct ts_groupsizes *in){
   ===========================
 */
 /* PRINT POPULATION CONTENT */
-void print_population(struct population *in){
+void print_population(struct population *in, bool showPat){
 	int i, nrec=get_nrec(in), ninfcum=get_ninfcum(in);
 
 	printf("\nnb susceptible: %d", get_nsus(in));
 	printf("\nnb infected: %d", get_ninf(in));
-	printf("\nnb recovered: %d\n", get_nrec(in));
-	printf("\nPathogens:");
-	for(i=nrec;i<ninfcum;i++){
-		print_pathogen(get_pathogens(in)[i]);
+	printf("\nnb recovered: %d", get_nrec(in));
+	printf("\npathogens:");
+	if(showPat){
+		for(i=nrec;i<ninfcum;i++){
+			print_pathogen(get_pathogens(in)[i]);
+		}
 	}
+	printf("\n");
 }
 
 
 
 /* PRINT METAPOPULATION CONTENT */
-void print_metapopulation(struct metapopulation *in, bool showPop){
+void print_metapopulation(struct metapopulation *in, bool showPat){
 	int i, npop=get_npop(in);
 	struct population *curPop;
 
 	/* display general info */
 	printf("\nnb of populations: %d", npop);
+	printf("\npopulation sizes: ");
+	for(i=0;i<get_npop(in);i++) printf("%d ", get_popsizes(in)[i]);
 	printf("\ntotal nb susceptible: %d", get_total_nsus(in));
 	printf("\ntotal nb infected: %d", get_total_ninf(in));
 	printf("\ntotal nb recovered: %d", get_total_nrec(in));
 	printf("\ntotal population size: %d\n", get_total_popsize(in));
 
 	/* display populations */
-	if(showPop){
-		for(i=0;i<npop;i++){
-			curPop = get_populations(in)[i];
-			printf("\npopulation %d", i);
-			print_population(curPop);
-		}
+	for(i=0;i<npop;i++){
+		curPop = get_populations(in)[i];
+		printf("\npopulation %d", i);
+		print_population(curPop,showPat);
 	}
+	printf("\n");
 }
 
 
@@ -425,16 +429,20 @@ int main(){
 	/* TRY POPULATION */
 	struct population * pop = create_population(1000,10);
 	printf("\nPOPULATION");
-	print_population(pop);
+	print_population(pop, TRUE);
 
 	/* TRY METAPOPULATION */
 	struct metapopulation * metapop = create_metapopulation(par);
-	printf("\nMETAPOPULATION");
+	printf("\n## METAPOPULATION ##");
 	print_metapopulation(metapop, TRUE);
 
 	/* TRY AGEING */
 	age_metapopulation(metapop, par);
-	printf("\nAGED METAPOPULATION");
+	printf("\n## AGED METAPOPULATION ##");
+	print_metapopulation(metapop, TRUE);
+
+	age_metapopulation(metapop, par);
+	printf("\n## AGEDx2 METAPOPULATION ##");
 	print_metapopulation(metapop, TRUE);
 
 
