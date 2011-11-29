@@ -16,85 +16,55 @@
 
 
 /*
-   =================
-   === ACCESSORS ===
-   =================
-*/
-
-double ** get_mat(struct dispmat * in){
-	return(in->mat);
-}
-
-
-
-/*
    ====================
    === CONSTRUCTORS ===
    ====================
 */
 
-/* Create empty dispmat */
-/* 'in' is a vector of k*k doubles, k being the number of populations */
-struct dispmat * create_dispmat(struct param *par){
-	int i, j, k=par->npop, counter;
-	double temprowsum;
-	struct dispmat *out;
+struct network * create_network(struct param *par){
+	int i, j, counter;
+	struct network *out;
 
-	/* allocate memory */
-	out = (struct dispmat *) calloc(1, sizeof(struct dispmat));
+	/* ALLOCATE MEMORY FOR OUTPUT */
+	out = (struct network *) calloc(1, sizeof(struct network));
 	if(out == NULL){
-		fprintf(stderr, "\n[in: dispersal.c->create_dispmat]\nNo memory left for creating matrix of dispersal. Exiting.\n");
+		fprintf(stderr, "\n[in: dispersal.c->create_network]\nNo memory left for creating connection network. Exiting.\n");
 		exit(1);
 	}
 
-	out->mat = (double **) calloc(k, sizeof(double *));
-	if(out->mat == NULL){
-		fprintf(stderr, "\n[in: dispersal.c->create_dispmat]\nNo memory left for creating matrix of dispersal. Exiting.\n");
+	/* FILL CONTENT */
+	/* allocate memory */
+	out->n = par->npop;
+	out->nbNb = (int *) calloc(out->n, sizeof(int));
+	out->listNb = (int **) calloc(out->n, sizeof(int *));
+	out->weights = (double **) calloc(out->n, sizeof(double *));
+
+	if(out->nbNb == NULL || out->listNb == NULL || out->weights == NULL){
+		fprintf(stderr, "\n[in: dispersal.c->create_network]\nNo memory left for creating connection network. Exiting.\n");
 		exit(1);
 	}
 
-	for(i=0;i<k;i++){
-		out->mat[i] = (double *) calloc(k, sizeof(double));
-		if(out->mat[i] == NULL){
-			fprintf(stderr, "\n[in: dispersal.c->create_dispmat]\nNo memory left for creating matrix of dispersal. Exiting.\n");
+	/* nb of neighbours*/
+	for(i=0;i<par->npop;i++){
+		out->nbNb[i] = par->cn_nb_nb[i];
+	}
+
+	/* list of neighbours and weights */
+	counter = 0;
+	for(i=0;i<par->npop;i++){
+		out->listNb[i] = (int *) calloc(out->nbNb[i], sizeof(int));
+		out->weights[i] = (double *) calloc(out->nbNb[i], sizeof(double));
+		if(out->listNb[i] == NULL || out->weights[i] == NULL){
+			fprintf(stderr, "\n[in: dispersal.c->create_network]\nNo memory left for creating connection network. Exiting.\n");
 			exit(1);
 		}
-	}
 
-	/* fill in the matrix */
-	if(par->pdisp == NULL) { /* no dispersal */
-		for(i=0;i<k;i++){
-			for(j=0;j<k;j++){
-				if(i==j) {
-					out->mat[i][j] = 1.0;
-				} else {
-					out->mat[i][j] = 0.0;
-				}
-			}
-		}
-	} else { /* there is dispersal */
-		counter = 0;
-		for(i=0;i<k;i++){
-			for(j=0;j<k;j++){
-				out->mat[i][j] = par->pdisp[counter++];
-			}
+		for(j=0;j<out->nbNb[i];j++){
+			out->listNb[i][j] = par->cn_list_nb[counter];
+			out->weights[i][j] = par->cn_weights[counter++];
 		}
 	}
 
-
-	/* row-standardize the matrix */
-	for(i=0;i<k;i++){
-		temprowsum = 0.0;
-		for(j=0;j<k;j++){
-			temprowsum += out->mat[i][j];
-		}
-		for(j=0;j<k;j++){
-			out->mat[i][j] = out->mat[i][j] / temprowsum;
-		}
-	}
-
-
-	out->n = k;
 	return out;
 }
 
@@ -109,16 +79,19 @@ struct dispmat * create_dispmat(struct param *par){
    ===================
 */
 
-/* Free dispmat */
-void free_dispmat(struct dispmat *in){
-	int i, k=in->n;
+/* Free network */
+void free_network(struct network *in){
+	int i;
 	if(in != NULL){
-		for(i=0;i<k;i++){
-			free(in->mat[i]);
+		for(i=0;i<in->n;i++){
+			free(in->listNb[i]);
+			free(in->weights[i]);
 		}
+		free(in->nbNb);
+		free(in->listNb);
+		free(in->weights);
+		free(in);
 	}
-	free(in->mat);
-	free(in);
 }
 
 
@@ -132,15 +105,28 @@ void free_dispmat(struct dispmat *in){
    ===========================
 */
 
-void print_dispmat(struct dispmat *in){
-	int i, j, k=in->n;
-	for(i=0;i<k;i++){
-		printf("\npopulation %d\n",i);
-		for(j=0;j<k;j++){
-			printf("%.2f \t",in->mat[i][j]);
+void print_network(struct network *in, bool detail){
+	int i, j, temp=0;
+	printf("\nconnection network with %d vertices", in->n);
+	printf("\ndegrees:");
+	for(i=0;i<in->n;i++) {
+		printf("%d ", in->nbNb[i]);
+		temp += in->nbNb[i];
+	}
+	printf("\ntotal nb of connections: %d\n", temp);
+	if(detail){
+	printf("\nconnections (weights): %d\n", temp);
+		for(i=0;i<in->n;i++) {
+			printf("item %d: ", i);
+			for(j=0;j<in->nbNb[i];j++){
+				printf("%d(%.1f) ", in->listNb[i][j], in->weights[i][j]);
+			}
+			printf("\n");
 		}
+		printf("\n");
 	}
 }
+
 
 
 
@@ -154,14 +140,48 @@ void print_dispmat(struct dispmat *in){
    ===============================
 */
 
-/* return the id of a new population */
-int disperse(struct pathogen * pathogen, struct dispmat *disp, struct param *par){
-	int i=1, k=disp->n, popid = get_popid(pathogen);
-	double cumprob=get_mat(disp)[popid][0];
-	double x=gsl_rng_uniform(par->rng); /* nb between 0 and 1 */
 
-	while(x > cumprob && i<k){
-		cumprob += get_mat(disp)[popid][i++];
-	}
-	return i-1;
+
+
+/*
+   =========================
+   === TESTING FUNCTIONS ===
+   =========================
+*/
+
+
+/* gcc line:
+
+   gcc -o dispersal param.c auxiliary.c dispersal.c -Wall -O0 -lgsl -lgslcblas
+  
+   valgrind --leak-check=yes dispersal
+
+*/
+
+int main(){
+
+	/* simulation parameters */
+	struct param * par;
+	par = (struct param *) calloc(1, sizeof(struct param));
+	par->npop=3;
+
+	int nbNb[3] = {1,2,1};
+	int listNb[4] = {1,0,2,1};
+	double weights[4] = {1,0.2,0.5,0.1};
+	par->cn_nb_nb= nbNb;
+	par->cn_list_nb = listNb;
+	par->cn_weights = weights;
+
+	struct network * cn = create_network(par);
+
+	print_network(cn, TRUE);
+
+	/* free memory */
+	free(par);
+	free_network(cn);
+
+	return 0;
 }
+
+
+

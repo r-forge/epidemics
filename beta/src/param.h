@@ -23,8 +23,8 @@
 /* npop: number of populations in the metapopulation */
 /* duration: maximum number of steps to run simulations for; implicitely the duration of the epidemic until most recent sample */
 struct param{
-	int L, t1, t2, nstart, *t_sample, n_sample, duration, npop, *popsizes;
-	double mu, muL, beta, *pdisp;
+	int L, t1, t2, nstart, *t_sample, n_sample, duration, npop, *popsizes, *cn_nb_nb, *cn_list_nb;
+	double mu, muL, beta, *cn_weights;
 	gsl_rng * rng;
 };
 

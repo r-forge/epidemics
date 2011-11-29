@@ -17,20 +17,14 @@
 
 /* mat is a list of arrays, where the i^th item gives dispersal probabilities to other populations */
 
-struct dispmat{
-	double ** mat;
-	int n;
+/* n: nb of vertices */
+/* nbNb: nb of neighbours of each vertice */
+/* listNb: list of neighbours for each vertice */
+/* weights: weights ~ proba migration */
+struct network{
+	int n, *nbNb, **listNb;
+	double ** weights;
 };
-
-
-
-
-/*
-   =================
-   === ACCESSORS ===
-   =================
-*/
-double ** get_mat(struct dispmat * in);
 
 
 
@@ -43,7 +37,7 @@ double ** get_mat(struct dispmat * in);
    ====================
 */
 
-struct dispmat * create_dispmat(struct param *par);
+struct network * create_network(struct param *par);
 
 
 
@@ -56,8 +50,8 @@ struct dispmat * create_dispmat(struct param *par);
    ===================
 */
 
-/* Free dispmat */
-void free_dispmat(struct dispmat *in);
+/* Free network */
+void free_network(struct network *in);
 
 
 
@@ -70,7 +64,7 @@ void free_dispmat(struct dispmat *in);
    ===========================
 */
 
-void print_dispmat(struct dispmat *in);
+void print_network(struct network *in, bool detail);
 
 
 
@@ -80,6 +74,3 @@ void print_dispmat(struct dispmat *in);
    === MAIN EXTERNAL FUNCTIONS ===
    ===============================
 */
-
-/* return the id of a new population */
-int disperse(struct pathogen * pathogen, struct dispmat *disp, struct param *par);
