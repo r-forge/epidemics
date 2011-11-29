@@ -99,6 +99,7 @@ void free_network(struct network *in){
 
 
 
+
 /*
    ===========================
    === AUXILIARY FUNCTIONS ===
@@ -158,30 +159,30 @@ void print_network(struct network *in, bool detail){
 
 */
 
-int main(){
+/* int main(){ */
 
-	/* simulation parameters */
-	struct param * par;
-	par = (struct param *) calloc(1, sizeof(struct param));
-	par->npop=3;
+/* 	/\* simulation parameters *\/ */
+/* 	struct param * par; */
+/* 	par = (struct param *) calloc(1, sizeof(struct param)); */
+/* 	par->npop=3; */
 
-	int nbNb[3] = {1,2,1};
-	int listNb[4] = {1,0,2,1};
-	double weights[4] = {1,0.2,0.5,0.1};
-	par->cn_nb_nb= nbNb;
-	par->cn_list_nb = listNb;
-	par->cn_weights = weights;
+/* 	int nbNb[3] = {1,2,1}; */
+/* 	int listNb[4] = {1,0,2,1}; */
+/* 	double weights[4] = {1,0.2,0.5,0.1}; */
+/* 	par->cn_nb_nb= nbNb; */
+/* 	par->cn_list_nb = listNb; */
+/* 	par->cn_weights = weights; */
 
-	struct network * cn = create_network(par);
+/* 	struct network * cn = create_network(par); */
 
-	print_network(cn, TRUE);
+/* 	print_network(cn, TRUE); */
 
-	/* free memory */
-	free(par);
-	free_network(cn);
+/* 	/\* free memory *\/ */
+/* 	free(par); */
+/* 	free_network(cn); */
 
-	return 0;
-}
+/* 	return 0; */
+/* } */
 
 
 
