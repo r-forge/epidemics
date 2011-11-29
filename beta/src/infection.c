@@ -12,6 +12,9 @@
 #include "pathogens.h"
 #include "populations.h"
 #include "dispersal.h"
+#include "infection.h"
+
+
 
 
 /*
@@ -41,7 +44,21 @@ void make_new_infection(struct pathogen * ances, struct population * pop, struct
 
 
 /* seed new infection from a single pathogen */
-void process_infections(struct population * pop, struct metapopulation * pop, struct network *cn, struct param * par){
+void process_infections(struct population * pop, struct metapopulation * metapop, struct network *cn, struct param * par){
+	int i, popid=get_popid(pop), npop=get_npop(metapop), popj, nbNb=cn->nbNb[popid], nbnewinf, nbmigrants;
+	double * lambdavec, lambda=0;
+
+	/* COMPUTE \lambda_j = \beta w_{j->k} I_j/N_j for all neighbouring population j */
+	/* \lambda = \sum_j \lambda_j */
+	lambdavec = (double *) calloc(nbNb, sizeof(double));
+	for(i=0;i<nbNb;i++){
+		popj = metapop->populations[cn->listNb[popid][i]];
+		lambdavec[i] = par->beta * cn->weights[popid][i] * ((double) get_ninf(popj))/get_popsize(popj);
+		lambda += lambdavec[i];
+	}
+
+	/* DETERMINE NUMBER OF NEW INFECTED */
+	
 
 	/* GENERATE ERROR IF PATHOGEN IS INACTIVATED */
 	if(!isNULL_pathogen(pat) && get_age(pat) >= par->t1){ /* if ancestor is active */
@@ -53,6 +70,9 @@ void process_infections(struct population * pop, struct metapopulation * pop, st
 		/* HANDLE GENOME REPLICATION */
 		replicate(pat, get_pathogens(pop)[Ninfcum], par);
 		}
+
+	/* FREE MEMORY AND RETURN */
+	free(lambdavec);
 } /* end make_new_infection */
 
 

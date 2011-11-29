@@ -21,8 +21,12 @@
    ====================
 */
 
+/* !VERY IMPORTANT!: this assumes that each item has a connection with itself */
+/* In the list of neighbours and weights serving as input to create_network, */
+/* the first element corresponds to 'self'. */
 struct network * create_network(struct param *par){
 	int i, j, counter;
+	double *wsum = (double *) calloc(par->npop, sizeof(double));
 	struct network *out;
 
 	/* ALLOCATE MEMORY FOR OUTPUT */
@@ -62,9 +66,26 @@ struct network * create_network(struct param *par){
 		for(j=0;j<out->nbNb[i];j++){
 			out->listNb[i][j] = par->cn_list_nb[counter];
 			out->weights[i][j] = par->cn_weights[counter++];
+			/* wsum[j] = wsum[j] + out->weights[i][j]; */
 		}
 	}
 
+	/* standardize weights */
+	for(i=0;i<par->npop;i++){
+		for(j=0;j<out->nbNb[i];j++){
+			out->weights[i][j] = out->weights[i][j] / wsum[j];
+		}
+	}
+
+	/* CHECK OUTPUT */
+	for(i=0;i<par->npop;i++){
+		if(out->listNb[i][0] != i){
+			printf("\nWarning! [in: dispersal.c->create_network]\nThe created connection network does not have the appropriate self-connections.\n")
+		}
+	}
+
+	/* FREE / RETURN */
+	free(wsum);
 	return out;
 }
 
