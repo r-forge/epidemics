@@ -45,6 +45,11 @@ int get_popsize(struct population *in){
 }
 
 
+int get_popid(struct population *in){
+	return in->popid;
+}
+
+
 struct pathogen ** get_pathogens(struct population *in){
 	return in->pathogens;
 }
@@ -122,7 +127,7 @@ int get_total_popsize(struct metapopulation *in){
 */
 
 /* Create new population */
-struct population * create_population(int popsize, int nini){
+struct population * create_population(int popsize, int nini, int popid){
 	int i;
 
 	/* allocate output */
@@ -139,6 +144,7 @@ struct population * create_population(int popsize, int nini){
 	out->nsus = popsize-nini; /* remove susc. because of initial infections */
 	out->nrec = 0;
 	out->ninfcum = nini;
+	out->popid = popid;
 
 	/* allocate pathogen array */
 	out->pathogens = (struct pathogen **) calloc(popsize, sizeof(struct pathogen *));
@@ -186,9 +192,9 @@ struct metapopulation * create_metapopulation(struct param *par){
 		exit(1);
 	}
 
-	out->populations[0] = create_population(out->popsizes[0], nini); /* pop 0 has some active pathogens */
+	out->populations[0] = create_population(out->popsizes[0], nini, 0); /* pop 0 has some active pathogens */
 	for(i=1;i<out->npop;i++) {
-		out->populations[i] = create_population(out->popsizes[i], 0);
+		out->populations[i] = create_population(out->popsizes[i], 0, i);
 	}
 
 	return out;
@@ -291,6 +297,7 @@ void free_ts_groupsizes(struct ts_groupsizes *in){
 void print_population(struct population *in, bool showPat){
 	int i, nrec=get_nrec(in), ninfcum=get_ninfcum(in);
 
+	printf("\npopulation %d", get_popid(in));
 	printf("\nnb susceptible: %d", get_nsus(in));
 	printf("\nnb infected: %d", get_ninf(in));
 	printf("\nnb recovered: %d", get_nrec(in));
@@ -322,7 +329,6 @@ void print_metapopulation(struct metapopulation *in, bool showPat){
 	/* display populations */
 	for(i=0;i<npop;i++){
 		curPop = get_populations(in)[i];
-		printf("\npopulation %d", i);
 		print_population(curPop,showPat);
 	}
 	printf("\n");
@@ -427,7 +433,7 @@ int main(){
 	par->t2 = 2;
 
 	/* TRY POPULATION */
-	struct population * pop = create_population(1000,10);
+	struct population * pop = create_population(1000,10,69);
 	printf("\nPOPULATION");
 	print_population(pop, TRUE);
 

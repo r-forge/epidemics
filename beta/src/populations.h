@@ -16,7 +16,7 @@
 
 
 struct population{
-	int nsus, ninf, nrec, ninfcum, popsize;
+	int nsus, ninf, nrec, ninfcum, popsize, popid;
 	struct pathogen **pathogens;
 };
 
@@ -85,7 +85,7 @@ int get_total_popsize(struct metapopulation *in);
    === CONSTRUCTORS ===
    ====================
 */
-struct population * create_population(int popsize, int nini);
+struct population * create_population(int popsize, int nini, int popid);
 
 struct metapopulation * create_metapopulation(struct param *par);
 
