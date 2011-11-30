@@ -16,7 +16,7 @@
 
 
 struct population{
-	int nsus, ninf, nrec, ninfcum, popsize, popid;
+	int nsus, ninf, nrec, ninfcum, popsize, popid, idfirstinfectious, idlastinfectious;
 	struct pathogen **pathogens;
 };
 
@@ -56,6 +56,10 @@ int get_ninfcum(struct population *in);
 int get_popsize(struct population *in);
 
 int get_popid(struct population *in);
+
+int get_idfirstinfectious(struct population *in);
+
+int get_idlastinfectious(struct population *in);
 
 struct pathogen ** get_pathogens(struct population *in);
 
@@ -136,11 +140,11 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 
 
 /* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-int find_id_first_active_pathogen(struct population *in, struct param *par);
+int update_first_active_pathogen(struct population *in, struct param *par);
 
 
 /* FIND INDEX OF THE LAST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-int find_id_last_active_pathogen(struct population *in, struct param *par);
+int update_last_active_pathogen(struct population *in, struct param *par);
 
 
 /* SELECT A RANDOM ACTIVE PATHOGEN FROM THE POPULATION */

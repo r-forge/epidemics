@@ -77,7 +77,7 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 			/* determine ancestor */
 			ances = select_random_active_pathogen(pop, par);
 			/* produce new pathogen */
-			replicate(ances, pop->pathogens[pop->ninfcum+count], par);
+			replicate(ances, pop->pathogens[pop->ninfcum + count++], par);
 		}
 	}
 
@@ -136,6 +136,9 @@ int main(){
 	double weights[4] = {0.9,0.1,0.99,0.11};
 	par->cn_weights = weights;
 	struct network *cn = create_network(par);
+	par->mu = 0.01;
+	par->L = 100;
+	par->muL = par->mu*par->L;
 
 	/* CREATE METAPOPULATION */
 	struct metapopulation * metapop = create_metapopulation(par);
@@ -146,7 +149,7 @@ int main(){
 	/* SIMULATE OUTBREAK OVER A FEW TIMESTEPS */
 	for(i=0;i<2;i++){
 		age_metapopulation(metapop, par);
-		for(j=0;j<3;j++){
+		for(j=0;j<get_npop(metapop);j++){
 			process_infections(get_populations(metapop)[j], metapop, cn, par);
 		}
 		printf("\n - METAPOPULATION @ step %d -", i);

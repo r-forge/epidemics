@@ -50,6 +50,16 @@ int get_popid(struct population *in){
 }
 
 
+int get_idfirstinfectious(struct population *in){
+	return in->idfirstinfectious;
+}
+
+
+int get_idlastinfectious(struct population *in){
+	return in->idlastinfectious;
+}
+
+
 struct pathogen ** get_pathogens(struct population *in){
 	return in->pathogens;
 }
@@ -399,22 +409,22 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 
 
 /* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-int find_id_first_active_pathogen(struct population *in, struct param *par){
+void update_first_active_pathogen(struct population *in, struct param *par){
 	int out = get_nrec(in), max=get_popsize(in);
 	while(out < max && !is_infectious(get_pathogens(in)[out], par)) out++;
 	if(out == max) return -1;
-	return out;
+	in->idfirstinfectious = out;
 }
 
 
 
 
 /* FIND INDEX OF THE LAST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-int find_id_last_active_pathogen(struct population *in, struct param *par){
+void update_last_active_pathogen(struct population *in, struct param *par){
 	int max=get_popsize(in), out = find_id_first_active_pathogen(in, par);
 	if(out < 0) return -1;
 	while(out < max && is_infectious(get_pathogens(in)[out], par)) out++;
-	return out -1;
+	in->idlastinfectious = out -1;
 }
 
 
@@ -422,9 +432,11 @@ int find_id_last_active_pathogen(struct population *in, struct param *par){
 
 /* SELECT A RANDOM ACTIVE PATHOGEN FROM THE POPULATION */
 struct pathogen * select_random_active_pathogen(struct population *in, struct param *par){
-	int first = find_id_first_active_pathogen(in, par), id;
+	int id, first = find_id_first_active_pathogen(in, par), last=find_id_last_active_pathogen(in, par);
+	printf("\nfirst activ: %d     last activ: %d ", first,last);
 	if(first < 0) return NULL;
-	id = first + gsl_rng_uniform_int(par->rng, find_id_last_active_pathogen(in, par) - first);
+	if(first==last) return get_pathogens(in)[first]; /* gsl_rng_unif does not like a range of 0 */
+	id = first + gsl_rng_uniform_int(par->rng, last-first);
 	return get_pathogens(in)[id];
 }
 
