@@ -24,19 +24,19 @@
 */
 
 /* seed new infection from a single pathogen */
-void make_new_infection(struct pathogen * ances, struct population * pop, struct param * par){
+/* void make_new_infection(struct pathogen * ances, struct population * pop, struct param * par){ */
 
-	/* GENERATE ERROR IF PATHOGEN IS INACTIVATED */
-	if(!isNULL_pathogen(pat) && get_age(pat) >= par->t1){ /* if ancestor is active */
-		/* UPDATE NUMBER OF SUSCEPTIBLES AND INFECTED IN THE POPULATION */
-		pop->ninfcum = pop->ninfcum + 1;
-		pop->ninf = pop->ninf + 1;
-		pop->nsus = pop->nsus - 1;
+/* 	/\* GENERATE ERROR IF PATHOGEN IS INACTIVATED *\/ */
+/* 	if(!isNULL_pathogen(pat) && get_age(pat) >= par->t1){ /\* if ancestor is active *\/ */
+/* 		/\* UPDATE NUMBER OF SUSCEPTIBLES AND INFECTED IN THE POPULATION *\/ */
+/* 		pop->ninfcum = pop->ninfcum + 1; */
+/* 		pop->ninf = pop->ninf + 1; */
+/* 		pop->nsus = pop->nsus - 1; */
 
-		/* HANDLE GENOME REPLICATION */
-		replicate(pat, get_pathogens(pop)[Ninfcum], par);
-		}
-} /* end make_new_infection */
+/* 		/\* HANDLE GENOME REPLICATION *\/ */
+/* 		replicate(pat, get_pathogens(pop)[Ninfcum], par); */
+/* 		} */
+/* } /\* end make_new_infection *\/ */
 
 
 
