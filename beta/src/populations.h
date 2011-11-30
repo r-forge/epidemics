@@ -55,6 +55,8 @@ int get_ninfcum(struct population *in);
 
 int get_popsize(struct population *in);
 
+int get_popid(struct population *in);
+
 struct pathogen ** get_pathogens(struct population *in);
 
 

@@ -66,7 +66,7 @@ struct network * create_network(struct param *par){
 		for(j=0;j<out->nbNb[i];j++){
 			out->listNb[i][j] = par->cn_list_nb[counter];
 			out->weights[i][j] = par->cn_weights[counter++];
-			/* wsum[j] = wsum[j] + out->weights[i][j]; */
+			wsum[j] = wsum[j] + out->weights[i][j];
 		}
 	}
 
@@ -80,7 +80,7 @@ struct network * create_network(struct param *par){
 	/* CHECK OUTPUT */
 	for(i=0;i<par->npop;i++){
 		if(out->listNb[i][0] != i){
-			printf("\nWarning! [in: dispersal.c->create_network]\nThe created connection network does not have the appropriate self-connections.\n")
+			printf("\nWarning! [in: dispersal.c->create_network]\nThe created connection network does not have the appropriate self-connections.\n");
 		}
 	}
 
