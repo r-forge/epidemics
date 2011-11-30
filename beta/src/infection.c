@@ -45,34 +45,51 @@ void make_new_infection(struct pathogen * ances, struct population * pop, struct
 
 /* seed new infection from a single pathogen */
 void process_infections(struct population * pop, struct metapopulation * metapop, struct network *cn, struct param * par){
-	int i, popid=get_popid(pop), npop=get_npop(metapop), popj, nbNb=cn->nbNb[popid], nbnewinf, nbmigrants;
-	double * lambdavec, lambda=0;
+	int i, k, count, popid=get_popid(pop), npop=get_npop(metapop), nbNb=cn->nbNb[popid], nbnewinf, nbnewinfvec;
+	double *lambdavec, lambda=0, proba=0;
+	struct pathogen * ances;
+	struct population *curpop;
 
-	/* COMPUTE \lambda_j = \beta w_{j->k} I_j/N_j for all neighbouring population j */
+	/* COMPUTE \lambda_j = \beta w_{j->k} I_j/N_j for each neighbouring population j */
 	/* \lambda = \sum_j \lambda_j */
 	lambdavec = (double *) calloc(nbNb, sizeof(double));
 	for(i=0;i<nbNb;i++){
-		popj = metapop->populations[cn->listNb[popid][i]];
-		lambdavec[i] = par->beta * cn->weights[popid][i] * ((double) get_ninf(popj))/get_popsize(popj);
+		curpop = metapop->populations[cn->listNb[popid][i]];
+		lambdavec[i] = par->beta * cn->weights[popid][i] * ((double) get_ninf(curpop))/get_popsize(curpop);
 		lambda += lambdavec[i];
 	}
 
-	/* DETERMINE NUMBER OF NEW INFECTED */
-	
+	/* COMPUTE PROBABILITY OF INFECTION PER SUSCEPTIBLE */
+	proba = 1 - exp(-lambda);
 
-	/* GENERATE ERROR IF PATHOGEN IS INACTIVATED */
-	if(!isNULL_pathogen(pat) && get_age(pat) >= par->t1){ /* if ancestor is active */
-		/* UPDATE NUMBER OF SUSCEPTIBLES AND INFECTED IN THE POPULATION */
-		pop->ninfcum = pop->ninfcum + 1;
-		pop->ninf = pop->ninf + 1;
-		pop->nsus = pop->nsus - 1;
+	/* FIND NB OF NEW INFECTIONS SEEDED IN POP BY EACH NEIGHBOURING POPULATION */
+	nbnewinf = gsl_ran_biunsigned int gsl_ran_binomial (par->rng, proba, get_nsus(pop));
 
-		/* HANDLE GENOME REPLICATION */
-		replicate(pat, get_pathogens(pop)[Ninfcum], par);
+	/* DRAW NB OF ANCESTORS IN EACH NEIGHBOURING POPULATION */
+	nbnewinfvec = (int *) calloc(nbNb, sizeof(int));
+	gsl_ran_multinomial(par->rng, nbNb, nbnewinf, lambdavec, nbnewinfvec);
+
+	/* PRODUCE NEW PATHOGENS */
+	count = 0;
+	for(k=0;k<nbNb;k++){
+		curpop = metapop->populations[cn->listNb[popid][k]];
+		for(i=0;i<nbnewinfvec[k];i++){
+			/* determine ancestor */
+			ances = select_random_active_pathogen(pop, par);
+			/* produce new pathogen */
+			replicate(ances, pop->pathogens[pop->ninfcum+count], par);
 		}
+	}
+
+	/* UPDATE GROUP SIZES */
+	pop->nsus = pop->nsus - nbnewinf;
+	pop->ninfcum = pop->ninfcum + nbnewinf;
+	pop->ninf = pop->ninf + nbnewinf;
+
 
 	/* FREE MEMORY AND RETURN */
 	free(lambdavec);
+	free(nbnewinfvec);
 } /* end make_new_infection */
 
 

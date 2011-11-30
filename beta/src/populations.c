@@ -398,6 +398,31 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 
 
 
+/* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
+int find_id_first_active_pathogen(struct population *in){
+	int out = get_nrec(in), max=get_popsize(in);
+	while(out < max && !is_infectious(get_pathogens(in)[out])) out++;
+	if(out == max) return -1;
+	return out;
+}
+
+
+
+
+/* FIND INDEX OF THE LAST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
+int find_id_last_active_pathogen(struct population *in){
+	/* int out = get_ninfcum(in)-1, max=get_popsize(in); */
+	/* while(out < max && is_infectious(get_pathogens(in)[out])) out++; */
+	return get_ninfcum(in)-1;
+}
+
+
+/* SELECT A RANDOM ACTIVE PATHOGEN FROM THE POPULATION */
+struct pathogen * select_random_active_pathogen(struct population *in, struct param *par){
+	int first = find_id_first_active_pathogen(in);
+	return first + gsl_rng_uniform_int(par->rng, find_id_last_active_pathogen(in) - first);
+}
+
 
 
 

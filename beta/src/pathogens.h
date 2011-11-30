@@ -140,5 +140,9 @@ struct pathogen * reconstruct_genome(struct pathogen *in);
 void replicate(struct pathogen *in, struct pathogen *out, struct param *par);
 
 
-/* return 1 if pathogen is neutralized, i.e. aged -1; issues error if pointer is NULL */
-int isNULL_pathogen(struct pathogen *in);
+/* TEST IF PATHOGEN IS NULL OR INACTIVATED */
+bool isNULL_pathogen(struct pathogen *in);
+
+
+/* TEST IF PATHOGEN IS INFECTIOUS */
+bool is_infectious(struct pathogen *in, struct param *par);

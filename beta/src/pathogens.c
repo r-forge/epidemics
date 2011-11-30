@@ -286,17 +286,26 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 
 
 
-
-int isNULL_pathogen(struct pathogen *in){
+/* TEST IF PATHOGEN IS NULL OR INACTIVATED */
+bool isNULL_pathogen(struct pathogen *in){
 	if(in==NULL) {
 		fprintf(stderr, "\n[in: pathogen.c->isNULL_pathogen]\nPointer to a pathogen is NULL. Exiting.\n");
 		exit(1);
 	}
-	if(get_age(in)<0) return(1);
-	return 0;
+	if(get_age(in)<0) return TRUE;
+	return FALSE;
 }
 
 
+
+
+
+/* TEST IF PATHOGEN IS INFECTIOUS */
+bool is_infectious(struct pathogen *in, struct param *par){
+	if(!isNULL_pathogen(pat) && get_age(pat) >= par->t1) 
+		return TRUE;
+	return FALSE;
+}
 
 
 

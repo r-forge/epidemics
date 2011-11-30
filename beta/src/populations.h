@@ -131,3 +131,15 @@ void age_metapopulation(struct metapopulation * metapop, struct param * par);
 
 /* keep track of group sizes */
 void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step);
+
+
+/* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
+int find_id_first_active_pathogen(struct population *in);
+
+
+/* FIND INDEX OF THE LAST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
+int find_id_last_active_pathogen(struct population *in);
+
+
+/* SELECT A RANDOM ACTIVE PATHOGEN FROM THE POPULATION */
+struct pathogen * select_random_active_pathogen(struct population *in, struct param *par);
