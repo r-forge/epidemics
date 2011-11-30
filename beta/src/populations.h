@@ -134,11 +134,11 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 
 
 /* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-int find_id_first_active_pathogen(struct population *in);
+int find_id_first_active_pathogen(struct population *in, struct param *par);
 
 
 /* FIND INDEX OF THE LAST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-int find_id_last_active_pathogen(struct population *in);
+int find_id_last_active_pathogen(struct population *in, struct param *par);
 
 
 /* SELECT A RANDOM ACTIVE PATHOGEN FROM THE POPULATION */

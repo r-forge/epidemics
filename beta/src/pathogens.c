@@ -302,8 +302,7 @@ bool isNULL_pathogen(struct pathogen *in){
 
 /* TEST IF PATHOGEN IS INFECTIOUS */
 bool is_infectious(struct pathogen *in, struct param *par){
-	if(!isNULL_pathogen(pat) && get_age(pat) >= par->t1) 
-		return TRUE;
+	if(!isNULL_pathogen(in) && get_age(in) >= par->t1) return TRUE;
 	return FALSE;
 }
 

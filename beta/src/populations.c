@@ -399,9 +399,9 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 
 
 /* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-int find_id_first_active_pathogen(struct population *in){
+int find_id_first_active_pathogen(struct population *in, struct param *par){
 	int out = get_nrec(in), max=get_popsize(in);
-	while(out < max && !is_infectious(get_pathogens(in)[out])) out++;
+	while(out < max && !is_infectious(get_pathogens(in)[out], par)) out++;
 	if(out == max) return -1;
 	return out;
 }
@@ -410,17 +410,22 @@ int find_id_first_active_pathogen(struct population *in){
 
 
 /* FIND INDEX OF THE LAST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-int find_id_last_active_pathogen(struct population *in){
-	/* int out = get_ninfcum(in)-1, max=get_popsize(in); */
-	/* while(out < max && is_infectious(get_pathogens(in)[out])) out++; */
-	return get_ninfcum(in)-1;
+int find_id_last_active_pathogen(struct population *in, struct param *par){
+	int max=get_popsize(in), out = find_id_first_active_pathogen(in, par);
+	if(out < 0) return -1;
+	while(out < max && is_infectious(get_pathogens(in)[out], par)) out++;
+	return out -1;
 }
+
+
 
 
 /* SELECT A RANDOM ACTIVE PATHOGEN FROM THE POPULATION */
 struct pathogen * select_random_active_pathogen(struct population *in, struct param *par){
-	int first = find_id_first_active_pathogen(in);
-	return first + gsl_rng_uniform_int(par->rng, find_id_last_active_pathogen(in) - first);
+	int first = find_id_first_active_pathogen(in, par), id;
+	if(first < 0) return NULL;
+	id = first + gsl_rng_uniform_int(par->rng, find_id_last_active_pathogen(in, par) - first);
+	return get_pathogens(in)[id];
 }
 
 
@@ -434,54 +439,84 @@ struct pathogen * select_random_active_pathogen(struct population *in, struct pa
 
 */
 
-int main(){
-	/* Initialize random number generator */
-	time_t t;
-	t = time(NULL); // time in seconds, used to change the seed of the random generator
-	gsl_rng * rng;
-	const gsl_rng_type *typ;
-	gsl_rng_env_setup();
-	typ=gsl_rng_default;
-	rng=gsl_rng_alloc(typ);
-	gsl_rng_set(rng,t); // changes the seed of the random generator
+/* int main(){ */
+/* 	/\* Initialize random number generator *\/ */
+/* 	time_t t; */
+/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
+/* 	gsl_rng * rng; */
+/* 	const gsl_rng_type *typ; */
+/* 	gsl_rng_env_setup(); */
+/* 	typ=gsl_rng_default; */
+/* 	rng=gsl_rng_alloc(typ); */
+/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
+/* 	int i; */
 
+/* 	/\* simulation parameters *\/ */
+/* 	struct param * par; */
+/* 	par = (struct param *) calloc(1, sizeof(struct param)); */
+/* 	par->rng = rng; */
+/* 	par->npop = 3; */
+/* 	int popsizes[3] = {1000,200,300}; */
+/* 	par->popsizes = popsizes; */
+/* 	par->nstart = 10; */
+/* 	par->t1 = 1; */
+/* 	par->t2 = 2; */
 
-	/* simulation parameters */
-	struct param * par;
-	par = (struct param *) calloc(1, sizeof(struct param));
-	par->rng = rng;
-	par->npop = 3;
-	int popsizes[3] = {1000,200,300};
-	par->popsizes = popsizes;
-	par->nstart = 10;
-	par->t1 = 1;
-	par->t2 = 2;
+/* 	/\* TRY POPULATION *\/ */
+/* 	struct population * pop = create_population(1000,10,69); */
+/* 	printf("\nPOPULATION"); */
+/* 	print_population(pop, TRUE); */
 
-	/* TRY POPULATION */
-	struct population * pop = create_population(1000,10,69);
-	printf("\nPOPULATION");
-	print_population(pop, TRUE);
+/* 	/\* TRY METAPOPULATION *\/ */
+/* 	struct metapopulation * metapop = create_metapopulation(par); */
+/* 	printf("\n## METAPOPULATION ##"); */
+/* 	print_metapopulation(metapop, TRUE); */
 
-	/* TRY METAPOPULATION */
-	struct metapopulation * metapop = create_metapopulation(par);
-	printf("\n## METAPOPULATION ##");
-	print_metapopulation(metapop, TRUE);
+/* 	/\* TRY FIND IDS AND SELECT RANDOM ACTIVE PATHOGEN *\/ */
+/* 	int first, last; */
+/* 	struct pathogen *ppat; */
+/* 	first = find_id_first_active_pathogen(get_populations(metapop)[0], par); */
+/* 	last = find_id_last_active_pathogen(get_populations(metapop)[0], par); */
+/* 	printf("\nfirst pathogen id: %d", first); */
+/* 	printf("\nlast pathogen id: %d", last); */
+/* 	ppat = select_random_active_pathogen(get_populations(metapop)[0], par); */
+/* 	printf("\nselected pathogen:"); */
+/* 	if(ppat != NULL) print_pathogen(ppat); else printf(" NULL\n"); */
 
-	/* TRY AGEING */
-	age_metapopulation(metapop, par);
-	printf("\n## AGED METAPOPULATION ##");
-	print_metapopulation(metapop, TRUE);
+/* 	/\* TRY AGEING *\/ */
+/* 	age_metapopulation(metapop, par); */
+/* 	printf("\n## AGED METAPOPULATION ##"); */
+/* 	print_metapopulation(metapop, TRUE); */
 
-	age_metapopulation(metapop, par);
-	printf("\n## AGEDx2 METAPOPULATION ##");
-	print_metapopulation(metapop, TRUE);
+/* 	first = find_id_first_active_pathogen(get_populations(metapop)[0], par); */
+/* 	last = find_id_last_active_pathogen(get_populations(metapop)[0], par); */
+/* 	printf("\nfirst pathogen id: %d", first); */
+/* 	printf("\nlast pathogen id: %d", last); */
+/* 	for(i=0;i<10;i++){ */
+/* 		ppat = select_random_active_pathogen(get_populations(metapop)[0], par); */
+/* 		printf("\nselected pathogen:"); */
+/* 		if(ppat != NULL) print_pathogen(ppat); else printf(" NULL\n"); */
+/* 		printf("\npathogen address: %d", ppat); */
+/* 	} */
+	
 
+/* 	age_metapopulation(metapop, par); */
+/* 	printf("\n## AGEDx2 METAPOPULATION ##"); */
+/* 	print_metapopulation(metapop, TRUE); */
 
-	/* free memory */
-	free_population(pop);
-	free_metapopulation(metapop);
-	free(par);
-	gsl_rng_free(rng);
+/* 	first = find_id_first_active_pathogen(get_populations(metapop)[0], par); */
+/* 	last = find_id_last_active_pathogen(get_populations(metapop)[0], par); */
+/* 	printf("\nfirst pathogen id: %d", first); */
+/* 	printf("\nlast pathogen id: %d", last); */
+/* 	ppat = select_random_active_pathogen(get_populations(metapop)[0], par); */
+/* 	printf("\nselected pathogen:"); */
+/* 	if(ppat != NULL) print_pathogen(ppat); else printf(" NULL\n"); */
 
-	return 0;
-}
+/* 	/\* free memory *\/ */
+/* 	free_population(pop); */
+/* 	free_metapopulation(metapop); */
+/* 	free(par); */
+/* 	gsl_rng_free(rng); */
+
+/* 	return 0; */
+/* } */
