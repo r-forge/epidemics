@@ -15,13 +15,8 @@ epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
     ## npop
     n.pop <- as.integer(max(metaPopInfo$n.pop[1],1))
 
-    ## connectivity
-    if(n.pop==1){
-        connectivity <- 1
-    } else {
-        connectivity <- .metaPopInfo2dispmat(metaPopInfo)
-    }
-    connectivity <- as.double(connectivity)
+    ## cninfo
+    cninfo <- .metaPopInfo2cninfo(metaPopInfo)
 
     ## pop.size
     pop.size <- as.integer(metaPopInfo$pop.sizes)
@@ -65,8 +60,7 @@ epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
     t.recover <- as.integer(max(t.infectious,t.infectious+1))
 
     ## call run_epidemics ##
-    .C("R_epidemics", seq.length, mut.rate, n.pop, pop.size, beta, n.ini.inf, t.infectious, t.recover, n.sample, t.sample, duration, connectivity, PACKAGE="epidemics")
-
+    .C("R_epidemics", seq.length, mut.rate, n.pop, pop.size, beta, n.ini.inf, t.infectious, t.recover, n.sample, t.sample, duration, cninfo$nbnb, cninfo$listnb, cninfo$weights, PACKAGE="epidemics")
 
     ## PLOT ##
     if(plot){
@@ -125,13 +119,13 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
     ## npop
     n.pop <- as.integer(max(metaPopInfo$n.pop[1],1))
 
-    ## connectivity
+    ## cninfo
     if(n.pop==1){
-        connectivity <- 1
+        cninfo <- 1
     } else {
-        connectivity <- .metaPopInfo2dispmat(metaPopInfo)
+        cninfo <- .metaPopInfo2dispmat(metaPopInfo)
     }
-    connectivity <- as.double(connectivity)
+    cninfo <- as.double(cninfo)
 
     ## pop.size
     pop.size <- as.integer(metaPopInfo$pop.sizes)
@@ -175,7 +169,7 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
 
 
     ## call R_monitor_epidemics ##
-    .C("R_monitor_epidemics", seq.length, mut.rate, n.pop, pop.size, beta, n.ini.inf, t.infectious, t.recover, n.sample, duration, connectivity, min.samp.size, PACKAGE="epidemics")
+    .C("R_monitor_epidemics", seq.length, mut.rate, n.pop, pop.size, beta, n.ini.inf, t.infectious, t.recover, n.sample, duration, cninfo, min.samp.size, PACKAGE="epidemics")
 
 
     ## RETRIEVE OUTPUT ##

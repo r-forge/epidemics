@@ -66,14 +66,14 @@ struct network * create_network(struct param *par){
 		for(j=0;j<out->nbNb[i];j++){
 			out->listNb[i][j] = par->cn_list_nb[counter];
 			out->weights[i][j] = par->cn_weights[counter++];
-			wsum[j] = wsum[j] + out->weights[i][j];
+			wsum[i] = wsum[i] + out->weights[i][j];
 		}
 	}
 
 	/* standardize weights */
 	for(i=0;i<par->npop;i++){
 		for(j=0;j<out->nbNb[i];j++){
-			out->weights[i][j] = out->weights[i][j] / wsum[j];
+			out->weights[i][j] = out->weights[i][j] / wsum[i];
 		}
 	}
 
@@ -136,18 +136,32 @@ void print_network(struct network *in, bool detail){
 		temp += in->nbNb[i];
 	}
 	printf("\ntotal nb of connections: %d\n", temp);
+
+	/* details */
 	if(detail){
-	printf("\nconnections (weights): %d\n", temp);
+		/* list of neighbours */
+		printf("\nconnections: \n");
 		for(i=0;i<in->n;i++) {
 			printf("item %d: ", i);
 			for(j=0;j<in->nbNb[i];j++){
-				printf("%d(%.1f) ", in->listNb[i][j], in->weights[i][j]);
+				printf("%d ", in->listNb[i][j]);
+			}
+			printf("\n");
+		}
+		printf("\n");
+		/* list of weights */
+		printf("\nweights: \n");
+		for(i=0;i<in->n;i++) {
+			printf("item %d: ", i);
+			for(j=0;j<in->nbNb[i];j++){
+				printf("%.2f ", in->weights[i][j]);
 			}
 			printf("\n");
 		}
 		printf("\n");
 	}
 }
+
 
 
 

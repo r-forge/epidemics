@@ -462,7 +462,7 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 /* SELECT A RANDOM INFECTIOUS PATHOGEN FROM THE POPULATION */
 struct pathogen * select_random_infectious_pathogen(struct population *in, struct param *par){
 	int id;
-	printf("\nfirst activ: %d     last activ: %d ", in->nrec, in->nrec + in->ninf - 1);
+	/* printf("\nfirst activ: %d     last activ: %d ", in->nrec, in->nrec + in->ninf - 1); */
 	if(in->ninf < 1) return NULL;
 	if(in->ninf==1) return get_pathogens(in)[in->nrec]; /* gsl_rng_unif does not like a range of 0 */
 	id = in->nrec + gsl_rng_uniform_int(par->rng, in->ninf);
@@ -476,7 +476,7 @@ struct pathogen * select_random_infectious_pathogen(struct population *in, struc
 /* SELECT A RANDOM PATHOGEN (host exp or inf) FROM THE POPULATION */
 struct pathogen * select_random_pathogen(struct population *in, struct param *par){
 	int id, nbavail=in->ninf+in->nexp;
-	printf("\nfirst pathogen: %d     last pathogen: %d ", in->nrec, in->nrec + nbavail - 1);
+	/* printf("\nfirst pathogen: %d     last pathogen: %d ", in->nrec, in->nrec + nbavail - 1); */
 	if(nbavail < 1) return NULL;
 	if(nbavail == 1) return get_pathogens(in)[in->nrec]; /* gsl_rng_unif does not like a range of 0 */
 	id = in->nrec + gsl_rng_uniform_int(par->rng, nbavail);

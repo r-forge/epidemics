@@ -449,18 +449,58 @@ setSpatialConfig <- function(n.pop, setting=c("lattice","Delaunay","Gabriel","on
 
 
 
-########################
-## .metaPopInfo2dispmat
-########################
-.metaPopInfo2dispmat <- function(x){
-    res <- matrix(0.0, ncol=x$n.pop, nrow=x$n.pop)
 
-    ## off-diag terms
-    for(i in 1:x$n.pop){
-        res[i, x$cn[[i]]] <- x$weights[[i]]
+
+########################
+## .metaPopInfo2cninfo
+########################
+.metaPopInfo2cninfo <- function(x){
+    ## HANDLE CASE OF 1 SINGLE POP
+    if(x$n.pop < 2){
+        res <- list(nbnb=as.integer(1), listnb=as.integer(0), weights=as.double(1))
+        return(res)
     }
 
-    ## diagonal
-    diag(res) <- 1-apply(res,1,sum)
+    ## GET COMPONENTS AND ADD SELF-CONNECTIVITY ##
+    nbnb <- sapply(x$cn, length) + 1
+
+    ## list of neighbours
+    listnb <- lapply(1:length(x$cn), function(i) c(i,x$cn[[i]]))
+
+    ## weights
+    weights <- lapply(x$weights, function(e) c(1-sum(e),e))
+    res <- list(nbnb=as.integer(nbnb), listnb=as.integer(unlist(listnb)-1), weights=as.double(unlist(weights)))
+
+    ## RETURN RESULT ##
     return(res)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## ########################
+## ## .metaPopInfo2dispmat
+## ########################
+## .metaPopInfo2dispmat <- function(x){
+##     res <- matrix(0.0, ncol=x$n.pop, nrow=x$n.pop)
+
+##     ## off-diag terms
+##     for(i in 1:x$n.pop){
+##         res[i, x$cn[[i]]] <- x$weights[[i]]
+##     }
+
+##     ## diagonal
+##     diag(res) <- 1-apply(res,1,sum)
+##     return(res)
+## }
+
