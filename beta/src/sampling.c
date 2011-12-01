@@ -11,6 +11,8 @@
 #include "param.h"
 #include "pathogens.h"
 #include "populations.h"
+#include "dispersal.h"
+#include "infection.h"
 #include "sampling.h"
 
 
@@ -133,7 +135,7 @@ void print_sample(struct sample *in, bool showGen){
 	int i;
 	printf("\n - sample of pathogens -");
 	printf("\n populations:");
-	for(i=0;i<n;i++) printf("%d ", in->popid[i]);
+	for(i=0;i<in->n;i++) printf("%d ", in->popid[i]);
 	printf("\n%d pathogens", in->n);
 	if(showGen){
 		for(i=0;i<in->n;i++){
@@ -157,7 +159,8 @@ void print_sample(struct sample *in, bool showGen){
 /* Isolates are COPIED, so that any modification of the sample does not alter */
 /* the metapopulation. */
 struct sample * draw_sample(struct metapopulation *in, int n, struct param *par){
-	int i, j, id, *nAvailPerPop, *nIsolatesPerPop;
+	int i, j, *nIsolatesPerPop, count;
+	double *nAvailPerPop;
 	struct pathogen *ppat;
 
 	/* create pointer to pathogens */
@@ -173,14 +176,14 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 	}
 
 	/* get nb of isolates available in each population */
-	nAvailPerPop = (int *) calloc(get_npop(in), sizeof(int));
+	nAvailPerPop = (double *) calloc(get_npop(in), sizeof(double));
 	if(nAvailPerPop == NULL){
 		fprintf(stderr, "\n[in: population.c->draw_sample]\nNo memory left to isolate available pathogens. Exiting.\n");
 		exit(1);
 	}
 
 	for(j=0;j<get_npop(in);j++){
-		nAvailPerPop[j] = get_nexp(get_populations(in)[j]) + get_ninf(get_populations(in)[j]);
+		nAvailPerPop[j] = (double) get_nexp(get_populations(in)[j]) + get_ninf(get_populations(in)[j]);
 	}
 
 	/* get nb of isolates sampled in each population*/
@@ -193,13 +196,15 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 	gsl_ran_multinomial(par->rng, get_npop(in), n, nAvailPerPop, (unsigned int *) nIsolatesPerPop);
 
 	/* fill in the sample pathogens */
-	for(j=0;j<get_npop(in);j++){
+	count = 0;
+	for(j=0;j<get_npop(in);j++){ /* for each population */
 		for(i=0;i<nIsolatesPerPop[j];i++){
 			ppat = select_random_pathogen(get_populations(in)[j], par);
-		/* copy_pathogen(in->pathogens[availIsolates[id]], out->pathogens[i], par); */
-			free_pathogen(out->pathogens[i]);
-			out->pathogens[i] = reconstruct_genome(ppat);
-			out->popid = j;
+			/* copy_pathogen(in->pathogens[availIsolates[id]], out->pathogens[i], par); */
+			free_pathogen(out->pathogens[count]);
+			out->pathogens[count] = reconstruct_genome(ppat);
+			out->popid[count++] = j;
+		}
 	}
 
 	/* free local pointers */
@@ -276,7 +281,7 @@ struct sample ** seppop(struct sample *in, struct param *par){
 	for(i=0;i<npop;i++){
 		counter=0;
 		for(j=0;j<n;j++){
-			if(popid[j]==tabpop->items[i]) {
+			if(in->popid[j]==tabpop->items[i]) {
 				copy_pathogen(in->pathogens[j], out[i]->pathogens[counter], par);
 				out[i]->popid[counter++] = in->popid[j];
 			}
@@ -284,41 +289,97 @@ struct sample ** seppop(struct sample *in, struct param *par){
 	}
 
 	/* free memory and return */
-	free(popid);
 	free_table_int(tabpop);
 	return out;
 }
 
 
-/* int main(){ */
-/* 	/\* Initialize random number generator *\/ */
-/* 	time_t t; */
-/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
-/* 	gsl_rng * rng; */
-/* 	const gsl_rng_type *typ; */
-/* 	gsl_rng_env_setup(); */
-/* 	typ=gsl_rng_default; */
-/* 	rng=gsl_rng_alloc(typ); */
-/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
 
 
-/* 	/\* simulation parameters *\/ */
-/* 	/\* struct param * par; *\/ */
-/* 	/\* par = (struct param *) calloc(1, sizeof(struct param)); *\/ */
-/* 	/\* par->L = 100; *\/ */
-/* 	/\* par->mu = 0.01; *\/ */
-/* 	/\* par->muL = par->mu * par->L; *\/ */
-/* 	/\* par->rng = rng; *\/ */
 
 
-/* 	struct population * pop; */
 
-/* 	pop = create_population(1000,10,0); */
-/* 	print_population(pop); */
 
-/* 	/\* free memory *\/ */
-/* 	free_population(pop); */
-/* 	gsl_rng_free(rng); */
 
-/* 	return 0; */
-/* } */
+
+
+/* gcc line:
+
+   gcc -o sampling param.c auxiliary.c pathogens.c populations.c dispersal.c sampling.c -Wall -O0 -lgsl -lgslcblas
+
+   valgrind --leak-check=yes infection
+
+*/
+
+
+
+
+int main(){
+	/* Initialize random number generator */
+	time_t t;
+	t = time(NULL); // time in seconds, used to change the seed of the random generator
+	gsl_rng * rng;
+	const gsl_rng_type *typ;
+	gsl_rng_env_setup();
+	typ=gsl_rng_default;
+	rng=gsl_rng_alloc(typ);
+	gsl_rng_set(rng,t); // changes the seed of the random generator
+	int i, j;
+
+	/* simulation parameters */
+	struct param * par;
+	par = (struct param *) calloc(1, sizeof(struct param));
+	par->rng = rng;
+	par->npop = 2;
+	int popsizes[2] = {1000,200};
+	par->popsizes = popsizes;
+	par->nstart = 10;
+	par->t1 = 1;
+	par->t2 = 2;
+	par->beta = 1.1;
+	int nbnb[2] = {2,2};
+	par->cn_nb_nb = nbnb;
+	int listnb[4] = {0,1,1,0};
+	par->cn_list_nb = listnb;
+	double weights[4] = {0.9,0.1,0.99,0.11};
+	par->cn_weights = weights;
+	struct network *cn = create_network(par);
+	par->mu = 0.01;
+	par->L = 100;
+	par->muL = par->mu*par->L;
+
+	/* CREATE METAPOPULATION */
+	struct metapopulation * metapop = create_metapopulation(par);
+	printf("\n## CREATED METAPOPULATION ##");
+	print_metapopulation(metapop, TRUE);
+
+
+	/* SIMULATE OUTBREAK OVER A FEW TIMESTEPS */
+	for(i=0;i<3;i++){
+		age_metapopulation(metapop, par);
+		for(j=0;j<get_npop(metapop);j++){
+			process_infections(get_populations(metapop)[j], metapop, cn, par);
+		}
+		printf("\n - METAPOPULATION @ step %d -", i);
+		print_metapopulation(metapop, FALSE);
+
+	}
+
+	printf("\n## RESULTING METAPOPULATION ##");
+	print_metapopulation(metapop, TRUE);
+
+
+	printf("\n## RESULTING SAMPLE ##");
+	struct sample *samp;
+	samp = draw_sample(metapop,20,par);
+	print_sample(samp, TRUE);
+
+	/* free memory */
+	free_metapopulation(metapop);
+	free_sample(samp);
+	free_network(cn);
+	free(par);
+	gsl_rng_free(rng);
+
+	return 0;
+}
