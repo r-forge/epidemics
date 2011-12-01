@@ -12,6 +12,8 @@
 #include "pathogens.h"
 #include "populations.h"
 #include "sampling.h"
+#include "dispersal.h"
+#include "infection.h"
 #include "sumstat.h"
 
 
@@ -484,6 +486,9 @@ void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step, struc
 
 
 
+
+
+
 /*
   =========================
    === TESTING FUNCTIONS ===
@@ -491,10 +496,136 @@ void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step, struc
 */
 
 
-/* int main(){ */
-/* 	int  i, vec[5]={1,2,3,4,5}; */
 
-/* 	for(i=0;i<10;i++) printf("\ni=%d, result:%d", i, int_in_vec(i,vec,5)); */
-	
+/* gcc line:
+
+   gcc -o sumstat param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c -Wall -O0 -lgsl -lgslcblas
+
+   valgrind --leak-check=yes sumstat
+*/
+
+
+
+
+/* int main(){ */
+/* 	/\* Initialize random number generator *\/ */
+/* 	time_t t; */
+/* 	t = time(NULL); // time in seconds, used to change the seed of the random generator */
+/* 	gsl_rng * rng; */
+/* 	const gsl_rng_type *typ; */
+/* 	gsl_rng_env_setup(); */
+/* 	typ=gsl_rng_default; */
+/* 	rng=gsl_rng_alloc(typ); */
+/* 	gsl_rng_set(rng,t); // changes the seed of the random generator */
+/* 	int i, j; */
+
+/* 	/\* simulation parameters *\/ */
+/* 	struct param * par; */
+/* 	par = (struct param *) calloc(1, sizeof(struct param)); */
+/* 	par->rng = rng; */
+/* 	par->npop = 2; */
+/* 	int popsizes[2] = {1000,200}; */
+/* 	par->popsizes = popsizes; */
+/* 	par->nstart = 10; */
+/* 	par->t1 = 1; */
+/* 	par->t2 = 2; */
+/* 	par->beta = 1.1; */
+/* 	int nbnb[2] = {2,2}; */
+/* 	par->cn_nb_nb = nbnb; */
+/* 	int listnb[4] = {0,1,1,0}; */
+/* 	par->cn_list_nb = listnb; */
+/* 	double weights[4] = {0.9,0.1,0.99,0.11}; */
+/* 	par->cn_weights = weights; */
+/* 	struct network *cn = create_network(par); */
+/* 	par->mu = 0.01; */
+/* 	par->L = 100; */
+/* 	par->muL = par->mu*par->L; */
+
+/* 	/\* CREATE METAPOPULATION *\/ */
+/* 	struct metapopulation * metapop = create_metapopulation(par); */
+/* 	printf("\n## CREATED METAPOPULATION ##"); */
+/* 	print_metapopulation(metapop, TRUE); */
+
+
+/* 	/\* SIMULATE OUTBREAK OVER A FEW TIMESTEPS *\/ */
+/* 	for(i=0;i<3;i++){ */
+/* 		age_metapopulation(metapop, par); */
+/* 		for(j=0;j<get_npop(metapop);j++){ */
+/* 			process_infections(get_populations(metapop)[j], metapop, cn, par); */
+/* 		} */
+/* 		printf("\n - METAPOPULATION @ step %d -", i); */
+/* 		print_metapopulation(metapop, FALSE); */
+
+/* 	} */
+
+/* 	printf("\n## RESULTING METAPOPULATION ##"); */
+/* 	print_metapopulation(metapop, TRUE); */
+
+
+/* 	printf("\n## RESULTING SAMPLE ##"); */
+/* 	struct sample *samp; */
+/* 	samp = draw_sample(metapop,20,par); */
+/* 	print_sample(samp, TRUE); */
+
+/* 	/\* TEST SUMMARY STATISTICS *\/ */
+/* 	/\* test allele listing *\/ */
+/* 	struct snplist *snpbilan; */
+/* 	snpbilan = list_snps(samp, par); */
+/* 	print_snplist(snpbilan); */
+
+/* 	/\* test allele frequencies *\/ */
+/* 	struct allfreq *freq; */
+/* 	freq = get_frequencies(samp, par); */
+/* 	print_allfreq(freq); */
+
+/* 	/\* test Hs*\/ */
+/* 	double Hs = hs(samp,par); */
+/* 	printf("\nHs = %0.3f\n", Hs); */
+
+/* 	/\* test Hs full genome *\/ */
+/* 	Hs = hs_full_genome(samp,par); */
+/* 	printf("\nHs (full genome) = %0.5f\n", Hs); */
+
+/* 	/\* test nb of snps *\/ */
+/* 	int nball = nb_snps(samp,par); */
+/* 	printf("\nnumber of SNPs = %d\n", nball); */
+
+/* 	/\* test mean nb of snps *\/ */
+/* 	double temp = mean_nb_snps(samp); */
+/* 	printf("\nmean number of SNPs = %.2f\n", temp); */
+
+/* 	/\* test var nb of snps *\/ */
+/* 	temp = var_nb_snps(samp); */
+/* 	printf("\nvariance of number of alleles = %.2f\n", temp); */
+
+/* 	/\* test pairwise distances *\/ */
+/* 	struct distmat_int *mat = pairwise_dist(samp, par); */
+/* 	print_distmat_int(mat); */
+
+/* 	/\* test mean pairwise distances *\/ */
+/* 	temp = mean_pairwise_dist(samp,par); */
+/* 	printf("\nmean pairwise distance: %.2f", temp); */
+
+/* 	/\* test variance of pairwise distances *\/ */
+/* 	temp = var_pairwise_dist(samp,par); */
+/* 	printf("\nvar pairwise distance: %.2f", temp); */
+
+/* 	/\* test Fst *\/ */
+/* 	temp = fst(samp,par); */
+/* 	printf("\nfst: %.2f", temp); */
+
+/* 	printf("\n\n"); */
+
+
+/* 	/\* free memory *\/ */
+/* 	free_metapopulation(metapop); */
+/* 	free_sample(samp); */
+/* 	free_network(cn); */
+/* 	free(par); */
+/* 	gsl_rng_free(rng); */
+/* 	free_snplist(snpbilan); */
+/* 	free_allfreq(freq); */
+/* 	free_distmat_int(mat); */
+
 /* 	return 0; */
 /* } */
