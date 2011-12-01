@@ -43,9 +43,9 @@ void write_ts_groupsizes(struct ts_groupsizes *in){
 		exit(1);
 	}
 
-	fprintf(outfile, "step\tnsus\tninf\tnrec\tninfcum\n");
+	fprintf(outfile, "step\tnsus\tnexp\tninf\tnrec\tnexpcum\n");
 	for(i=0;i<in->length;i++)
-		fprintf(outfile, "%d\t%d\t%d\t%d\t%d\n", i+1, in->nsus[i], in->ninf[i], in->nrec[i], in->ninfcum[i]);
+		fprintf(outfile, "%d\t%d\t%d\t%d\t%d\t%d\n", i+1, in->nsus[i], in->nexp[i], in->ninf[i], in->nrec[i], in->nexpcum[i]);
 	fclose(outfile);
 }
 
@@ -83,7 +83,7 @@ void write_sample(struct sample *in){
 
 	for(i=0;i<in->n;i++){
 		nbSnps = get_nb_snps(in->pathogens[i]);
-		fprintf(outfile, "pop %d\n", get_popid(in->pathogens[i]));
+		fprintf(outfile, "pop %d\n", in->popid[i]);
 		for(j=0;j<nbSnps;j++){
 			fprintf(outfile, "%d ", get_snps(in->pathogens[i])[j]);
 		}
