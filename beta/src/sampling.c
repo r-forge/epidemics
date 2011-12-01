@@ -153,57 +153,58 @@ void print_sample(struct sample *in, bool showGen){
    ===============================
 */
 
-/* Get sample of isolates */
+/* GET SAMPLE OF ISOLATES */
 /* Isolates are COPIED, so that any modification of the sample does not alter */
 /* the metapopulation. */
 struct sample * draw_sample(struct metapopulation *in, int n, struct param *par){
-	int i, j, id, nIsolates=0, maxnpat=get_total_popsize(in);
-	int *availIsolates;
+	int i, j, id, *nAvailPerPop, *nIsolatesPerPop;
+	struct pathogen *ppat;
 
 	/* create pointer to pathogens */
 	struct sample *out=create_sample(n);
 
-	/* get the number of isolates that can be sampled */
-	for(i=0;i<maxnpat;i++){
-		if(!isNULL_pathogen((get_pathogens(in)[i]))) nIsolates++;
-	}
-
-	if(nIsolates != get_total_ninf(in)){
-		fprintf(stderr, "\n[in: population.c->draw_sample]\nNumber of available isolates (%d) does not match total number of infected (%d). Exiting.\n", nIsolates, get_total_ninf(in));
-		exit(1);
-	}
-
 	/* escape if no isolate available */
-	if(nIsolates < 1){
+	if(get_total_ninf(in) + get_total_nexp(in) < 1){
 		printf("\nMetapopulation without infections - sample will be empty.\n");
 		out->n = 0;
 		out->pathogens = NULL;
+		out->popid = NULL;
 		return out;
 	}
 
-	/* make vector of indices of available isolates */
-	availIsolates = (int *) calloc(nIsolates, sizeof(int));
-	if(availIsolates == NULL){
+	/* get nb of isolates available in each population */
+	nAvailPerPop = (int *) calloc(get_npop(in), sizeof(int));
+	if(nAvailPerPop == NULL){
 		fprintf(stderr, "\n[in: population.c->draw_sample]\nNo memory left to isolate available pathogens. Exiting.\n");
 		exit(1);
 	}
 
-	j=0;
-	for(i=0;i<nIsolates;i++){
-		while(isNULL_pathogen(get_pathogens(in)[j])) j++;
-		availIsolates[i] = j++;
+	for(j=0;j<get_npop(in);j++){
+		nAvailPerPop[j] = get_nexp(get_populations(in)[j]) + get_ninf(get_populations(in)[j]);
 	}
 
-	/* choose from available pathogens */
-	for(i=0;i<n;i++){
-		id=gsl_rng_uniform_int(par->rng,nIsolates);
+	/* get nb of isolates sampled in each population*/
+	nIsolatesPerPop = (int *) calloc(get_npop(in), sizeof(int));
+	if(nIsolatesPerPop == NULL){
+		fprintf(stderr, "\n[in: population.c->draw_sample]\nNo memory left to isolate available pathogens. Exiting.\n");
+		exit(1);
+	}
+
+	gsl_ran_multinomial(par->rng, get_npop(in), n, nAvailPerPop, (unsigned int *) nIsolatesPerPop);
+
+	/* fill in the sample pathogens */
+	for(j=0;j<get_npop(in);j++){
+		for(i=0;i<nIsolatesPerPop[j];i++){
+			ppat = select_random_pathogen(get_populations(in)[j], par);
 		/* copy_pathogen(in->pathogens[availIsolates[id]], out->pathogens[i], par); */
-		free_pathogen(out->pathogens[i]);
-		out->pathogens[i] = reconstruct_genome(in->pathogens[availIsolates[id]]);
+			free_pathogen(out->pathogens[i]);
+			out->pathogens[i] = reconstruct_genome(ppat);
+			out->popid = j;
 	}
 
 	/* free local pointers */
-	free(availIsolates);
+	free(nAvailPerPop);
+	free(nIsolatesPerPop);
 
 	return out;
 } /* end draw_sample */
@@ -224,7 +225,8 @@ struct sample * merge_samples(struct sample **in, int nsamp, struct param *par){
 	/* fill in output */
 	for(i=0;i<nsamp;i++){
 		for(j=0;j<get_n(in[i]);j++){
-			copy_pathogen(in[i]->pathogens[j], out->pathogens[counter++], par);
+			copy_pathogen(in[i]->pathogens[j], out->pathogens[counter], par);
+			out->popid[counter++] = in[i]->popid[j];
 		}
 	}
 
@@ -245,21 +247,14 @@ void translate_dates(struct param *par){
 
 
 
-/* slit data of a sample by population */
+/* SPLIT DATA OF A SAMPLE BY POPULATION */
 struct sample ** seppop(struct sample *in, struct param *par){
-	int i, j, counter, *popid, n=get_n(in), npop;
+	int i, j, counter, n=get_n(in), npop;
 	struct table_int * tabpop;
 	struct sample ** out;
 
 	/* get table of population sizes */
-	popid = (int *) calloc(n, sizeof(int));
-	if(popid==NULL){
-		fprintf(stderr, "\n[in: sampling.c->seppop]\nNo memory left to separate isolates per population. Exiting.\n");
-		exit(1);
-	}
-
-	for(i=0;i<n;i++) popid[i] = get_popid(in->pathogens[i]);
-	tabpop = get_table_int(popid, n);
+	tabpop = get_table_int(in->popid, n);
 	npop = tabpop->n;
 
 	/* allocate memory */
@@ -282,7 +277,8 @@ struct sample ** seppop(struct sample *in, struct param *par){
 		counter=0;
 		for(j=0;j<n;j++){
 			if(popid[j]==tabpop->items[i]) {
-				copy_pathogen(in->pathogens[j], out[i]->pathogens[counter++], par);
+				copy_pathogen(in->pathogens[j], out[i]->pathogens[counter], par);
+				out[i]->popid[counter++] = in->popid[j];
 			}
 		}
 	}

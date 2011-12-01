@@ -151,5 +151,8 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 /* void update_last_active_pathogen(struct population *in, struct param *par); */
 
 
-/* SELECT A RANDOM ACTIVE PATHOGEN FROM THE POPULATION */
+/* SELECT A RANDOM INFECTIOUS PATHOGEN FROM THE POPULATION */
 struct pathogen * select_random_infectious_pathogen(struct population *in, struct param *par);
+
+/* SELECT A RANDOM PATHOGEN FROM THE POPULATION */
+struct pathogen * select_random_pathogen(struct population *in, struct param *par);
