@@ -10,8 +10,7 @@
 
 struct sample{
 	struct pathogen ** pathogens;
-	/* nb of item; ninf is the length of **pathogens */
-	int n;
+	int n, *popid;
 };
 
 

@@ -26,20 +26,12 @@ int get_n(struct sample *in){
 }
 
 
+
 /* get nb of populations in a sample */
 int get_npop_samp(struct sample *in){
-	int i, n=get_n(in), *popid, *pool, npop;
+	int i, n=get_n(in), *pool, npop;
 
-	/* get vector of pop id */
-	popid = (int *) calloc(n, sizeof(int));
-	if(popid == NULL){
-		fprintf(stderr, "\n[in: sampling.c->get_npop]\nNo memory left to sample per population. Exiting.\n");
-		exit(1);
-	}
-	for(i=0;i<n;i++) popid[i] = get_popid(in->pathogens[i]);
-
-
-	/* enumerate nb of unique items */
+	/* ENUMERATE NB OF UNIQUE ITEMS */
 	/* create pool of unique items */
 	pool = (int *) calloc(n, sizeof(int));
 	if(pool == NULL){
@@ -47,16 +39,15 @@ int get_npop_samp(struct sample *in){
 		exit(1);
 	}
 
-	/* list and count all SNPs */
+	/* list and count pop occurences */
 	npop = 0;
 	for(i=0;i<n;i++){
-		if(int_in_vec(popid[i], pool, npop) < 0){
-			pool[npop++] = popid[i];
+		if(int_in_vec(in->popid[i], pool, npop) < 0){
+			pool[npop++] = in->popid[i];
 		}
 	}
 
 	/* free memory and return */
-	free(popid);
 	free(pool);
 	return(npop);
 }
@@ -83,11 +74,21 @@ struct sample * create_sample(int n){
 	/* allocate memory for pathogens */
 	out->pathogens = (struct pathogen **) calloc(n, sizeof(struct pathogen *));
 	if(out->pathogens == NULL){
-		fprintf(stderr, "\n[in: population.c->create_sample]\nNo memory left sample pathogens from the metapopulation. Exiting.\n");
+		fprintf(stderr, "\n[in: population.c->create_sample]\nNo memory left to sample pathogens from the metapopulation. Exiting.\n");
 		exit(1);
 	}
 
-	for(i=0;i<n;i++) out->pathogens[i] = create_pathogen();
+	/* allocate memory for popid */
+	out->popid = (int *) calloc(n, sizeof(int));
+	if(out->popid == NULL){
+		fprintf(stderr, "\n[in: population.c->create_sample]\nNo memory left to sample pathogens from the metapopulation. Exiting.\n");
+		exit(1);
+	}
+
+	for(i=0;i<n;i++) {
+		out->pathogens[i] = create_pathogen();
+		out->popid[i] = -1;
+	}
 	/* for(i=0;i<n;i++) out->pathogens[i] = NULL; */
 	out->n = n;
 	return out;
@@ -111,6 +112,7 @@ void free_sample(struct sample *in){
 		}
 		free(in->pathogens);
 	}
+	if(in->popid != NULL) free(in->popid);
 	free(in);
 }
 
@@ -129,6 +131,9 @@ void free_sample(struct sample *in){
 /* Print sample content */
 void print_sample(struct sample *in, bool showGen){
 	int i;
+	printf("\n - sample of pathogens -");
+	printf("\n populations:");
+	for(i=0;i<n;i++) printf("%d ", in->popid[i]);
 	printf("\n%d pathogens", in->n);
 	if(showGen){
 		for(i=0;i<in->n;i++){
@@ -152,7 +157,7 @@ void print_sample(struct sample *in, bool showGen){
 /* Isolates are COPIED, so that any modification of the sample does not alter */
 /* the metapopulation. */
 struct sample * draw_sample(struct metapopulation *in, int n, struct param *par){
-	int i, j, id, nIsolates=0, maxnpat=get_maxnpat(in);
+	int i, j, id, nIsolates=0, maxnpat=get_total_popsize(in);
 	int *availIsolates;
 
 	/* create pointer to pathogens */
