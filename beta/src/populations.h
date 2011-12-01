@@ -32,7 +32,7 @@ struct metapopulation{
 
 
 struct ts_groupsizes{
-	int *nsus, *ninf, *nrec, *nexpcum, length;
+	int *nsus, *nexp, *ninf, *nrec, *nexpcum, length;
 };
 
 

@@ -244,12 +244,13 @@ struct ts_groupsizes * create_ts_groupsizes(struct param * par){
 	}
 
 	out->nsus = (int *) calloc(nsteps, sizeof(int));
+	out->nexp = (int *) calloc(nsteps, sizeof(int));
 	out->ninf = (int *) calloc(nsteps, sizeof(int));
 	out->nrec = (int *) calloc(nsteps, sizeof(int));
 	out->nexpcum = (int *) calloc(nsteps, sizeof(int));
 	out->length = nsteps;
 
-	if(out->nsus==NULL || out->ninf==NULL || out->nrec==NULL || out->nexpcum==NULL){
+	if(out->nsus==NULL || out->nexp==NULL || out->ninf==NULL || out->nrec==NULL || out->nexpcum==NULL){
 		fprintf(stderr, "\n[in: population.c->create_ts_groupsizes]\nNo memory left for storing group sizes. Exiting.\n");
 		exit(1);
 	}
@@ -302,6 +303,7 @@ void free_metapopulation(struct metapopulation *in){
 void free_ts_groupsizes(struct ts_groupsizes *in){
 	if(in!=NULL){
 		free(in->nsus);
+		free(in->nexp);
 		free(in->ninf);
 		free(in->nrec);
 		free(in->nexpcum);
@@ -423,6 +425,7 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 	}
 
 	in->nsus[step-1] = get_total_nsus(metapop);
+	in->nexp[step-1] = get_total_nexp(metapop);
 	in->ninf[step-1] = get_total_ninf(metapop);
 	in->nrec[step-1] = get_total_nrec(metapop);
 	in->nexpcum[step-1] = get_total_nexpcum(metapop);
