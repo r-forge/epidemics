@@ -25,6 +25,11 @@ int get_nsus(struct population *in){
 }
 
 
+int get_nexp(struct population *in){
+	return in->ninf;
+}
+
+
 int get_ninf(struct population *in){
 	return in->ninf;
 }
@@ -35,8 +40,8 @@ int get_nrec(struct population *in){
 }
 
 
-int get_ninfcum(struct population *in){
-	return in->ninfcum;
+int get_nexpcum(struct population *in){
+	return in->nexpcum;
 }
 
 
@@ -92,6 +97,15 @@ int get_total_nsus(struct metapopulation *in){
 }
 
 
+int get_total_nexp(struct metapopulation *in){
+	int i, k=get_npop(in), out=0;
+	for(i=0;i<k;i++) {
+		out += get_nexp(get_populations(in)[i]);
+	}
+	return out;
+}
+
+
 int get_total_ninf(struct metapopulation *in){
 	int i, k=get_npop(in), out=0;
 	for(i=0;i<k;i++) {
@@ -110,10 +124,10 @@ int get_total_nrec(struct metapopulation *in){
 }
 
 
-int get_total_ninfcum(struct metapopulation *in){
+int get_total_nexpcum(struct metapopulation *in){
 	int i, k=get_npop(in), out=0;
 	for(i=0;i<k;i++) {
-		out += get_ninfcum(get_populations(in)[i]);
+		out += get_nexpcum(get_populations(in)[i]);
 	}
 	return out;
 }
@@ -150,10 +164,11 @@ struct population * create_population(int popsize, int nini, int popid){
 
 	/* fill the content */
 	out->popsize = popsize;
-	out->ninf = nini;
+	out->nexp = nini;
+	out->ninf = 0;
 	out->nsus = popsize-nini; /* remove susc. because of initial infections */
 	out->nrec = 0;
-	out->ninfcum = nini;
+	out->nexpcum = nini;
 	out->popid = popid;
 
 	/* allocate pathogen array */
@@ -231,10 +246,10 @@ struct ts_groupsizes * create_ts_groupsizes(struct param * par){
 	out->nsus = (int *) calloc(nsteps, sizeof(int));
 	out->ninf = (int *) calloc(nsteps, sizeof(int));
 	out->nrec = (int *) calloc(nsteps, sizeof(int));
-	out->ninfcum = (int *) calloc(nsteps, sizeof(int));
+	out->nexpcum = (int *) calloc(nsteps, sizeof(int));
 	out->length = nsteps;
 
-	if(out->nsus==NULL || out->ninf==NULL || out->nrec==NULL || out->ninfcum==NULL){
+	if(out->nsus==NULL || out->ninf==NULL || out->nrec==NULL || out->nexpcum==NULL){
 		fprintf(stderr, "\n[in: population.c->create_ts_groupsizes]\nNo memory left for storing group sizes. Exiting.\n");
 		exit(1);
 	}
@@ -289,7 +304,7 @@ void free_ts_groupsizes(struct ts_groupsizes *in){
 		free(in->nsus);
 		free(in->ninf);
 		free(in->nrec);
-		free(in->ninfcum);
+		free(in->nexpcum);
 		free(in);
 	}
 }
@@ -305,15 +320,16 @@ void free_ts_groupsizes(struct ts_groupsizes *in){
 */
 /* PRINT POPULATION CONTENT */
 void print_population(struct population *in, bool showPat){
-	int i, nrec=get_nrec(in), ninfcum=get_ninfcum(in);
+	int i, nrec=get_nrec(in), nexpcum=get_nexpcum(in);
 
 	printf("\npopulation %d", get_popid(in));
 	printf("\nnb susceptible: %d", get_nsus(in));
-	printf("\nnb infected: %d", get_ninf(in));
+	printf("\nnb exposed: %d", get_nsus(in));
+	printf("\nnb infectious: %d", get_ninf(in));
 	printf("\nnb recovered: %d", get_nrec(in));
 	printf("\npathogens:");
 	if(showPat){
-		for(i=nrec;i<ninfcum;i++){
+		for(i=nrec;i<nexpcum;i++){
 			print_pathogen(get_pathogens(in)[i]);
 		}
 	}
@@ -332,7 +348,8 @@ void print_metapopulation(struct metapopulation *in, bool showPat){
 	printf("\npopulation sizes: ");
 	for(i=0;i<get_npop(in);i++) printf("%d ", get_popsizes(in)[i]);
 	printf("\ntotal nb susceptible: %d", get_total_nsus(in));
-	printf("\ntotal nb infected: %d", get_total_ninf(in));
+	printf("\ntotal nb exposed: %d", get_total_nsus(in));
+	printf("\ntotal nb infectious: %d", get_total_ninf(in));
 	printf("\ntotal nb recovered: %d", get_total_nrec(in));
 	printf("\ntotal population size: %d\n", get_total_popsize(in));
 
@@ -358,22 +375,28 @@ void print_metapopulation(struct metapopulation *in, bool showPat){
    ===============================
 */
 void age_population(struct population * in, struct param *par){
-	int i, nrec=get_nrec(in), ninfcum=get_ninfcum(in);
+	int i, nrec=get_nrec(in), nexpcum=get_nexpcum(in), nbnewinf=0, nbnewrec=0;
 	struct pathogen *ppat;
 
-	for(i=nrec;i<ninfcum;i++){
+	for(i=nrec;i<nexpcum;i++){
 		ppat = get_pathogens(in)[i];
 		if(!isNULL_pathogen(ppat)){ /* if pathogen is active */
 			ppat->age = ppat->age + 1; /* get older */
+			if(get_age(ppat) == par->t1){ /* becomes infectious this time step */
+				nbnewinf++;
+			}
 			if(get_age(ppat) >= par->t2) { /* die if you must! */
 				ppat->age = -1; /* inactivate pathogen */
-
-				/* update nrec and ninf in corresponding population */
-				in->ninf = in->ninf - 1;
-				in->nrec = in->nrec + 1;
+				nbnewrec++;
 			}
 		}
 	}
+
+	/* update nexp, ninf, nrec in corresponding population */
+	in->nexp = in->nexp - nbnewinf;
+	in->ninf = in->ninf + nbnewinf - nbnewrec;
+	in->nrec = in->nrec + nbnewrec;
+
 } /* end age_population */
 
 
@@ -402,41 +425,41 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 	in->nsus[step-1] = get_total_nsus(metapop);
 	in->ninf[step-1] = get_total_ninf(metapop);
 	in->nrec[step-1] = get_total_nrec(metapop);
-	in->ninfcum[step-1] = get_total_ninfcum(metapop);
+	in->nexpcum[step-1] = get_total_nexpcum(metapop);
 }
 
 
 
 
-/* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-void update_first_active_pathogen(struct population *in, struct param *par){
-	int out = get_nrec(in), max=get_popsize(in);
-	while(out < max && !is_infectious(get_pathogens(in)[out], par)) out++;
-	if(out == max) return -1;
-	in->idfirstinfectious = out;
-}
+/* /\* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY *\/ */
+/* void update_first_active_pathogen(struct population *in, struct param *par){ */
+/* 	int out = get_nrec(in), max=get_popsize(in); */
+/* 	while(out < max && !is_infectious(get_pathogens(in)[out], par)) out++; */
+/* 	if(out == max) return -1; */
+/* 	in->idfirstinfectious = out; */
+/* } */
 
 
 
 
-/* FIND INDEX OF THE LAST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-void update_last_active_pathogen(struct population *in, struct param *par){
-	int max=get_popsize(in), out = find_id_first_active_pathogen(in, par);
-	if(out < 0) return -1;
-	while(out < max && is_infectious(get_pathogens(in)[out], par)) out++;
-	in->idlastinfectious = out -1;
-}
+/* /\* FIND INDEX OF THE LAST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY *\/ */
+/* void update_last_active_pathogen(struct population *in, struct param *par){ */
+/* 	int max=get_popsize(in), out = find_id_first_active_pathogen(in, par); */
+/* 	if(out < 0) return -1; */
+/* 	while(out < max && is_infectious(get_pathogens(in)[out], par)) out++; */
+/* 	in->idlastinfectious = out -1; */
+/* } */
 
 
 
 
-/* SELECT A RANDOM ACTIVE PATHOGEN FROM THE POPULATION */
-struct pathogen * select_random_active_pathogen(struct population *in, struct param *par){
-	int id, first = find_id_first_active_pathogen(in, par), last=find_id_last_active_pathogen(in, par);
-	printf("\nfirst activ: %d     last activ: %d ", first,last);
-	if(first < 0) return NULL;
-	if(first==last) return get_pathogens(in)[first]; /* gsl_rng_unif does not like a range of 0 */
-	id = first + gsl_rng_uniform_int(par->rng, last-first);
+/* SELECT A RANDOM INFECTIOUS PATHOGEN FROM THE POPULATION */
+struct pathogen * select_random_infectious_pathogen(struct population *in, struct param *par){
+	int id;
+	printf("\nfirst activ: %d     last activ: %d ", in->nrec, in->nrec + in->ninf - 1);
+	if(in->ninf < 1) return NULL;
+	if(in->ninf==1) return get_pathogens(in)[in->nrec]; /* gsl_rng_unif does not like a range of 0 */
+	id = in->nrec + gsl_rng_uniform_int(par->rng, in->ninf);
 	return get_pathogens(in)[id];
 }
 

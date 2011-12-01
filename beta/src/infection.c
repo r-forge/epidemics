@@ -29,12 +29,12 @@
 /* 	/\* GENERATE ERROR IF PATHOGEN IS INACTIVATED *\/ */
 /* 	if(!isNULL_pathogen(pat) && get_age(pat) >= par->t1){ /\* if ancestor is active *\/ */
 /* 		/\* UPDATE NUMBER OF SUSCEPTIBLES AND INFECTED IN THE POPULATION *\/ */
-/* 		pop->ninfcum = pop->ninfcum + 1; */
+/* 		pop->nexpcum = pop->nexpcum + 1; */
 /* 		pop->ninf = pop->ninf + 1; */
 /* 		pop->nsus = pop->nsus - 1; */
 
 /* 		/\* HANDLE GENOME REPLICATION *\/ */
-/* 		replicate(pat, get_pathogens(pop)[Ninfcum], par); */
+/* 		replicate(pat, get_pathogens(pop)[Nexpcum], par); */
 /* 		} */
 /* } /\* end make_new_infection *\/ */
 
@@ -45,7 +45,7 @@
 
 /* PROCESS ALL INFECTIONS IN ONE GIVEN POP, FOR ONE GIVEN TIME STEP */
 void process_infections(struct population * pop, struct metapopulation * metapop, struct network *cn, struct param * par){
-	int i, k, count, popid=get_popid(pop), nbNb=cn->nbNb[popid], nbnewinf, *nbnewinfvec;
+	int i, k, count, popid=get_popid(pop), nbNb=cn->nbNb[popid], nbnewcases, *nbnewcasesvec;
 	double *lambdavec, lambda=0, proba=0;
 	struct pathogen * ances;
 	struct population *curpop;
@@ -63,33 +63,33 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 	proba = 1 - exp(-lambda);
 
 	/* FIND NB OF NEW INFECTIONS SEEDED IN POP BY EACH NEIGHBOURING POPULATION */
-	nbnewinf = gsl_ran_binomial(par->rng, proba, get_nsus(pop));
+	nbnewcases = gsl_ran_binomial(par->rng, proba, get_nsus(pop));
 
 	/* DRAW NB OF ANCESTORS IN EACH NEIGHBOURING POPULATION */
-	nbnewinfvec = (int *) calloc(nbNb, sizeof(int));
-	gsl_ran_multinomial(par->rng, nbNb, nbnewinf, lambdavec, (unsigned int *) nbnewinfvec);
+	nbnewcasesvec = (int *) calloc(nbNb, sizeof(int));
+	gsl_ran_multinomial(par->rng, nbNb, nbnewcases, lambdavec, (unsigned int *) nbnewcasesvec);
 
 	/* PRODUCE NEW PATHOGENS */
 	count = 0;
 	for(k=0;k<nbNb;k++){
 		curpop = metapop->populations[cn->listNb[popid][k]];
-		for(i=0;i<nbnewinfvec[k];i++){
+		for(i=0;i<nbnewcasesvec[k];i++){
 			/* determine ancestor */
 			ances = select_random_active_pathogen(pop, par);
 			/* produce new pathogen */
-			replicate(ances, pop->pathogens[pop->ninfcum + count++], par);
+			replicate(ances, pop->pathogens[pop->nexpcum + count++], par);
 		}
 	}
 
 	/* UPDATE GROUP SIZES */
-	pop->nsus = pop->nsus - nbnewinf;
-	pop->ninfcum = pop->ninfcum + nbnewinf;
-	pop->ninf = pop->ninf + nbnewinf;
+	pop->nsus = pop->nsus - nbnewcases;
+	pop->nexpcum = pop->nexpcum + nbnewcases;
+	pop->nexp = pop->nexp + nbnewcases;
 
 
 	/* FREE MEMORY AND RETURN */
 	free(lambdavec);
-	free(nbnewinfvec);
+	free(nbnewcasesvec);
 } /* end make_new_infection */
 
 

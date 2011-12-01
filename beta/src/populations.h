@@ -16,7 +16,7 @@
 
 
 struct population{
-	int nsus, ninf, nrec, ninfcum, popsize, popid, idfirstinfectious, idlastinfectious;
+	int nsus, nexp, ninf, nrec, nexpcum, popsize, popid, idfirstinfectious, idlastinfectious;
 	struct pathogen **pathogens;
 };
 
@@ -32,7 +32,7 @@ struct metapopulation{
 
 
 struct ts_groupsizes{
-	int *nsus, *ninf, *nrec, *ninfcum, length;
+	int *nsus, *ninf, *nrec, *nexpcum, length;
 };
 
 
@@ -47,11 +47,13 @@ struct ts_groupsizes{
 /* FOR POPULATIONS */
 int get_nsus(struct population *in);
 
+int get_nexp(struct population *in);
+
 int get_ninf(struct population *in);
 
 int get_nrec(struct population *in);
 
-int get_ninfcum(struct population *in);
+int get_nexpcum(struct population *in);
 
 int get_popsize(struct population *in);
 
@@ -75,11 +77,13 @@ int * get_popsizes(struct metapopulation *in);
 
 int get_total_nsus(struct metapopulation *in);
 
+int get_total_nexp(struct metapopulation *in);
+
 int get_total_ninf(struct metapopulation *in);
 
 int get_total_nrec(struct metapopulation *in);
 
-int get_total_ninfcum(struct metapopulation *in);
+int get_total_nexpcum(struct metapopulation *in);
 
 int get_total_popsize(struct metapopulation *in);
 
@@ -139,13 +143,13 @@ void age_metapopulation(struct metapopulation * metapop, struct param * par);
 void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step);
 
 
-/* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-int update_first_active_pathogen(struct population *in, struct param *par);
+/* /\* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY *\/ */
+/* void update_first_active_pathogen(struct population *in, struct param *par); */
 
 
-/* FIND INDEX OF THE LAST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY */
-int update_last_active_pathogen(struct population *in, struct param *par);
+/* /\* FIND INDEX OF THE LAST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY *\/ */
+/* void update_last_active_pathogen(struct population *in, struct param *par); */
 
 
 /* SELECT A RANDOM ACTIVE PATHOGEN FROM THE POPULATION */
-struct pathogen * select_random_active_pathogen(struct population *in, struct param *par);
+struct pathogen * select_random_infectious_pathogen(struct population *in, struct param *par);
