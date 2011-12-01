@@ -71,7 +71,7 @@ plot(metapop, max.cir=0.1, arr=FALSE, annot=FALSE, max.lwd=1)
 sampTime <- rep(c(0,20,50,100,150), each=10)
 
 ## run simulations
-x <- epidemics(n.sample=50, beta=2, duration=200, meta=metapop,t.sample=sampTime, n.ini=10)
+x <- epidemics(n.sample=50, beta=2, duration=200,meta=metapop,t.sample=sampTime, n.ini=10)
 
 ## examine and plot result
 x
