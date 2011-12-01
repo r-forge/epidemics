@@ -26,7 +26,7 @@ int get_nsus(struct population *in){
 
 
 int get_nexp(struct population *in){
-	return in->ninf;
+	return in->nexp;
 }
 
 
@@ -324,7 +324,7 @@ void print_population(struct population *in, bool showPat){
 
 	printf("\npopulation %d", get_popid(in));
 	printf("\nnb susceptible: %d", get_nsus(in));
-	printf("\nnb exposed: %d", get_nsus(in));
+	printf("\nnb exposed: %d", get_nexp(in));
 	printf("\nnb infectious: %d", get_ninf(in));
 	printf("\nnb recovered: %d", get_nrec(in));
 	printf("\npathogens:");
@@ -348,7 +348,7 @@ void print_metapopulation(struct metapopulation *in, bool showPat){
 	printf("\npopulation sizes: ");
 	for(i=0;i<get_npop(in);i++) printf("%d ", get_popsizes(in)[i]);
 	printf("\ntotal nb susceptible: %d", get_total_nsus(in));
-	printf("\ntotal nb exposed: %d", get_total_nsus(in));
+	printf("\ntotal nb exposed: %d", get_total_nexp(in));
 	printf("\ntotal nb infectious: %d", get_total_ninf(in));
 	printf("\ntotal nb recovered: %d", get_total_nrec(in));
 	printf("\ntotal population size: %d\n", get_total_popsize(in));

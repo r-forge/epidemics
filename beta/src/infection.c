@@ -75,7 +75,7 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 		curpop = metapop->populations[cn->listNb[popid][k]];
 		for(i=0;i<nbnewcasesvec[k];i++){
 			/* determine ancestor */
-			ances = select_random_active_pathogen(pop, par);
+			ances = select_random_infectious_pathogen(pop, par);
 			/* produce new pathogen */
 			replicate(ances, pop->pathogens[pop->nexpcum + count++], par);
 		}
@@ -101,7 +101,7 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 
    gcc -o infection param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c -Wall -O0 -lgsl -lgslcblas
 
-   valgrind --leak-check=yes populations
+   valgrind --leak-check=yes infection
 
 */
 
@@ -147,7 +147,7 @@ int main(){
 
 
 	/* SIMULATE OUTBREAK OVER A FEW TIMESTEPS */
-	for(i=0;i<2;i++){
+	for(i=0;i<100;i++){
 		age_metapopulation(metapop, par);
 		for(j=0;j<get_npop(metapop);j++){
 			process_infections(get_populations(metapop)[j], metapop, cn, par);
