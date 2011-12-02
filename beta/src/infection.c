@@ -75,7 +75,7 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 		curpop = metapop->populations[cn->listNb[popid][k]];
 		for(i=0;i<nbnewcasesvec[k];i++){
 			/* determine ancestor */
-			ances = select_random_infectious_pathogen(pop, par);
+			ances = select_random_infectious_pathogen(curpop, par);
 			/* produce new pathogen */
 			replicate(ances, pop->pathogens[pop->nexpcum + count++], par);
 		}
@@ -90,7 +90,7 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 	/* FREE MEMORY AND RETURN */
 	free(lambdavec);
 	free(nbnewcasesvec);
-} /* end make_new_infection */
+} /* end  process_infections */
 
 
 
