@@ -52,9 +52,7 @@ struct vec_int * create_vec_int(int n){
 		exit(1);
 	}
 
-	/* THIS IS NOT CLEAN, BUT FASTER */
-	/* (out->values is not allocated dynamically when n=0 */
-	/* this needs to use calloc, malloc would cause an error */
+	/* NOTE out->values is not allocated when n=0 */
 	if(n>0){
 		out->values = (int *) malloc(n * sizeof(int));
 		if(out->values == NULL){
@@ -102,25 +100,18 @@ struct vec_int * create_vec_int_zero(int n){
 */
 
 void free_distmat_int(struct distmat_int *in){
-	/* if(in->x != NULL) free(in->x); */
-	/* if(in != NULL) free(in); */
 	free(in->x);
 	free(in);
 }
 
 
 void free_table_int(struct table_int *in){
-	/* if(in->items != NULL) free(in->items); */
-	/* if(in->times != NULL) free(in->times); */
-	/* if(in != NULL) free(in); */
 	free(in->items);
 	free(in->times);
 	free(in);
 }
 
 void free_vec_int(struct vec_int *in){
-	/* if(in->values != NULL) free(in->values); */
-	/* if(in != NULL) free(in); */
 	if(in->n > 0) free(in->values);
 	free(in);
 }

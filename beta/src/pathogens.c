@@ -87,7 +87,7 @@ struct lineage * create_lineage(int n){
 		fprintf(stderr, "\n[in: lineage.c->create_lineage]\nNo memory left for creating initial lineage. Exiting.\n");
 		exit(1);
 	}
-	out->pathogens = (struct pathogen **) calloc(n, sizeof(struct pathogen *));
+	out->pathogens = (struct pathogen **) malloc(n * sizeof(struct pathogen *));
 	out->n = n;
 	return out;
 }
@@ -137,7 +137,6 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 
 	N=get_nb_snps(in);
 
-	/* out->snps = (int *) calloc(N, sizeof(int)); /\* allocate memory for snps vector*\/ */
 	if(out->snps != NULL) free_vec_int(out->snps); /* erase previous content */
 	out->snps = create_vec_int(N);
 	if(N>0 && get_snps(out) == NULL){
