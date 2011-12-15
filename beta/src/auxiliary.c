@@ -46,18 +46,16 @@ struct distmat_int * create_distmat_int(int n){
 
 /* create a vector of integers of size n */
 struct vec_int * create_vec_int(int n){
-	struct vec_int *out = (struct vec_int *) calloc(1, sizeof(struct vec_int));
+	struct vec_int *out = (struct vec_int *) malloc(sizeof(struct vec_int));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
 		exit(1);
 	}
 
-	if(n>0){
-		out->values = (int *) malloc(n * sizeof(int));
-		if(out->values == NULL){
-			fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
-			exit(1);
-		}
+	out->values = (int *) malloc(n * sizeof(int));
+	if(out->values == NULL){
+		fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
+		exit(1);
 	}
 
 	out->n = n;
@@ -77,12 +75,10 @@ struct vec_int * create_vec_int_zero(int n){
 		exit(1);
 	}
 
-	if(n>0){
-		out->values = (int *) calloc(n, sizeof(int));
-		if(out->values == NULL){
-			fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
-			exit(1);
-		}
+	out->values = (int *) calloc(n, sizeof(int));
+	if(out->values == NULL){
+		fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
+		exit(1);
 	}
 
 	out->n = n;

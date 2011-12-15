@@ -64,7 +64,7 @@ struct pathogen * get_ances(struct pathogen *in){
 
 /* Create empty pathogen */
 struct pathogen * create_pathogen(){
-	struct pathogen *out = calloc(1, sizeof(struct pathogen));
+	struct pathogen *out = malloc(sizeof(struct pathogen));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: pathogen.c->create_pathogen]\nNo memory left for creating initial pathogen. Exiting.\n");
 		exit(1);
@@ -82,7 +82,7 @@ struct pathogen * create_pathogen(){
 /* Create empty lineage */
 struct lineage * create_lineage(int n){
 	struct lineage *out;
-	out = (struct lineage *) calloc(1, sizeof(struct lineage));
+	out = (struct lineage *) malloc(sizeof(struct lineage));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: lineage.c->create_lineage]\nNo memory left for creating initial lineage. Exiting.\n");
 		exit(1);
@@ -283,12 +283,13 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 
 /* TEST IF PATHOGEN IS NULL OR INACTIVATED */
 bool isNULL_pathogen(struct pathogen *in){
-	if(in==NULL) {
-		fprintf(stderr, "\n[in: pathogen.c->isNULL_pathogen]\nPointer to a pathogen is NULL. Exiting.\n");
-		exit(1);
-	}
-	if(get_age(in)<0) return TRUE;
-	return FALSE;
+	/* if(in==NULL) { */
+	/* 	fprintf(stderr, "\n[in: pathogen.c->isNULL_pathogen]\nPointer to a pathogen is NULL. Exiting.\n"); */
+	/* 	exit(1); */
+	/* } */
+	/* if(get_age(in)<0) return TRUE; */
+	/* return FALSE; */
+	return get_age(in)<0;
 }
 
 
