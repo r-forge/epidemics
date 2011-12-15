@@ -457,7 +457,7 @@ int main(){
 	double mu=1e-6, beta=2, pdisp[1]={1.0}; //pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
 	time_t time1,time2;
 	int genoL=1e5, duration=100, npop=1, nstart=10, t1=1, t2=2, nsamp=10;
-	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1]={50e6}; //popsize[3]={10,1,1};
+	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1]={50e4}; //popsize[3]={10,1,1};
 	int nbnb[1] = {1};
 	int listnb[1] = {0};
 

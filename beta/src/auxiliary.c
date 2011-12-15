@@ -52,10 +52,15 @@ struct vec_int * create_vec_int(int n){
 		exit(1);
 	}
 
-	out->values = (int *) malloc(n * sizeof(int));
-	if(out->values == NULL){
-		fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
-		exit(1);
+	/* THIS IS NOT CLEAN, BUT FASTER */
+	/* (out->values is not allocated dynamically when n=0 */
+	/* this needs to use calloc, malloc would cause an error */
+	if(n>0){
+		out->values = (int *) malloc(n * sizeof(int));
+		if(out->values == NULL){
+			fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
+			exit(1);
+		}
 	}
 
 	out->n = n;
@@ -116,7 +121,7 @@ void free_table_int(struct table_int *in){
 void free_vec_int(struct vec_int *in){
 	/* if(in->values != NULL) free(in->values); */
 	/* if(in != NULL) free(in); */
-	free(in->values);
+	if(in->n > 0) free(in->values);
 	free(in);
 }
 
