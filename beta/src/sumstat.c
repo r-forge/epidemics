@@ -26,14 +26,13 @@
 
 /* create snplist object */
 struct snplist * create_snplist(int n){
-	struct snplist *out;
-	out = calloc(1, sizeof(struct snplist));
+	struct snplist *out = (struct snplist *) malloc(sizeof(struct snplist));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: sumstat.c->create_snplist]\nNo memory left for listing SNPs. Exiting.\n");
 		exit(1);
 	}
 
-	out->snps = calloc(n, sizeof(int));
+	out->snps = malloc(n * sizeof(int));
 	if(out->snps == NULL){
 		fprintf(stderr, "\n[in: sumstat.c->create_snplist]\nNo memory left for listing SNPs. Exiting.\n");
 		exit(1);
@@ -47,14 +46,13 @@ struct snplist * create_snplist(int n){
 
 /* create allfreq object */
 struct allfreq * create_allfreq(int n){
-	struct allfreq *out;
-	out = calloc(1, sizeof(struct allfreq));
+	struct allfreq *out = (struct allfreq *) malloc(sizeof(struct allfreq));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: sumstat.c->create_allfreq]\nNo memory left for listing SNPs. Exiting.\n");
 		exit(1);
 	}
 
-	out->freq = calloc(n, sizeof(double));
+	out->freq = (double *) malloc(n * sizeof(double));
 	if(out->freq == NULL){
 		fprintf(stderr, "\n[in: sumstat.c->create_allfreq]\nNo memory left for listing SNPs. Exiting.\n");
 		exit(1);
@@ -71,12 +69,13 @@ struct allfreq * create_allfreq(int n){
 /* Create ts_sumstat */
 struct ts_sumstat * create_ts_sumstat(struct param *par){
 	int nsteps = par->duration;
-	struct ts_sumstat * out = (struct ts_sumstat *) calloc(1, sizeof(struct ts_sumstat));
+	struct ts_sumstat * out = (struct ts_sumstat *) malloc(sizeof(struct ts_sumstat));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: sumstat.c->create_ts_sumstat]\nNo memory left for storing summary statistics. Exiting.\n");
 		exit(1);
 	}
 
+	/* use calloc here - values default to 0*/
 	out->steps = (int *) calloc(nsteps, sizeof(int));
 	out->nbSnps = (int *) calloc(nsteps, sizeof(int));
 	out->Hs = (double *) calloc(nsteps, sizeof(double));
@@ -166,7 +165,7 @@ struct snplist * list_snps(struct sample *in, struct param *par){
 	struct snplist *out;
 
 	/* create pool of snps */
-	pool = calloc(par->L, sizeof(int));
+	pool = malloc(par->L * sizeof(int));
 	if(pool == NULL){
 		fprintf(stderr, "\n[in: sumstat.c->list_snps]\nNo memory left for creating pool of SNPs. Exiting.\n");
 		exit(1);

@@ -42,6 +42,8 @@ struct distmat_int * create_distmat_int(int n);
 
 struct vec_int * create_vec_int(int n);
 
+struct vec_int * create_vec_int_zero(int n);
+
 
 
 /*

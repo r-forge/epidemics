@@ -23,13 +23,13 @@ struct distmat_int * create_distmat_int(int n){
 	struct distmat_int *out;
 	int length=n*(n-1)/2;
 
-	out = calloc(1, sizeof(struct distmat_int));
+	out = (struct distmat_int *) malloc(sizeof(struct distmat_int));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: auxiliary.c->create_distmat]\nNo memory left for creating distance matrix. Exiting.\n");
 		exit(1);
 	}
 
-	out->x = calloc(length, sizeof(int));
+	out->x = malloc(length * sizeof(int));
 	if(out->x == NULL){
 		fprintf(stderr, "\n[in: auxiliary.c->create_distmat]\nNo memory left for creating distance matrix. Exiting.\n");
 		exit(1);
@@ -47,6 +47,31 @@ struct distmat_int * create_distmat_int(int n){
 /* create a vector of integers of size n */
 struct vec_int * create_vec_int(int n){
 	struct vec_int *out = (struct vec_int *) calloc(1, sizeof(struct vec_int));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
+		exit(1);
+	}
+
+	if(n>0){
+		out->values = (int *) malloc(n * sizeof(int));
+		if(out->values == NULL){
+			fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
+			exit(1);
+		}
+	}
+
+	out->n = n;
+
+	return(out);
+}
+
+
+
+
+
+/* create a vector of integers of size n initialized to zero */
+struct vec_int * create_vec_int_zero(int n){
+	struct vec_int *out = (struct vec_int *) malloc(sizeof(struct vec_int));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: auxiliary.c->create_vec_int]\nNo memory left for creating vector of integers. Exiting.\n");
 		exit(1);
@@ -76,20 +101,27 @@ struct vec_int * create_vec_int(int n){
 */
 
 void free_distmat_int(struct distmat_int *in){
-	if(in->x != NULL) free(in->x);
-	if(in != NULL) free(in);
+	/* if(in->x != NULL) free(in->x); */
+	/* if(in != NULL) free(in); */
+	free(in->x);
+	free(in);
 }
 
 
 void free_table_int(struct table_int *in){
-	if(in->items != NULL) free(in->items);
-	if(in->times != NULL) free(in->times);
-	if(in != NULL) free(in);
+	/* if(in->items != NULL) free(in->items); */
+	/* if(in->times != NULL) free(in->times); */
+	/* if(in != NULL) free(in); */
+	free(in->items);
+	free(in->times);
+	free(in);
 }
 
 void free_vec_int(struct vec_int *in){
-	if(in->values != NULL) free(in->values);
-	if(in != NULL) free(in);
+	/* if(in->values != NULL) free(in->values); */
+	/* if(in != NULL) free(in); */
+	free(in->values);
+	free(in);
 }
 
 
@@ -136,7 +168,7 @@ int min_int(int *vec, int length){
 /* compute the number of occurence of items in a vect of integers */
 struct table_int * get_table_int(int *vec, int length){
 	int i, j, *pool, poolsize;
-	struct table_int *out = calloc(1, sizeof(struct table_int));
+	struct table_int *out = (struct table_int *) malloc(sizeof(struct table_int));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: auxiliary.c->get_table_int]\nNo memory left for creating table of integers. Exiting.\n");
 		exit(1);
@@ -144,13 +176,13 @@ struct table_int * get_table_int(int *vec, int length){
 
 	/* enumerate nb of unique items */
 	/* create pool of unique items */
-	pool = calloc(length, sizeof(int));
+	pool = (int *) malloc(length * sizeof(int));
 	if(pool == NULL){
 		fprintf(stderr, "\n[in: auxiliary.c->get_table_int]\nNo memory left for listing unique integers. Exiting.\n");
 		exit(1);
 	}
 
-	/* list and count all SNPs */
+	/* list and count all items */
 	poolsize = 0;
 	for(i=0;i<length;i++){
 		if(int_in_vec(vec[i], pool, poolsize) < 0){
@@ -159,7 +191,7 @@ struct table_int * get_table_int(int *vec, int length){
 	}
 
 	/* copy list of items to output */
-	out->items = calloc(poolsize, sizeof(int));
+	out->items = (int *) malloc(poolsize * sizeof(int));
 	if(out->items == NULL){
 		fprintf(stderr, "\n[in: auxiliary.c->create_table_int]\nNo memory left for creating table of integers. Exiting.\n");
 		exit(1);
@@ -169,7 +201,7 @@ struct table_int * get_table_int(int *vec, int length){
 	out->n = poolsize;
 
 	/* count number of occurences of each item */
-	out->times = calloc(poolsize, sizeof(int));
+	out->times = (int *) calloc(poolsize, sizeof(int)); /* important to use calloc here */
 	if(out->times == NULL){
 		fprintf(stderr, "\n[in: auxiliary.c->create_table_int]\nNo memory left for creating table of integers. Exiting.\n");
 		exit(1);

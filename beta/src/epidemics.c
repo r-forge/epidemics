@@ -48,7 +48,7 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 
 	/* transfer simulation parameters */
 	struct param * par;
-	par = (struct param *) calloc(1, sizeof(struct param));
+	par = (struct param *) malloc(sizeof(struct param));
 	par->L = *seqLength;
 	par->mu = *mutRate;
 	par->muL = par->mu * par->L;
@@ -89,7 +89,7 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	print_table_int(tabdates);
 
 	/* create sample */
-	struct sample ** samplist = (struct sample **) calloc(tabdates->n, sizeof(struct sample *));
+	struct sample ** samplist = (struct sample **) malloc(tabdates->n * sizeof(struct sample *));
 	struct sample *samp;
 
 
@@ -174,7 +174,7 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 
 	/* transfer simulation parameters */
 	struct param * par;
-	par = (struct param *) calloc(1, sizeof(struct param));
+	par = (struct param *) malloc(sizeof(struct param));
 	par->L = *seqLength;
 	par->mu = *mutRate;
 	par->muL = par->mu * par->L;
@@ -268,10 +268,28 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 
 
 /* gcc line:
+## OPTIMIZED COMPILE - CHECK TIME ##
+
+   gcc -o epidemics param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c inout.c epidemics.c -Wall -O3 -lgsl -lgslcblas
+
+   ./epidemics
+
+
+## FOR MEMORY LEAKS ##
 
    gcc -o epidemics param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c inout.c epidemics.c -Wall -O0 -lgsl -lgslcblas
 
    valgrind --leak-check=yes epidemics
+
+
+## FOR PROFILING ##
+   gcc -o epidemics param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c inout.c epidemics.c -Wall -O3 -pg -lgsl -lgslcblas
+
+   ./epidemics
+
+   gprof epidemics > epidemics-prof.txt
+
+   emacs epidemics-prof.txt &
 
 */
 
@@ -293,7 +311,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 
 	/* transfer simulation parameters */
 	struct param * par;
-	par = (struct param *) calloc(1, sizeof(struct param));
+	par = (struct param *) malloc(sizeof(struct param));
 	par->L = seqLength;
 	par->mu = mutRate;
 	par->muL = par->mu * par->L;
@@ -335,7 +353,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	print_table_int(tabdates);
 
 	/* create sample */
-	struct sample ** samplist = (struct sample **) calloc(tabdates->n, sizeof(struct sample *));
+	struct sample ** samplist = (struct sample **) malloc(tabdates->n * sizeof(struct sample *));
 	struct sample *samp;
 
 
@@ -457,7 +475,7 @@ int main(){
 	double mu=1e-6, beta=2, pdisp[1]={1.0}; //pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
 	time_t time1,time2;
 	int genoL=1e5, duration=100, npop=1, nstart=10, t1=1, t2=2, nsamp=10;
-	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1]={1e6}; //popsize[3]={10,1,1};
+	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1]={50e4}; //popsize[3]={10,1,1};
 	int nbnb[1] = {1};
 	int listnb[1] = {0};
 

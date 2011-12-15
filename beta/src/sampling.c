@@ -35,7 +35,7 @@ int get_npop_samp(struct sample *in){
 
 	/* ENUMERATE NB OF UNIQUE ITEMS */
 	/* create pool of unique items */
-	pool = (int *) calloc(n, sizeof(int));
+	pool = (int *) malloc(n * sizeof(int));
 	if(pool == NULL){
 		fprintf(stderr, "\n[in: sampling.c->get_npop]\nNo memory left to sample per population. Exiting.\n");
 		exit(1);

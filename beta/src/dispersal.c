@@ -26,11 +26,11 @@
 /* the first element corresponds to 'self'. */
 struct network * create_network(struct param *par){
 	int i, j, counter;
-	double *wsum = (double *) calloc(par->npop, sizeof(double));
+	double *wsum = (double *) calloc(par->npop, sizeof(double)); /* calloc needed */
 	struct network *out;
 
 	/* ALLOCATE MEMORY FOR OUTPUT */
-	out = (struct network *) calloc(1, sizeof(struct network));
+	out = (struct network *) malloc(sizeof(struct network));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: dispersal.c->create_network]\nNo memory left for creating connection network. Exiting.\n");
 		exit(1);
@@ -39,9 +39,9 @@ struct network * create_network(struct param *par){
 	/* FILL CONTENT */
 	/* allocate memory */
 	out->n = par->npop;
-	out->nbNb = (int *) calloc(out->n, sizeof(int));
-	out->listNb = (int **) calloc(out->n, sizeof(int *));
-	out->weights = (double **) calloc(out->n, sizeof(double *));
+	out->nbNb = (int *) malloc(out->n * sizeof(int));
+	out->listNb = (int **) malloc(out->n * sizeof(int *));
+	out->weights = (double **) malloc(out->n * sizeof(double *));
 
 	if(out->nbNb == NULL || out->listNb == NULL || out->weights == NULL){
 		fprintf(stderr, "\n[in: dispersal.c->create_network]\nNo memory left for creating connection network. Exiting.\n");
@@ -56,8 +56,8 @@ struct network * create_network(struct param *par){
 	/* list of neighbours and weights */
 	counter = 0;
 	for(i=0;i<par->npop;i++){
-		out->listNb[i] = (int *) calloc(out->nbNb[i], sizeof(int));
-		out->weights[i] = (double *) calloc(out->nbNb[i], sizeof(double));
+		out->listNb[i] = (int *) malloc(out->nbNb[i] * sizeof(int));
+		out->weights[i] = (double *) malloc(out->nbNb[i] * sizeof(double));
 		if(out->listNb[i] == NULL || out->weights[i] == NULL){
 			fprintf(stderr, "\n[in: dispersal.c->create_network]\nNo memory left for creating connection network. Exiting.\n");
 			exit(1);

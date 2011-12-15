@@ -64,8 +64,7 @@ struct pathogen * get_ances(struct pathogen *in){
 
 /* Create empty pathogen */
 struct pathogen * create_pathogen(){
-	struct pathogen *out;
-	out = (struct pathogen *) calloc(1, sizeof(struct pathogen));
+	struct pathogen *out = calloc(1, sizeof(struct pathogen));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: pathogen.c->create_pathogen]\nNo memory left for creating initial pathogen. Exiting.\n");
 		exit(1);
@@ -107,10 +106,8 @@ struct lineage * create_lineage(int n){
 
 /* Free pathogen */
 void free_pathogen(struct pathogen *in){
-	if(in != NULL){
-		free_vec_int(in->snps);
-		free(in);
-	}
+	free_vec_int(in->snps);
+	free(in);
 }
 
 
@@ -118,10 +115,8 @@ void free_pathogen(struct pathogen *in){
 /* Free lineage */
 /* Note: free only pointers to pathogens, does not free pathogens themselves. */
 void free_lineage(struct lineage *in){
-	if(in != NULL){
-		free(in->pathogens);
-		free(in);
-	}
+	free(in->pathogens);
+	free(in);
 }
 
 

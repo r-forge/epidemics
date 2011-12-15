@@ -52,7 +52,7 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 
 	/* COMPUTE \lambda_j = \beta w_{j->k} I_j/N_j for each neighbouring population j */
 	/* \lambda = \sum_j \lambda_j */
-	lambdavec = (double *) calloc(nbNb, sizeof(double));
+	lambdavec = (double *) malloc(nbNb * sizeof(double));
 	for(i=0;i<nbNb;i++){
 		curpop = metapop->populations[cn->listNb[popid][i]];
 		lambdavec[i] = par->beta * cn->weights[popid][i] * ((double) get_ninf(curpop))/get_popsize(curpop);
@@ -66,7 +66,7 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 	nbnewcases = gsl_ran_binomial(par->rng, proba, get_nsus(pop));
 
 	/* DRAW NB OF ANCESTORS IN EACH NEIGHBOURING POPULATION */
-	nbnewcasesvec = (int *) calloc(nbNb, sizeof(int));
+	nbnewcasesvec = malloc(nbNb * sizeof(int));
 	gsl_ran_multinomial(par->rng, nbNb, nbnewcases, lambdavec, (unsigned int *) nbnewcasesvec);
 
 	/* PRODUCE NEW PATHOGENS */

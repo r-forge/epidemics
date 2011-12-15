@@ -157,7 +157,7 @@ struct population * create_population(int popsize, int nini, int popid){
 
 	/* allocate output */
 	struct population *out;
-	out = (struct population *) calloc(1, sizeof(struct population));
+	out = (struct population *) malloc(sizeof(struct population));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating new population. Exiting.\n");
 		exit(1);
@@ -173,7 +173,7 @@ struct population * create_population(int popsize, int nini, int popid){
 	out->popid = popid;
 
 	/* allocate pathogen array */
-	out->pathogens = (struct pathogen **) calloc(popsize, sizeof(struct pathogen *));
+	out->pathogens = (struct pathogen **) malloc(popsize * sizeof(struct pathogen *));
 	if(out->pathogens == NULL){
 		fprintf(stderr, "\n[in: population.c->create_population]\nNo memory left for creating pathogen array in the population. Exiting.\n");
 		exit(1);
@@ -201,7 +201,7 @@ struct metapopulation * create_metapopulation(struct param *par){
 
 	/* allocate output */
 	struct metapopulation *out;
-	out = (struct metapopulation *) calloc(1, sizeof(struct metapopulation));
+	out = (struct metapopulation *) malloc(sizeof(struct metapopulation));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: population.c->create_metapopulation]\nNo memory left for creating new metapopulation. Exiting.\n");
 		exit(1);
@@ -212,7 +212,7 @@ struct metapopulation * create_metapopulation(struct param *par){
 	out->popsizes = par->popsizes;
 
 	/* allocate population array */
-	out->populations = (struct population **) calloc(out->npop, sizeof(struct population *));
+	out->populations = (struct population **) malloc(out->npop * sizeof(struct population *));
 	if(out->populations == NULL){
 		fprintf(stderr, "\n[in: population.c->create_metapopulation]\nNo memory left for creating populations array in the metapopulation. Exiting.\n");
 		exit(1);
@@ -238,12 +238,13 @@ struct metapopulation * create_metapopulation(struct param *par){
 /* Create ts_groupsizes */
 struct ts_groupsizes * create_ts_groupsizes(struct param * par){
 	int nsteps = par->duration;
-	struct ts_groupsizes * out = (struct ts_groupsizes *) calloc(1, sizeof(struct ts_groupsizes));
+	struct ts_groupsizes * out = (struct ts_groupsizes *) malloc(sizeof(struct ts_groupsizes));
 	if(out == NULL){
 		fprintf(stderr, "\n[in: population.c->create_ts_groupsizes]\nNo memory left for storing group sizes. Exiting.\n");
 		exit(1);
 	}
 
+	/* calloc is needed there */
 	out->nsus = (int *) calloc(nsteps, sizeof(int));
 	out->nexp = (int *) calloc(nsteps, sizeof(int));
 	out->ninf = (int *) calloc(nsteps, sizeof(int));
@@ -383,7 +384,7 @@ void age_population(struct population * in, struct param *par){
 
 	for(i=nrec;i<nexpcum;i++){
 		ppat = get_pathogens(in)[i];
-		if(!isNULL_pathogen(ppat)){ /* if pathogen is active */
+		if(!isNULL_pathogen(get_pathogens(in)[i])){ /* if pathogen is active */
 			ppat->age = ppat->age + 1; /* get older */
 			if(get_age(ppat) == par->t1){ /* becomes infectious this time step */
 				nbnewinf++;
@@ -461,12 +462,15 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 
 /* SELECT A RANDOM INFECTIOUS PATHOGEN FROM THE POPULATION */
 struct pathogen * select_random_infectious_pathogen(struct population *in, struct param *par){
-	int id;
-	/* printf("\nfirst activ: %d     last activ: %d ", in->nrec, in->nrec + in->ninf - 1); */
-	if(in->ninf < 1) return NULL;
+	/* int id; */
+	/* if(in->ninf < 1) return NULL; */
+	/* if(in->ninf==1) return get_pathogens(in)[in->nrec]; /\* gsl_rng_unif does not like a range of 0 *\/ */
+	/* id = in->nrec + gsl_rng_uniform_int(par->rng, in->ninf); */
+	/* return get_pathogens(in)[id]; */
+	
+	/* if(in->ninf < 1) return NULL; /\* should never happen *\/ */
 	if(in->ninf==1) return get_pathogens(in)[in->nrec]; /* gsl_rng_unif does not like a range of 0 */
-	id = in->nrec + gsl_rng_uniform_int(par->rng, in->ninf);
-	return get_pathogens(in)[id];
+	return  get_pathogens(in)[in->nrec + gsl_rng_uniform_int(par->rng, in->ninf)];
 }
 
 
