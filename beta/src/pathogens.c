@@ -131,14 +131,19 @@ void free_lineage(struct lineage *in){
 */
 
 /* Copy pathogen */
-/*  (memory allocation for in/out made outside the function) */
 struct pathogen * copy_pathogen(struct pathogen *in){
-	int i, N;
-	struct pathogen *out = create_pathogen();
+	int i, N=get_nb_snps(in);
+	struct pathogen *out = (struct pathogen *) malloc(sizeof(struct pathogen));
 
-	N=get_nb_snps(in);
+	if(out == NULL){
+		fprintf(stderr, "\n[in: pathogen.c->copy_pathogen]\nNo memory left for copying pathogen. Exiting.\n");
+		exit(1);
+	}
 
-	if(out->snps != NULL) free_vec_int(out->snps); /* erase previous content */
+	/* copy content */
+	out->age = get_age(in);
+	out->ances = get_ances(in);
+
 	out->snps = create_vec_int(N);
 	if(N>0 && get_snps(out) == NULL){
 		fprintf(stderr, "\n[in: pathogen.c->copy_pathogen]\nNo memory left for copying pathogen genome. Exiting.\n");
@@ -149,8 +154,6 @@ struct pathogen * copy_pathogen(struct pathogen *in){
 		out->snps->values[i] = get_snps(in)[i];
 	}
 
-	out->age = get_age(in);
-	out->ances = get_ances(in);
 
 	return out;
 }
@@ -214,12 +217,16 @@ struct lineage * get_lineage(struct pathogen *in){
 struct pathogen * reconstruct_genome(struct pathogen *in){
 	int i;
 	struct lineage *line = get_lineage(in);
-	struct pathogen *out;
 	struct vec_int ** listSnpVec, *temp, *genome;
+	struct pathogen *out = (struct pathogen *) malloc(sizeof(struct pathogen));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: pathogen.c->reconstruct_genome]\nNo memory left to reconstruct pathogen genome. Exiting.\n");
+		exit(1);
+	}
 
 
 	/* get all snps in the lineage */
-	listSnpVec = (struct vec_int **) calloc(line->n, sizeof(struct vec_int *));
+	listSnpVec = (struct vec_int **) malloc(line->n * sizeof(struct vec_int *));
 
 	for(i=0;i<line->n;i++){
 		listSnpVec[i] = get_snps_vec(line->pathogens[i]);
@@ -232,11 +239,9 @@ struct pathogen * reconstruct_genome(struct pathogen *in){
 	genome = keep_odd_int(temp);
 
 	/* create output and fill it in */
-	out = create_pathogen();
-	free_vec_int(out->snps);
-	out->snps = genome;
 	out->age = in->age;
 	out->ances = in->ances;
+	out->snps = genome;
 
 	/* free temporary allocation & return */
 	free_lineage(line);

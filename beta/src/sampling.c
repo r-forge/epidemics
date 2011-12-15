@@ -86,11 +86,6 @@ struct sample * create_sample(int n){
 		exit(1);
 	}
 
-	/* for(i=0;i<n;i++) { */
-	/* 	out->pathogens[i] = create_pathogen(); */
-	/* 	out->popid[i] = -1; */
-	/* } */
-	/* for(i=0;i<n;i++) out->pathogens[i] = NULL; */
 	out->n = n;
 	return out;
 
