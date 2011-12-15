@@ -251,7 +251,7 @@ struct pathogen * reconstruct_genome(struct pathogen *in){
 }
 
 
-
+ 
 
 
 /*
@@ -262,17 +262,17 @@ struct pathogen * reconstruct_genome(struct pathogen *in){
 /* Function replicating a genome */
 struct pathogen * replicate(struct pathogen *in, struct param *par){
 	int i, nbmut=gsl_ran_poisson(par->rng, par->muL);
-	struct pathogen * out = create_pathogen();
-
-
-	/* check that output is OK */
+	struct pathogen *out = (struct pathogen *) malloc(sizeof(struct pathogen));
 	if(out == NULL){
-		fprintf(stderr, "\n[in: pathogen.c->replicate]\nTrying to create a new pathogen but pointer is NULL. Exiting.\n");
+		fprintf(stderr, "\n[in: pathogen.c->reconstruct_genome]\nNo memory left to reconstruct pathogen genome. Exiting.\n");
 		exit(1);
 	}
 
+	/* FILL IN OUTPUT CONTENT */
+	out->age = 0;
+	out->ances = in;
+
 	/* allocate memory for new vector */
-	if(out->snps != NULL) free_vec_int(out->snps);
 	out->snps = create_vec_int(nbmut);
 
 	/* add new mutations */
@@ -280,8 +280,6 @@ struct pathogen * replicate(struct pathogen *in, struct param *par){
 		out->snps->values[i] = make_mutation(par);
 	}
 
-	out->age = 0;
-	out->ances = in;
 
 	return out;
 } /*end replicate*/
@@ -307,8 +305,10 @@ bool isNULL_pathogen(struct pathogen *in){
 
 /* TEST IF PATHOGEN IS INFECTIOUS */
 bool is_infectious(struct pathogen *in, struct param *par){
-	if(!isNULL_pathogen(in) && get_age(in) >= par->t1) return TRUE;
-	return FALSE;
+	/* if(!isNULL_pathogen(in) && get_age(in) >= par->t1) return TRUE; */
+	/* return FALSE; */
+	return (!isNULL_pathogen(in) && get_age(in) >= par->t1);
+
 }
 
 
