@@ -180,14 +180,20 @@ struct population * create_population(int popsize, int nini, int popid){
 	}
 
 	/* fill in the pathogens array */
-	for(i=0;i<popsize;i++){
+	for(i=0;i<nini;i++){
 		(out->pathogens)[i] = create_pathogen();
-		if(i<nini){ /* there are nini intial pathogens in the metapopulation */
-			(out->pathogens[i])->age = 0; /* 'active' pathogen */
-		} else {
-			(out->pathogens[i])->age = -1; /* 'neutralised' pathogen */
-		}
+		(out->pathogens[i])->age = 0;
 	}
+
+	/* /\* fill in the pathogens array *\/ */
+	/* for(i=0;i<popsize;i++){ */
+	/* 	(out->pathogens)[i] = create_pathogen(); */
+	/* 	if(i<nini){ /\* there are nini intial pathogens in the metapopulation *\/ */
+	/* 		(out->pathogens[i])->age = 0; /\* 'active' pathogen *\/ */
+	/* 	} else { */
+	/* 		(out->pathogens[i])->age = -1; /\* 'neutralised' pathogen *\/ */
+	/* 	} */
+	/* } */
 
 	return out;
 }
@@ -274,7 +280,7 @@ struct ts_groupsizes * create_ts_groupsizes(struct param * par){
 void free_population(struct population *in){
 	int i;
 
-	for(i=0;i<in->popsize;i++){
+	for(i=0;i<in->nexpcum;i++){
 		if(in->pathogens[i] != NULL) free_pathogen((in->pathogens)[i]);
 	}
 

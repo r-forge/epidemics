@@ -77,7 +77,7 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 			/* determine ancestor */
 			ances = select_random_infectious_pathogen(curpop, par);
 			/* produce new pathogen */
-			replicate(ances, pop->pathogens[pop->nexpcum + count++], par);
+			pop->pathogens[pop->nexpcum + count++] = replicate(ances, par);
 		}
 	}
 

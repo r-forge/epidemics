@@ -137,7 +137,7 @@ struct pathogen * reconstruct_genome(struct pathogen *in);
    ===============================
 */
 /* Function replicating a genome, with mutations and back-mutations */
-void replicate(struct pathogen *in, struct pathogen *out, struct param *par);
+struct pathogen * replicate(struct pathogen *in, struct param *par);
 
 
 /* TEST IF PATHOGEN IS NULL OR INACTIVATED */

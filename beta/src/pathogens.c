@@ -255,9 +255,9 @@ struct pathogen * reconstruct_genome(struct pathogen *in){
    ===============================
 */
 /* Function replicating a genome */
-/* Assignment is done outside the function */
-void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
+struct pathogen * replicate(struct pathogen *in, struct param *par){
 	int i, nbmut=gsl_ran_poisson(par->rng, par->muL);
+	struct pathogen * out = create_pathogen();
 
 
 	/* check that output is OK */
@@ -277,6 +277,8 @@ void replicate(struct pathogen *in, struct pathogen *out, struct param *par){
 
 	out->age = 0;
 	out->ances = in;
+
+	return out;
 } /*end replicate*/
 
 
