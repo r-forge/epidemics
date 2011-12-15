@@ -29,7 +29,7 @@ struct distmat_int * create_distmat_int(int n){
 		exit(1);
 	}
 
-	out->x = malloc(length * sizeof(int));
+	out->x = calloc(length, sizeof(int));
 	if(out->x == NULL){
 		fprintf(stderr, "\n[in: auxiliary.c->create_distmat]\nNo memory left for creating distance matrix. Exiting.\n");
 		exit(1);

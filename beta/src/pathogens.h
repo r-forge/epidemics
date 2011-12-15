@@ -140,8 +140,8 @@ struct pathogen * reconstruct_genome(struct pathogen *in);
 struct pathogen * replicate(struct pathogen *in, struct param *par);
 
 
-/* TEST IF PATHOGEN IS NULL OR INACTIVATED */
-bool isNULL_pathogen(struct pathogen *in);
+/* TEST IF PATHOGEN IS ACTIVATED (i.e., not with a negative age) */
+bool is_activated(struct pathogen *in);
 
 
 /* TEST IF PATHOGEN IS INFECTIOUS */

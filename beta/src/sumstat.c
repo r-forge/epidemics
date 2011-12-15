@@ -32,7 +32,7 @@ struct snplist * create_snplist(int n){
 		exit(1);
 	}
 
-	out->snps = malloc(n * sizeof(int));
+	out->snps = calloc(n, sizeof(int));
 	if(out->snps == NULL){
 		fprintf(stderr, "\n[in: sumstat.c->create_snplist]\nNo memory left for listing SNPs. Exiting.\n");
 		exit(1);
@@ -52,7 +52,7 @@ struct allfreq * create_allfreq(int n){
 		exit(1);
 	}
 
-	out->freq = (double *) malloc(n * sizeof(double));
+	out->freq = (double *) calloc(n, sizeof(double));
 	if(out->freq == NULL){
 		fprintf(stderr, "\n[in: sumstat.c->create_allfreq]\nNo memory left for listing SNPs. Exiting.\n");
 		exit(1);

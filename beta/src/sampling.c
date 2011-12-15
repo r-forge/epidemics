@@ -133,7 +133,6 @@ void print_sample(struct sample *in, bool showGen){
 	printf("\n%d pathogens", in->n);
 	if(showGen){
 		for(i=0;i<in->n;i++){
-			//if(!isNULL_pathogen((in->pathogens)[i])) print_pathogen((in->pathogens)[i]);
 			print_pathogen((in->pathogens)[i]);
 		}
 		printf("\n");

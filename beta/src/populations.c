@@ -390,14 +390,14 @@ void age_population(struct population * in, struct param *par){
 
 	for(i=nrec;i<nexpcum;i++){
 		ppat = get_pathogens(in)[i];
-		if(!isNULL_pathogen(get_pathogens(in)[i])){ /* if pathogen is active */
+		/* if(is_activated(ppat)){ /\* if pathogen is active - MAYBE USELESS TEST *\/ */
+		if(ppat->age == (par->t2-1)){/* if pathogen must die */
+			ppat->age = -1; /* inactivate pathogen */
+			nbnewrec++;
+		} else {
 			ppat->age = ppat->age + 1; /* get older */
-			if(get_age(ppat) == par->t1){ /* becomes infectious this time step */
+			if(ppat->age == par->t1){ /* becomes infectious this time step */
 				nbnewinf++;
-			}
-			if(get_age(ppat) >= par->t2) { /* die if you must! */
-				ppat->age = -1; /* inactivate pathogen */
-				nbnewrec++;
 			}
 		}
 	}
@@ -468,13 +468,6 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 
 /* SELECT A RANDOM INFECTIOUS PATHOGEN FROM THE POPULATION */
 struct pathogen * select_random_infectious_pathogen(struct population *in, struct param *par){
-	/* int id; */
-	/* if(in->ninf < 1) return NULL; */
-	/* if(in->ninf==1) return get_pathogens(in)[in->nrec]; /\* gsl_rng_unif does not like a range of 0 *\/ */
-	/* id = in->nrec + gsl_rng_uniform_int(par->rng, in->ninf); */
-	/* return get_pathogens(in)[id]; */
-	
-	/* if(in->ninf < 1) return NULL; /\* should never happen *\/ */
 	if(in->ninf==1) return get_pathogens(in)[in->nrec]; /* gsl_rng_unif does not like a range of 0 */
 	return  get_pathogens(in)[in->nrec + gsl_rng_uniform_int(par->rng, in->ninf)];
 }
