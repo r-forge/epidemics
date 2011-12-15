@@ -108,7 +108,7 @@ void free_lineage(struct lineage *in);
 
 /* Copy pathogen */
 /*  (memory allocation for in/out made outside the function) */
-void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par);
+struct pathogen * copy_pathogen(struct pathogen *in);
 
 
 

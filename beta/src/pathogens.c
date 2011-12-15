@@ -132,8 +132,9 @@ void free_lineage(struct lineage *in){
 
 /* Copy pathogen */
 /*  (memory allocation for in/out made outside the function) */
-void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par){
+struct pathogen * copy_pathogen(struct pathogen *in){
 	int i, N;
+	struct pathogen *out = create_pathogen();
 
 	N=get_nb_snps(in);
 
@@ -150,6 +151,8 @@ void copy_pathogen(struct pathogen *in, struct pathogen *out, struct param *par)
 
 	out->age = get_age(in);
 	out->ances = get_ances(in);
+
+	return out;
 }
 
 
