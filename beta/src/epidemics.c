@@ -102,6 +102,9 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 		age_metapopulation(metapop, par);
 
 		/* process infections */
+#if USE_OMP
+#pragma omp for
+#endif
 		for(j=0;j<get_npop(metapop);j++){
 			process_infections(get_populations(metapop)[j], metapop, cn, par);
 		}
@@ -348,9 +351,14 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 		age_metapopulation(metapop, par);
 
 		/* process infections */
+#if USE_OMP
+#pragma omp for schedule(static,1)
+#endif
 		for(j=0;j<get_npop(metapop);j++){
 			process_infections(get_populations(metapop)[j], metapop, cn, par);
+			printf("Hello from thread %d\n", omp_get_thread_num());
 		}
+		printf("\n\n");
 
 		/* draw samples */
 		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){ /* TRUE if step must be sampled */
@@ -454,12 +462,12 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 
 int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
-	double mu=1e-6, beta=2, pdisp[1]={1.0}; //pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0};
+	double mu=1e-6, beta=2, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0}; //pdisp[1]={1.0};
 	time_t time1,time2;
-	int genoL=1e5, duration=100, npop=1, nstart=10, t1=1, t2=2, nsamp=10;
-	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1]={50e6}; //popsize[3]={10,1,1};
-	int nbnb[1] = {1};
-	int listnb[1] = {0};
+	int genoL=1e5, duration=100, npop=3, nstart=10, t1=1, t2=2, nsamp=10;
+	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[3] = {20e6,20e6,10e6};//popsize[1]={50e6}; //popsize[3]={10,1,1};
+	int nbnb[3] = {3,3,3};
+	int listnb[9] = {0,1,2,1,0,2,2,0,1};
 
 	time(&time1);
 	test_epidemics(genoL, mu, npop, popsize, beta, nstart, t1, t2, nsamp, tsamp, duration, nbnb, listnb, pdisp);
@@ -474,7 +482,7 @@ int main(){
 /* gcc line:
 ## OPTIMIZED COMPILE - CHECK TIME ##
 
-   gcc -o epidemics param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c inout.c epidemics.c -Wall -O3 -lgsl -lgslcblas
+   gcc -o epidemics param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c inout.c epidemics.c -Wall -O3 -lgsl -lgslcblas -fopenmp
 
    ./epidemics
 

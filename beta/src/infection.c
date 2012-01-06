@@ -73,6 +73,7 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 	count = 0;
 	for(k=0;k<nbNb;k++){
 		curpop = metapop->populations[cn->listNb[popid][k]];
+
 		for(i=0;i<nbnewcasesvec[k];i++){
 			/* determine ancestor */
 			ances = select_random_infectious_pathogen(curpop, par);

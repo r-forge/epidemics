@@ -15,9 +15,12 @@
 /* Calls to GNU Scientific Library */
 #include <gsl/gsl_rng.h> /* random nb generators */
 #include <gsl/gsl_randist.h> /* rng with specific distributions */
+/* openMP library */
+#include <omp.h>
 
 #define NEARZERO 0.0000000001
 #define TRUE 1
 #define FALSE 0
+#define USE_OMP 1
 
 typedef short int bool;
