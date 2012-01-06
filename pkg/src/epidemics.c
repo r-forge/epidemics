@@ -68,7 +68,6 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 
 	/* check/print parameters */
 	check_param(par);
-	printf("\n ! Beta version used !\n");
 	print_param(par);
 
 	/* dispersal matrix */
@@ -194,7 +193,6 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 
 	/* check/print parameters */
 	check_param(par);
-	printf("\n ! Beta version used !\n");
 	print_param(par);
 
 	/* dispersal matrix */
