@@ -1,0 +1,45 @@
+#### BY DECREASING ORDER OF PRIORITY ####
+## legend: 
+## 'o'=done
+## '-'=to do
+## 'x'=abandoned/no longer relevant
+
+== BUGS ==
+
+o segfault when epidemic stops before duration.
+
+
+
+== SUMMARY STATISTICS ==
+
+o implement Fst
+
+o implement monitoring of summary statistics during the epidemic
+
+- implement distance between two statistics (of any type)
+
+
+
+
+== PARAMETER ESTIMATION ==
+
+- random generation of parameter values
+
+- MCMC estimation
+
+- write MCMC outputs to file
+
+- compare different summary statistics
+
+
+
+
+== HANDLING I/O ==
+
+o write simulation outputs to file
+
+- read simulation parameters from file
+
+o make R interface
+
+o get R package to compile
