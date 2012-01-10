@@ -226,7 +226,7 @@ struct metapopulation * create_metapopulation(struct param *par){
 
 	out->populations[0] = create_population(out->popsizes[0], nini, 0); /* pop 0 has some active pathogens */
 #if USE_OMP
-#pragma omp for
+#pragma omp parallel for
 #endif
 	for(i=1;i<out->npop;i++) {
 		out->populations[i] = create_population(out->popsizes[i], 0, i);
@@ -421,7 +421,7 @@ void age_metapopulation(struct metapopulation * in, struct param * par){
 	int i, npop=get_npop(in);
 	/* age each population */
 #if USE_OMP
-#pragma omp for
+#pragma omp parallel for schedule(static,1)
 #endif
 	for(i=0;i<npop;i++){
 		age_population(get_populations(in)[i], par);

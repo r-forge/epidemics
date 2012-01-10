@@ -102,9 +102,6 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 		age_metapopulation(metapop, par);
 
 		/* process infections */
-#if USE_OMP
-#pragma omp for
-#endif
 		for(j=0;j<get_npop(metapop);j++){
 			process_infections(get_populations(metapop)[j], metapop, cn, par);
 		}
@@ -351,14 +348,13 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 		age_metapopulation(metapop, par);
 
 		/* process infections */
-#if USE_OMP
-#pragma omp for schedule(static,1)
-#endif
+/* #if USE_OMP */
+/* #pragma omp parallel for */
+/* #endif */
 		for(j=0;j<get_npop(metapop);j++){
 			process_infections(get_populations(metapop)[j], metapop, cn, par);
-			printf("Hello from thread %d\n", omp_get_thread_num());
 		}
-		printf("\n\n");
+
 
 		/* draw samples */
 		if((tabidx = int_in_vec(nstep, tabdates->items, tabdates->n)) > -1){ /* TRUE if step must be sampled */
