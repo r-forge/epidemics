@@ -47,7 +47,7 @@
 void process_infections(struct population * pop, struct metapopulation * metapop, struct network *cn, struct param * par){
 	int i, k, x, count, popid=get_popid(pop), nbNb=cn->nbNb[popid], nbnewcases, *nbnewcasesvec;
 	double *lambdavec, lambda=0, proba=0;
-	struct pathogen * ances;
+	struct pathogen *ances, *newpat;
 	struct population *curpop;
 
 	/* COMPUTE \lambda_j = \beta w_{j->k} I_j/N_j for each neighbouring population j */
@@ -74,15 +74,22 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 	count = 0;
 	for(k=0;k<nbNb;k++){
 		curpop = metapop->populations[cn->listNb[popid][k]];
-#pragma omp parallel for private(ances) schedule(static) ordered
+/* #pragma omp parallel for private(ances,newpat) shared(count) */
+		count=0;
+#pragma omp parallel for private(ances,x,count)
 		for(i=0;i<nbnewcasesvec[k];i++){
 			/* determine ancestor */
 			ances = select_random_infectious_pathogen(curpop, par);
-			/* produce new pathogen */
-			printf("\ntrying to write on pathogen nb: %d", pop->nexpcum + (k*nbnewcasesvec[k])+i);
+			/* /\* produce new pathogen *\/ */
+			/* newpat = replicate(ances, par); */
+			/* #pragma omp critical */
+			/* { */
+			/* 	pop->pathogens[pop->nexpcum + count++] = newpat; */
+			/* } */
 			if(k>0) {
 				for(x=0;x<k;x++) count += nbnewcasesvec[x];
-			} else count=0;
+			}
+			/* printf("\ntrying to write on pathogen nb: %d", pop->nexpcum + count + i); */
 			pop->pathogens[pop->nexpcum + count + i] = replicate(ances, par);
 		}
 	}

@@ -458,12 +458,15 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 
 int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
-	double mu=1e-6, beta=2, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0}; //pdisp[1]={1.0};
+	/* double mu=1e-6, beta=2, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0}; */
+	double mu=1e-6, beta=2, pdisp[1]={1.0};
 	time_t time1,time2;
-	int genoL=1e5, duration=100, npop=3, nstart=10, t1=1, t2=2, nsamp=10;
-	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[3] = {20e6,20e6,10e6};//popsize[1]={50e6}; //popsize[3]={10,1,1};
-	int nbnb[3] = {3,3,3};
-	int listnb[9] = {0,1,2,1,0,2,2,0,1};
+	int genoL=1e5, duration=100, npop=1, nstart=10, t1=1, t2=2, nsamp=10;
+	/* int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[3] = {20e6,20e6,10e6}; */
+	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1] = {50e6};
+	/* int nbnb[3] = {3,3,3}; */
+	/* int listnb[9] = {0,1,2,1,0,2,2,0,1}; */
+	int nbnb[1] = {1}, listnb[1] = {0};
 
 	time(&time1);
 	test_epidemics(genoL, mu, npop, popsize, beta, nstart, t1, t2, nsamp, tsamp, duration, nbnb, listnb, pdisp);

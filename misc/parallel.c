@@ -70,9 +70,9 @@ int main(int argc, char *argv[]){
 
 
 
-/* TRY PARALLEL WITH COMMON OUTPU ARRAY */
+/* TRY PARALLEL WITH COMMON OUTPUT ARRAY */
 	#define VECSIZE 100
-	int i, j, k, temp, counter, *vec1, *vec2, I=5, K=5;
+	int i, j, k, temp, counter, *vec1, *vec2, I=2, K=2;
 	vec1 = (int*) calloc(VECSIZE, sizeof(int));
 	vec2 = (int*) calloc(VECSIZE, sizeof(int));
 
@@ -130,6 +130,52 @@ int main(int argc, char *argv[]){
 
 	free(vec1);
 	free(vec2);
+
+
+/* TRY PARALLEL WITH COUNTER AND REDUCTION */
+	int count=0, count2=0;
+
+	printf("\nserial loop\n");
+	time(&time1);
+
+	for(i=0;i<50;i++){
+		count2 = 0;
+		while(count2<50e6) count2++;
+		{
+			count++;
+		}
+		/* printf("\nvalue of count: %d", count); */
+	}
+
+	/* printf("\nvalue of count after loop: %d\n", count); */
+
+	time(&time2);
+	printf("\ntime ellapsed: %d seconds \n", (int) (time2-time1));
+
+
+
+	printf("\nparallel loop with counter in critical\n");
+	time(&time1);
+
+	count=0;
+#pragma omp parallel for shared(count) private(count2)
+	for(i=0;i<50;i++){
+		count2 = 0;
+		while(count2<50e6) count2++;
+		#pragma omp critical
+		{
+			count++;
+		/* printf("\nvalue of count: %d", count); */
+		}
+	}
+
+	/* printf("\nvalue of count after loop: %d\n", count); */
+
+	time(&time2);
+	printf("\ntime ellapsed: %d seconds \n", (int) (time2-time1));
+
+
+	
 	return 0;
 
 }

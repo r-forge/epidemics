@@ -390,7 +390,9 @@ void print_metapopulation(struct metapopulation *in, bool showPat){
 void age_population(struct population * in, struct param *par){
 	int i, nrec=get_nrec(in), nexpcum=get_nexpcum(in), nbnewinf=0, nbnewrec=0;
 	struct pathogen *ppat;
-
+#if USE_OMP
+#pragma omp parallel for reduction(+:nbnewrec) reduction(+:nbnewinf) private(ppat) schedule(static,100000)
+#endif
 	for(i=nrec;i<nexpcum;i++){
 		ppat = get_pathogens(in)[i];
 		/* if(is_activated(ppat)){ /\* if pathogen is active - MAYBE USELESS TEST *\/ */
@@ -420,9 +422,9 @@ void age_population(struct population * in, struct param *par){
 void age_metapopulation(struct metapopulation * in, struct param * par){
 	int i, npop=get_npop(in);
 	/* age each population */
-#if USE_OMP
-#pragma omp parallel for schedule(static,1)
-#endif
+/* #if USE_OMP */
+/* #pragma omp parallel for schedule(static,1) */
+/* #endif */
 	for(i=0;i<npop;i++){
 		age_population(get_populations(in)[i], par);
 	}
