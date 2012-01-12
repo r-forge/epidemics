@@ -70,22 +70,21 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 	gsl_ran_multinomial(par->rng, nbNb, nbnewcases, lambdavec, (unsigned int *) nbnewcasesvec);
 
 	/* PRODUCE NEW PATHOGENS */
-#if USE_OMP
-	count = 0;
+#if 0 /* USE_OMP */
+
 	for(k=0;k<nbNb;k++){
 		curpop = metapop->populations[cn->listNb[popid][k]];
-/* #pragma omp parallel for private(ances,newpat) shared(count) */
-		count=0;
 #pragma omp parallel for private(ances,x,count)
 		for(i=0;i<nbnewcasesvec[k];i++){
 			/* determine ancestor */
 			ances = select_random_infectious_pathogen(curpop, par);
-			/* /\* produce new pathogen *\/ */
+			/* produce new pathogen */
 			/* newpat = replicate(ances, par); */
 			/* #pragma omp critical */
 			/* { */
 			/* 	pop->pathogens[pop->nexpcum + count++] = newpat; */
 			/* } */
+			count = 0;
 			if(k>0) {
 				for(x=0;x<k;x++) count += nbnewcasesvec[x];
 			}

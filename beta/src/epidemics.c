@@ -314,7 +314,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 
 	/* check/print parameters */
 	check_param(par);
-	print_param(par);
+	/* print_param(par); */
 
 	/* dispersal matrix */
 	struct network *cn = create_network(par);
@@ -331,8 +331,8 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	/* get sampling schemes (timestep+effectives) */
 	translate_dates(par);
 	struct table_int *tabdates = get_table_int(par->t_sample, par->n_sample);
-	printf("\n\nsampling at timesteps:");
-	print_table_int(tabdates);
+	/* printf("\n\nsampling at timesteps:"); */
+	/* print_table_int(tabdates); */
 
 	/* create sample */
 	struct sample ** samplist = (struct sample **) malloc(tabdates->n * sizeof(struct sample *));
@@ -366,82 +366,82 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	}
 
 
-	/* we stopped after 'nstep' steps */
-	if(nstep < par->duration){
-		printf("\nEpidemics ended at time %d, before last sampling time (%d).\n", nstep, par->duration);
-	} else {
+	/* /\* we stopped after 'nstep' steps *\/ */
+	/* if(nstep < par->duration){ */
+	/* 	printf("\nEpidemics ended at time %d, before last sampling time (%d).\n", nstep, par->duration); */
+	/* } else { */
 
-		printf("\n\n-- FINAL METAPOPULATION --");
-		print_metapopulation(metapop, TRUE);
+	/* 	printf("\n\n-- FINAL METAPOPULATION --"); */
+	/* 	print_metapopulation(metapop, TRUE); */
 
-		/* test samples */
-		for(i=0;i<tabdates->n;i++) {
-			printf("\nsample %d\n", i);
-			print_sample(samplist[i], TRUE);
-		}
-		samp = merge_samples(samplist, tabdates->n, par) ;
-		print_sample(samp, TRUE);
+	/* 	/\* test samples *\/ */
+	/* 	for(i=0;i<tabdates->n;i++) { */
+	/* 		printf("\nsample %d\n", i); */
+	/* 		print_sample(samplist[i], TRUE); */
+	/* 	} */
+	/* 	samp = merge_samples(samplist, tabdates->n, par) ; */
+	/* 	print_sample(samp, TRUE); */
 
-		/* test allele listing */
-		struct snplist *snpbilan;
-		snpbilan = list_snps(samp, par);
-		print_snplist(snpbilan);
+	/* 	/\* test allele listing *\/ */
+	/* 	struct snplist *snpbilan; */
+	/* 	snpbilan = list_snps(samp, par); */
+	/* 	print_snplist(snpbilan); */
 
-		/* test allele frequencies */
-		struct allfreq *freq;
-		freq = get_frequencies(samp, par);
-		print_allfreq(freq);
+	/* 	/\* test allele frequencies *\/ */
+	/* 	struct allfreq *freq; */
+	/* 	freq = get_frequencies(samp, par); */
+	/* 	print_allfreq(freq); */
 
-		/* test Hs*/
-		double Hs = hs(samp,par);
-		printf("\nHs = %0.3f\n", Hs);
+	/* 	/\* test Hs*\/ */
+	/* 	double Hs = hs(samp,par); */
+	/* 	printf("\nHs = %0.3f\n", Hs); */
 
-		/* test Hs full genome */
-		Hs = hs_full_genome(samp,par);
-		printf("\nHs (full genome) = %0.5f\n", Hs);
+	/* 	/\* test Hs full genome *\/ */
+	/* 	Hs = hs_full_genome(samp,par); */
+	/* 	printf("\nHs (full genome) = %0.5f\n", Hs); */
 
-		/* test nb of snps */
-		int nball = nb_snps(samp,par);
-		printf("\nnumber of SNPs = %d\n", nball);
+	/* 	/\* test nb of snps *\/ */
+	/* 	int nball = nb_snps(samp,par); */
+	/* 	printf("\nnumber of SNPs = %d\n", nball); */
 
-		/* test mean nb of snps */
-		double temp = mean_nb_snps(samp);
-		printf("\nmean number of SNPs = %.2f\n", temp);
+	/* 	/\* test mean nb of snps *\/ */
+	/* 	double temp = mean_nb_snps(samp); */
+	/* 	printf("\nmean number of SNPs = %.2f\n", temp); */
 
-		/* test var nb of snps */
-		temp = var_nb_snps(samp);
-		printf("\nvariance of number of alleles = %.2f\n", temp);
+	/* 	/\* test var nb of snps *\/ */
+	/* 	temp = var_nb_snps(samp); */
+	/* 	printf("\nvariance of number of alleles = %.2f\n", temp); */
 
-		/* test pairwise distances */
-		struct distmat_int *mat = pairwise_dist(samp, par);
-		print_distmat_int(mat);
+	/* 	/\* test pairwise distances *\/ */
+	/* 	struct distmat_int *mat = pairwise_dist(samp, par); */
+	/* 	print_distmat_int(mat); */
 
-		/* test mean pairwise distances */
-		temp = mean_pairwise_dist(samp,par);
-		printf("\nmean pairwise distance: %.2f", temp);
+	/* 	/\* test mean pairwise distances *\/ */
+	/* 	temp = mean_pairwise_dist(samp,par); */
+	/* 	printf("\nmean pairwise distance: %.2f", temp); */
 
-		/* test variance of pairwise distances */
-		temp = var_pairwise_dist(samp,par);
-		printf("\nvar pairwise distance: %.2f", temp);
+	/* 	/\* test variance of pairwise distances *\/ */
+	/* 	temp = var_pairwise_dist(samp,par); */
+	/* 	printf("\nvar pairwise distance: %.2f", temp); */
 
-		/* test Fst */
-		temp = fst(samp,par);
-		printf("\nfst: %.2f", temp);
+	/* 	/\* test Fst *\/ */
+	/* 	temp = fst(samp,par); */
+	/* 	printf("\nfst: %.2f", temp); */
 
 
-		printf("\n\n");
+	/* 	printf("\n\n"); */
 
-		/* free memory */
-		free_sample(samp);
-		free_snplist(snpbilan);
-		free_allfreq(freq);
-		free_distmat_int(mat);
+	/* 	/\* free memory *\/ */
+	/* 	free_sample(samp); */
+	/* 	free_snplist(snpbilan); */
+	/* 	free_allfreq(freq); */
+	/* 	free_distmat_int(mat); */
 
-	}
+	/* } */
 
-	/* write group sizes to file */
-	printf("\n\nPrinting group sizes to file 'out-popsize.txt'");
-	write_ts_groupsizes(grpsizes);
+	/* /\* write group sizes to file *\/ */
+	/* printf("\n\nPrinting group sizes to file 'out-popsize.txt'"); */
+	/* write_ts_groupsizes(grpsizes); */
 
 	/* free memory */
 	free_metapopulation(metapop);
@@ -458,15 +458,23 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 
 int main(){
 /* args: (int seqLength, double mutRate, int npop, int nHostPerPop, double beta, int nStart, int t1, int t2,int Tsample, int Nsample) */
-	/* double mu=1e-6, beta=2, pdisp[9] = {0.5,0.25,0.25,0.0,0.5,0.5,0.0,0.0,1.0}; */
-	double mu=1e-6, beta=2, pdisp[1]={1.0};
+	/* ONE SINGLE PATCH */
+	/* double mu=1e-6, beta=2, pdisp[1]={1.0}; */
+	/* time_t time1,time2; */
+	/* int genoL=1e5, duration=100, npop=1, nstart=10, t1=1, t2=2, nsamp=10; */
+	/* int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1] = {50e6}; */
+	/* int nbnb[1] = {1}, listnb[1] = {0}; */
+
+
+	/* 4x4 LATTICE */
+	double mu=1e-6, beta=2;
 	time_t time1,time2;
-	int genoL=1e5, duration=100, npop=1, nstart=10, t1=1, t2=2, nsamp=10;
-	/* int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[3] = {20e6,20e6,10e6}; */
-	int tsamp[10] = {1,1,1,1,1,1,1,0,0,0}, popsize[1] = {50e6};
-	/* int nbnb[3] = {3,3,3}; */
-	/* int listnb[9] = {0,1,2,1,0,2,2,0,1}; */
-	int nbnb[1] = {1}, listnb[1] = {0};
+	int genoL=1e5, duration=100, npop=25, nstart=10, t1=1, t2=2, nsamp=100;
+	int tsamp[100] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	int popsize[25] = {2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000,2000000};
+	int nbnb[25] = {3,4,4,4,3,4,5,5,5,4,4,5,5,5,4,4,5,5,5,4,3,4,4,4,3};
+	int listnb[105] = {0,1,5,1,0,2,6,2,1,3,7,3,2,4,8,4,3,9,5,0,6,10,6,1,5,7,11,7,2,6,8,12,8,3,7,9,13,9,4,8,14,10,5,11,15,11,6,10,12,16,12,7,11,13,17,13,8,12,14,18,14,9,13,19,15,10,16,20,16,11,15,17,21,17,12,16,18,22,18,13,17,19,23,19,14,18,24,20,15,21,21,16,20,22,22,17,21,23,23,18,22,24,24,19,23};
+	double pdisp[105] = {9.999e-1,5e-5,5e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,5e-5,5e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,2.5e-5,2.5e-5,2.5e-5,2.5e-5,9.999e-1,2.5e-5,2.5e-5,2.5e-5,2.5e-5,9.999e-1,2.5e-5,2.5e-5,2.5e-5,2.5e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,2.5e-5,2.5e-5,2.5e-5,2.5e-5,9.999e-1,2.5e-5,2.5e-5,2.5e-5,2.5e-5,9.999e-1,2.5e-5,2.5e-5,2.5e-5,2.5e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,2.5e-5,2.5e-5,2.5e-5,2.5e-5,9.999e-1,2.5e-5,2.5e-5,2.5e-5,2.5e-5,9.999e-1,2.5e-5,2.5e-5,2.5e-5,2.5e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,5e-5,5e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,3.333333e-5,3.333333e-5,3.333333e-5,9.999e-1,5e-5,5e-5};
 
 	time(&time1);
 	test_epidemics(genoL, mu, npop, popsize, beta, nstart, t1, t2, nsamp, tsamp, duration, nbnb, listnb, pdisp);
@@ -485,22 +493,22 @@ int main(){
 
    ./epidemics
 
-
-## FOR MEMORY LEAKS ##
-
-   gcc -o epidemics param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c inout.c epidemics.c -Wall -O0 -lgsl -lgslcblas
-
-   valgrind --leak-check=yes epidemics
-
-
-## FOR PROFILING ##
-   gcc -o epidemics param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c inout.c epidemics.c -Wall -O3 -pg -lgsl -lgslcblas
-
-   ./epidemics
-
-   gprof epidemics > epidemics-prof.txt
-
-   emacs epidemics-prof.txt &
-
-*/
-
+ 
+## FOR MEMORY LEAKS ## 
+ 
+   gcc -o epidemics param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c inout.c epidemics.c -Wall -O0 -lgsl -lgslcblas 
+ 
+   valgrind --leak-check=yes epidemics 
+ 
+ 
+## FOR PROFILING ## 
+   gcc -o epidemics param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c inout.c epidemics.c -Wall -O3 -pg -lgsl -lgslcblas 
+ 
+   ./epidemics 
+ 
+   gprof epidemics > epidemics-prof.txt 
+ 
+   emacs epidemics-prof.txt & 
+ 
+*/ 
+ 
