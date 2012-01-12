@@ -21,6 +21,6 @@
 #define NEARZERO 0.0000000001
 #define TRUE 1
 #define FALSE 0
-#define USE_OMP 1
+#define USE_OMP 0
 
 typedef short int bool;

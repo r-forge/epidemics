@@ -24,6 +24,7 @@
 
 
 
+
 /*
    ===============================
    === MAIN EXTERNAL FUNCTIONS ===
@@ -339,6 +340,12 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	struct sample *samp;
 
 
+/* 	/\* SANITY CHECK: TEST PARALLELISM *\/ */
+/* #pragma omp parallel for */
+/* 	for(i=0;i<1000000000;i++){ */
+/* 		gsl_rng_uniform_int(par->rng,par->L); */
+/* 	} */
+
 	/* MAKE METAPOPULATION EVOLVE */
 	nstep = 0;
 	while(get_total_nsus(metapop)>0 && (get_total_ninf(metapop)+get_total_nexp(metapop))>0 && nstep<par->duration){
@@ -497,6 +504,7 @@ int main(){
 ## FOR MEMORY LEAKS ## 
  
    gcc -o epidemics param.c auxiliary.c pathogens.c populations.c dispersal.c infection.c sampling.c sumstat.c inout.c epidemics.c -Wall -O0 -lgsl -lgslcblas 
+
  
    valgrind --leak-check=yes epidemics 
  
