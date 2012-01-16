@@ -328,6 +328,15 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	struct metapopulation * metapop;
 	metapop = create_metapopulation(par);
 
+	/* check memory representation */
+	printf("\n");
+	printf("\nAddress of metapop: %p (dec: %u)", metapop, (unsigned int) metapop);
+	printf("\nAddresses of populations:");
+	for(i=0;i<par->npop;i++){
+		printf("\nAddress of population %d: %p (dec: %u)", i, metapop->populations[i], (unsigned int) metapop->populations[i]);
+	}
+	printf("\n");
+
 
 	/* get sampling schemes (timestep+effectives) */
 	translate_dates(par);
