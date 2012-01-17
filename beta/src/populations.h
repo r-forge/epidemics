@@ -156,3 +156,10 @@ struct pathogen * select_random_infectious_pathogen(struct population *in, struc
 
 /* SELECT A RANDOM PATHOGEN FROM THE POPULATION */
 struct pathogen * select_random_pathogen(struct population *in, struct param *par);
+
+/* TEST POPULATION-WISE OPERATIONS (FOR PARALLELISATION) */
+void testpop1(struct population *in, int N, gsl_rng *rng);
+
+void testpop2(struct population *in, int N, gsl_rng *rng, struct param *par);
+
+void testpop3(struct population *in, int N, gsl_rng *rng, struct metapopulation *metapop, struct param *par);

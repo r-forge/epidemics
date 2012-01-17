@@ -72,24 +72,24 @@ void process_infections(struct population * pop, struct metapopulation * metapop
 	/* PRODUCE NEW PATHOGENS */
 #if 0 /* USE_OMP */
 
+#pragma omp parallel for private(i,curpop,ances,newpat) schedule(static,1)
 	for(k=0;k<nbNb;k++){
 		curpop = metapop->populations[cn->listNb[popid][k]];
-#pragma omp parallel for private(ances,x,count)
 		for(i=0;i<nbnewcasesvec[k];i++){
 			/* determine ancestor */
 			ances = select_random_infectious_pathogen(curpop, par);
 			/* produce new pathogen */
-			/* newpat = replicate(ances, par); */
-			/* #pragma omp critical */
-			/* { */
-			/* 	pop->pathogens[pop->nexpcum + count++] = newpat; */
-			/* } */
-			count = 0;
-			if(k>0) {
-				for(x=0;x<k;x++) count += nbnewcasesvec[x];
+			newpat = replicate(ances, par);
+			#pragma omp critical
+			{
+				pop->pathogens[pop->nexpcum + count++] = newpat;
 			}
-			/* printf("\ntrying to write on pathogen nb: %d", pop->nexpcum + count + i); */
-			pop->pathogens[pop->nexpcum + count + i] = replicate(ances, par);
+			/* count = 0; */
+			/* if(k>0) { */
+			/* 	for(x=0;x<k;x++) count += nbnewcasesvec[x]; */
+			/* } */
+			/* /\* printf("\ntrying to write on pathogen nb: %d", pop->nexpcum + count + i); *\/ */
+			/* pop->pathogens[pop->nexpcum + count + i] = replicate(ances, par); */
 		}
 	}
 #else

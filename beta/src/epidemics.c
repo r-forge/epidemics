@@ -328,14 +328,14 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	struct metapopulation * metapop;
 	metapop = create_metapopulation(par);
 
-	/* check memory representation */
-	printf("\n");
-	printf("\nAddress of metapop: %p (dec: %u)", metapop, (unsigned int) metapop);
-	printf("\nAddresses of populations:");
-	for(i=0;i<par->npop;i++){
-		printf("\nAddress of population %d: %p (dec: %u)", i, metapop->populations[i], (unsigned int) metapop->populations[i]);
-	}
-	printf("\n");
+	/* /\* check memory representation *\/ */
+	/* printf("\n"); */
+	/* printf("\nAddress of metapop: %p (dec: %u)", metapop, (unsigned int) metapop); */
+	/* printf("\nAddresses of populations:"); */
+	/* for(i=0;i<par->npop;i++){ */
+	/* 	printf("\nAddress of population %d: %p (dec: %u)", i, metapop->populations[i], (unsigned int) metapop->populations[i]); */
+	/* } */
+	/* printf("\n"); */
 
 
 	/* get sampling schemes (timestep+effectives) */
@@ -350,10 +350,23 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 
 
 /* 	/\* SANITY CHECK: TEST PARALLELISM *\/ */
-/* #pragma omp parallel for */
-/* 	for(i=0;i<1000000000;i++){ */
-/* 		gsl_rng_uniform_int(par->rng,par->L); */
+/* THIS ONE IS OK 25-26s VS 16-20s */
+/* #pragma omp parallel for schedule(static,1) */
+/* 	for(i=0;i<10;i++){ */
+/* 		for(j=0;j<100000000;j++){ */
+/* 			gsl_rng_uniform_int(par->rng,par->L); */
+/* 		} */
 /* 	} */
+
+
+	/* SANITY CHECK: TEST POP-WISE PARALLELISM */
+/* #pragma omp parallel for schedule(static,1) */
+/* 	for(j=0;j<get_npop(metapop);j++){ */
+/* 		//testpop1(get_populations(metapop)[j], 5e7, rng); /\* WORKS! *\/ */
+/* 		//testpop2(get_populations(metapop)[j], 5e7, rng, par); /\* WORKS! *\/ */
+/* 		//testpop3(get_populations(metapop)[j], 5e7, rng, metapop, par); /\* WORKS! *\/ */
+/* 	} */
+
 
 	/* MAKE METAPOPULATION EVOLVE */
 	nstep = 0;

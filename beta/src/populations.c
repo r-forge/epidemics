@@ -282,7 +282,6 @@ struct ts_groupsizes * create_ts_groupsizes(struct param * par){
 /* Free metapopulation */
 void free_population(struct population *in){
 	int i;
-
 	for(i=0;i<in->nexpcum;i++){
 		if(in->pathogens[i] != NULL) free_pathogen((in->pathogens)[i]);
 	}
@@ -296,7 +295,7 @@ void free_population(struct population *in){
 /* Free metapopulation */
 void free_metapopulation(struct metapopulation *in){
 	int i, npop=get_npop(in);
-
+//#pragma omp parallel for schedule(static, 1)
 	for(i=0;i<npop;i++){
 		if(in->populations[i] != NULL) free_population(in->populations[i]);
 	}
@@ -491,6 +490,34 @@ struct pathogen * select_random_pathogen(struct population *in, struct param *pa
 	if(nbavail == 1) return get_pathogens(in)[in->nrec]; /* gsl_rng_unif does not like a range of 0 */
 	id = in->nrec + gsl_rng_uniform_int(par->rng, nbavail);
 	return get_pathogens(in)[id];
+}
+
+
+
+
+
+/* TEST POPULATION-WISE OPERATIONS (FOR PARALLELISATION) */
+void testpop1(struct population *in, int N, gsl_rng *rng){
+	int i, a;
+	for(i=0;i<N;i++){
+		a = gsl_rng_uniform_int(rng,100);
+	}
+}
+
+
+void testpop2(struct population *in, int N, gsl_rng *rng, struct param *par){
+	int i, a;
+	for(i=0;i<N;i++){
+		a = gsl_rng_uniform_int(rng,100);
+	}
+}
+
+
+void testpop3(struct population *in, int N, gsl_rng *rng, struct metapopulation *metapop, struct param *par){
+	int i, a;
+	for(i=0;i<N;i++){
+		a = gsl_rng_uniform_int(rng,100);
+	}
 }
 
 
