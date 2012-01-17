@@ -18,6 +18,7 @@
 struct population{
 	int nsus, nexp, ninf, nrec, nexpcum, popsize, popid, idfirstinfectious, idlastinfectious;
 	struct pathogen **pathogens;
+	int shit;
 };
 
 
@@ -135,9 +136,11 @@ void print_metapopulation(struct metapopulation *in, bool showPat);
 */
 /* age population */
 void age_population(struct population * in, struct param *par);
+void age_population2(struct population * in, int t1, int t2);
 
 /* age metapopulation */
 void age_metapopulation(struct metapopulation * metapop, struct param * par);
+void age_metapopulation2(struct metapopulation * metapop, int t1, int t2);
 
 /* keep track of group sizes */
 void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step);
@@ -163,3 +166,7 @@ void testpop1(struct population *in, int N, gsl_rng *rng);
 void testpop2(struct population *in, int N, gsl_rng *rng, struct param *par);
 
 void testpop3(struct population *in, int N, gsl_rng *rng, struct metapopulation *metapop, struct param *par);
+
+void testpop4(struct population *in, int N, gsl_rng *rng, struct metapopulation *metapop, struct param *par);
+
+void testpop5(struct population *in, int N, gsl_rng *rng, struct metapopulation *metapop, struct param *par);

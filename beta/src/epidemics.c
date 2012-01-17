@@ -359,13 +359,6 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 /* 	} */
 
 
-	/* SANITY CHECK: TEST POP-WISE PARALLELISM */
-/* #pragma omp parallel for schedule(static,1) */
-/* 	for(j=0;j<get_npop(metapop);j++){ */
-/* 		//testpop1(get_populations(metapop)[j], 5e7, rng); /\* WORKS! *\/ */
-/* 		//testpop2(get_populations(metapop)[j], 5e7, rng, par); /\* WORKS! *\/ */
-/* 		//testpop3(get_populations(metapop)[j], 5e7, rng, metapop, par); /\* WORKS! *\/ */
-/* 	} */
 
 
 	/* MAKE METAPOPULATION EVOLVE */
@@ -373,8 +366,19 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	while(get_total_nsus(metapop)>0 && (get_total_ninf(metapop)+get_total_nexp(metapop))>0 && nstep<par->duration){
 		nstep++;
 
+
+#pragma omp parallel for schedule(static,1)
+	for(j=0;j<get_npop(metapop);j++){
+		//testpop1(get_populations(metapop)[j], 5e7, rng); /* WORKS! */
+		//testpop2(get_populations(metapop)[j], 5e7, rng, par); /* WORKS! */
+		//testpop3(get_populations(metapop)[j], 5e7, rng, metapop, par); /* WORKS! */
+		//testpop4(get_populations(metapop)[j], 5e5, rng, metapop, par); /* WORKS! */
+		testpop5(get_populations(metapop)[j], 5e5, rng, metapop, par); /* DOES NOT WORK! */
+	}
+
 		/* age metapopulation */
 		age_metapopulation(metapop, par);
+		//age_metapopulation2(metapop, t1,t2);
 
 		/* process infections */
 /* #if USE_OMP */

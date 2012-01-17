@@ -26,7 +26,7 @@
 struct pathogen{
 	struct vec_int *snps;
 	struct pathogen *ances;
-	int age;
+	int age, shit;
 };
 
 

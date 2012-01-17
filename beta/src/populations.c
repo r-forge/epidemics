@@ -414,15 +414,43 @@ void age_population(struct population * in, struct param *par){
 } /* end age_population */
 
 
+void age_population2(struct population * in, int t1, int t2){
+	int i, nrec=get_nrec(in), nexpcum=get_nexpcum(in), nbnewinf=0, nbnewrec=0;
+	struct pathogen *ppat;
+/* #if USE_OMP */
+/* #pragma omp parallel for reduction(+:nbnewrec) reduction(+:nbnewinf) private(ppat) */
+/* #endif */
+	for(i=nrec;i<nexpcum;i++){
+		ppat = get_pathogens(in)[i];
+		/* if(is_activated(ppat)){ /\* if pathogen is active - MAYBE USELESS TEST *\/ */
+		if(ppat->age == (t2-1)){/* if pathogen must die */
+			ppat->age = -1; /* inactivate pathogen */
+			nbnewrec++;
+		} else {
+			ppat->age = ppat->age + 1; /* get older */
+			if(ppat->age == t1){ /* becomes infectious this time step */
+				nbnewinf++;
+			}
+		}
+	}
+
+	/* update nexp, ninf, nrec in corresponding population */
+	in->nexp = in->nexp - nbnewinf;
+	in->ninf = in->ninf + nbnewinf - nbnewrec;
+	in->nrec = in->nrec + nbnewrec;
+
+} /* end age_population2 */
 
 
 
-/* AGE METATPOPULATION */
+
+
+/* AGE METAPOPULATION */
 void age_metapopulation(struct metapopulation * in, struct param * par){
 	int i, npop=get_npop(in);
 	/* age each population */
 /* #if USE_OMP */
-/* #pragma omp parallel for */
+/* #pragma omp parallel for schedule(static,1) */
 /* #endif */
 	for(i=0;i<npop;i++){
 		age_population(get_populations(in)[i], par);
@@ -430,6 +458,17 @@ void age_metapopulation(struct metapopulation * in, struct param * par){
 } /* end age_metapopulation */
 
 
+void age_metapopulation2(struct metapopulation * in, int t1, int t2){
+	int i, npop=get_npop(in);
+	/* age each population */
+/* #if USE_OMP */
+/* #pragma omp parallel for schedule(static,1) */
+/* #endif */
+#pragma omp parallel for schedule(static,1)
+	for(i=0;i<npop;i++){
+		age_population2(get_populations(in)[i], t1, t2);
+	}
+} /* end age_metapopulation */
 
 
 
@@ -517,6 +556,34 @@ void testpop3(struct population *in, int N, gsl_rng *rng, struct metapopulation 
 	int i, a;
 	for(i=0;i<N;i++){
 		a = gsl_rng_uniform_int(rng,100);
+	}
+}
+
+
+void testpop4(struct population *in, int N, gsl_rng *rng, struct metapopulation *metapop, struct param *par){
+	int i, toto;
+	toto = in->nsus;
+
+	for(i=0;i<N;i++){
+		in->nsus = gsl_rng_uniform_int(rng,100);
+	}
+	in->nsus = toto;
+}
+
+
+void testpop5(struct population *in, int N, gsl_rng *rng, struct metapopulation *metapop, struct param *par){
+	int i, j, nrec=get_nrec(in), nexpcum=get_nexpcum(in);
+
+	for(i=nrec;i<nexpcum;i++){
+		/* get_pathogens(in)[i]->shit = gsl_rng_uniform_int(rng,100); */
+		/* get_pathogens(in)[i]->shit = 0; */
+		/* get_pathogens(in)[i]->shit = gsl_rng_uniform_int(rng,100); */
+		/* get_pathogens(in)[i]->shit = 0; */
+		/* get_pathogens(in)[i]->shit = gsl_rng_uniform_int(rng,100); */
+		/* get_pathogens(in)[i]->shit = 0; */
+		/* get_pathogens(in)[i]->shit = gsl_rng_uniform_int(rng,100); */
+		j = gsl_rng_uniform_int(rng,100);
+	
 	}
 }
 
