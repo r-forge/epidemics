@@ -583,7 +583,6 @@ void testpop5(struct population *in, int N, gsl_rng *rng, struct metapopulation 
 		/* get_pathogens(in)[i]->shit = 0; */
 		/* get_pathogens(in)[i]->shit = gsl_rng_uniform_int(rng,100); */
 		j = gsl_rng_uniform_int(rng,100);
-	
 	}
 }
 
