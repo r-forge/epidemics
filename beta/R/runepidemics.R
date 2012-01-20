@@ -65,7 +65,9 @@ epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
     ## PLOT ##
     if(plot){
         dat <- read.table("out-popsize.txt", header=TRUE)
-        dat <- cbind.data.frame(dat$patch, dat[,items])
+        patch <- dat$patch
+        dat <- dat[,items]
+        dat <- cbind.data.frame(patch, dat)
         plot.dat <- dat[dat$patch==0, ] # keep only metapop info
         if(any(apply(plot.dat, 1, function(e) all(e<1)))){
             plot.dat <- plot.dat[1:(min(which(apply(plot.dat, 1, function(e) all(e<1))))-1), ]
