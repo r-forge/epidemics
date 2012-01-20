@@ -65,13 +65,14 @@ epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
     ## PLOT ##
     if(plot){
         dat <- read.table("out-popsize.txt", header=TRUE)
-        dat <- dat[, items]
-        if(any(apply(dat, 1, function(e) all(e<1)))){
-            dat <- dat[1:(min(which(apply(dat, 1, function(e) all(e<1))))-1), ]
+        dat <- cbind.data.frame(dat$patch, dat[,items])
+        plot.dat <- dat[dat$patch==0, ] # keep only metapop info
+        if(any(apply(plot.dat, 1, function(e) all(e<1)))){
+            plot.dat <- plot.dat[1:(min(which(apply(plot.dat, 1, function(e) all(e<1))))-1), ]
         }
 
         ## call to matplot
-        matplot(dat, type="b", xlab="time step", ylab="size (number of individuals)", lty=lty, col=col, pch=pch)
+        matplot(plot.dat, type="b", xlab="time step", ylab="size (number of individuals)", lty=lty, col=col, pch=pch)
         legend("topright", lty=lty, col=col, pch=pch, legend=items)
     }
 
@@ -176,6 +177,7 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
     ## rename files ##
     sumstat <- read.table("out-sumstat.txt", header=TRUE)
     grpsizes <- read.table("out-popsize.txt", header=TRUE)[,1:4]
+    grpsizes <- grpsizes[grpsizes$patch==0,]
     file.rename("out-popsize.txt", file.sizes)
     file.rename("out-sumstat.txt", file.sumstat)
 
@@ -205,3 +207,7 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
     res <- list(popdyn=grpsizes, sumstat=sumstat)
     return(res)
 } # end monitor.epidemics
+
+
+
+

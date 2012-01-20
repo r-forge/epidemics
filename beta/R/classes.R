@@ -160,13 +160,15 @@ print.metaPopInfo <- function(x, ...){
 ####################
 ## plot.metaPopInfo
 ####################
-plot.metaPopInfo <- function(x, y=NULL, ..., max.lwd=10, max.cir=0.5, arr=TRUE, annot=TRUE){
+plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5, arr=TRUE, annot=TRUE){
     ## CHECK OBJECT ##
     .check.metaPopInfo(x, stopOnError=FALSE)
     if(x$n.pop==1) return(invisible())
 
     xy <- x$xy
     cn <- x$cn
+
+    col <- seq(col, length=x$n.pop)
 
     ## PLOT STUFF ##
     ## empty plot
@@ -177,7 +179,7 @@ plot.metaPopInfo <- function(x, y=NULL, ..., max.lwd=10, max.cir=0.5, arr=TRUE, 
     plot(xy, , xlab="x",ylab="y", type="n", xlim=xlim, ylim=ylim)
 
     ## add pop sizes
-    symbols(xy, circ=sqrt(x$pop.sizes), xlab="x",ylab="y", inche=max.cir, bg="blue3", add=TRUE)
+    symbols(xy, circ=sqrt(x$pop.sizes), xlab="x",ylab="y", inche=max.cir, bg=col, add=TRUE)
 
     ## add arrows
     f1 <- function(i){ # find arrow parameters
@@ -208,4 +210,31 @@ plot.metaPopInfo <- function(x, y=NULL, ..., max.lwd=10, max.cir=0.5, arr=TRUE, 
     ## RETURN RES ##
     res <- list(xy=xy, circ=sqrt(x$pop.sizes), arrows=temp)
     return(invisible(res))
+}
+
+
+
+
+
+
+##############
+## mapPopDyn
+##############
+mapPopDyn <- function(metapop, popdyn, max.lwd=3, max.cir=0.3, arr=TRUE, annot=FALSE){
+    ## CHECK/PROCESS ARGUMENTS ##
+    ## METAPOP PARAMETERS
+    .check.metaPopInfo(metapop)
+
+
+    ## GET PARAMETERS TO PLOT ##
+    xy <- metapop$xy
+    splitStep <- split(popdyn, popdyn$step)
+
+    for(i in 1:length(splitStep)){
+        pinf <- 
+        myCol <-
+        plot(metapop, col=myCol)
+    }
+
+
 }
