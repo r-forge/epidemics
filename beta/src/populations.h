@@ -33,7 +33,7 @@ struct metapopulation{
 
 
 struct ts_groupsizes{
-	int *nsus, *nexp, *ninf, *nrec, *nexpcum, length;
+	int *nsus, *nexp, *ninf, *nrec, *nexpcum, length, popid;
 };
 
 
@@ -102,6 +102,9 @@ struct metapopulation * create_metapopulation(struct param *par);
 
 struct ts_groupsizes * create_ts_groupsizes(struct param *par);
 
+struct ts_groupsizes ** create_list_ts_groupsizes(struct param * par);
+
+
 
 /*
 
@@ -115,6 +118,7 @@ void free_metapopulation(struct metapopulation *in);
 
 void free_ts_groupsizes(struct ts_groupsizes *in);
 
+void free_list_ts_groupsizes(struct ts_groupsizes **in, struct param *par);
 
 
 /*
@@ -143,8 +147,8 @@ void age_metapopulation(struct metapopulation * metapop, struct param * par);
 void age_metapopulation2(struct metapopulation * metapop, int t1, int t2);
 
 /* keep track of group sizes */
-void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step);
-
+void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step, int popid);
+void fill_list_ts_groupsizes(struct ts_groupsizes **in, struct metapopulation *metapop, int step);
 
 /* /\* FIND INDEX OF THE FIRST ACTIVE PATHOGEN IN THE PATHOGEN ARRAY *\/ */
 /* void update_first_active_pathogen(struct population *in, struct param *par); */

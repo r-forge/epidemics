@@ -260,12 +260,37 @@ struct ts_groupsizes * create_ts_groupsizes(struct param * par){
 	out->nrec = (int *) calloc(nsteps, sizeof(int));
 	out->nexpcum = (int *) calloc(nsteps, sizeof(int));
 	out->length = nsteps;
+	out->popid = 0; /* 0 refers to the metapop */
 
 	if(out->nsus==NULL || out->nexp==NULL || out->ninf==NULL || out->nrec==NULL || out->nexpcum==NULL){
 		fprintf(stderr, "\n[in: population.c->create_ts_groupsizes]\nNo memory left for storing group sizes. Exiting.\n");
 		exit(1);
 	}
 
+	return out;
+}
+
+
+
+
+
+
+/* Create list_ts_groupsizes */
+struct ts_groupsizes ** create_list_ts_groupsizes(struct param * par){
+	int i, listsize = par->npop + 1;
+	struct ts_groupsizes ** out = (struct ts_groupsizes **) malloc(listsize * sizeof(struct ts_groupsizes *));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: population.c->create_list_ts_groupsizes]\nNo memory left for storing group sizes. Exiting.\n");
+		exit(1);
+	}
+
+	/* create each item in the list */
+	for(i=0;i<listsize;i++){
+		out[i] = create_ts_groupsizes(par);
+		out[i]->popid = i;
+	}
+
+	/* return output */
 	return out;
 }
 
@@ -322,6 +347,16 @@ void free_ts_groupsizes(struct ts_groupsizes *in){
 }
 
 
+/* Free list_ts_groupsizes */
+void free_list_ts_groupsizes(struct ts_groupsizes **in, struct param *par){
+	int i;
+	if(in!=NULL){
+		for(i=0;i<(par->npop+1);i++){
+			free_ts_groupsizes(in[i]);
+		}
+	}
+	free(in);
+}
 
 
 
@@ -472,18 +507,46 @@ void age_metapopulation2(struct metapopulation * in, int t1, int t2){
 
 
 
-/* keep track of group sizes */
-void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step){
+/* KEEP TRACK OF GROUP SIZES - METAPOP OR ONE PATCH */
+void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step, int popid){
 	if(step>in->length){
 		fprintf(stderr, "\n[in: population.c->fill_ts_groupsizes]\n. ts_groupsizes object is not long enough to store output of step %d. Exiting.\n", step);
 		exit(1);
 	}
 
-	in->nsus[step-1] = get_total_nsus(metapop);
-	in->nexp[step-1] = get_total_nexp(metapop);
-	in->ninf[step-1] = get_total_ninf(metapop);
-	in->nrec[step-1] = get_total_nrec(metapop);
-	in->nexpcum[step-1] = get_total_nexpcum(metapop);
+	if(popid==0){ /* total numbers for the metatpopulation */
+		in->nsus[step-1] = get_total_nsus(metapop);
+		in->nexp[step-1] = get_total_nexp(metapop);
+		in->ninf[step-1] = get_total_ninf(metapop);
+		in->nrec[step-1] = get_total_nrec(metapop);
+		in->nexpcum[step-1] = get_total_nexpcum(metapop);
+	} else {
+		in->nsus[step-1] = get_nsus(get_populations(metapop)[popid-1]);
+		in->nexp[step-1] = get_nexp(get_populations(metapop)[popid-1]);
+		in->ninf[step-1] = get_ninf(get_populations(metapop)[popid-1]);
+		in->nrec[step-1] = get_nrec(get_populations(metapop)[popid-1]);
+		in->nexpcum[step-1] = get_nexpcum(get_populations(metapop)[popid-1]);
+	}
+
+	in->popid = popid;
+}
+
+
+
+
+
+/* KEEP TRACK OF GROUP SIZES - METAPOP AND EACH PATCH */
+void fill_list_ts_groupsizes(struct ts_groupsizes **in, struct metapopulation *metapop, int step){
+	int i, listsize=get_npop(metapop)+1;
+
+	for(i=0;i<listsize;i++){
+		if(step>in[i]->length){
+			fprintf(stderr, "\n[in: population.c->fill_ts_groupsizes]\n. ts_groupsizes object is not long enough to store output of step %d. Exiting.\n", step);
+			exit(1);
+		}
+		fill_ts_groupsizes(in[i], metapop, step, i);
+	}
+
 }
 
 

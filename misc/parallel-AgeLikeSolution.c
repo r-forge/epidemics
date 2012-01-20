@@ -27,7 +27,7 @@ void do_smthg(gsl_rng * rng, int ntimes){
 */
 int main(){
 	const int nstep = 20, nreps=300;
-	int i, k, N;
+	int i, k, N,cpu;
 	time_t time1, time2;
 
 	/* GSL RNG INITIALIZATION */
@@ -54,7 +54,6 @@ int main(){
 	for(i=0;i<nreps;i++){
 		for(k=0;k<nstep;k++){
 			N = (int) (pow(2.0,(double) k));
-			N = 100000; 
 			do_smthg(rng,N);
 		}
 	}
@@ -65,11 +64,12 @@ int main(){
 	printf("\nParallel code");
 	time(&time1);
 	for(i=0;i<nreps;i++){
-//#pragma omp parallel for private(N)
-		for(k=0;k<nstep;k++){
-			N = (int) (pow(2.0,(double) k));
-			N = 100000; 
-			do_smthg(rng,N);
+#pragma omp parallel for private(cpu,k,N) schedule(static,1)
+		for(cpu=0;cpu<8;cpu++){
+				for(k=0;k<nstep;k++){
+				N = (int) (pow(2.0,(double) k));
+				do_smthg(rng,N);
+			}
 		}
 	}
 	time(&time2);

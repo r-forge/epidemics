@@ -22,6 +22,6 @@
    ==========================
 */
 
-void write_ts_groupsizes(struct ts_groupsizes *in);
+void write_list_ts_groupsizes(struct ts_groupsizes **in, struct param *par);
 
 void write_sample(struct sample *in);

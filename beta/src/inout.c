@@ -35,17 +35,19 @@
 */
 
 /* write group compositions */
-void write_ts_groupsizes(struct ts_groupsizes *in){
-	int i;
+void write_list_ts_groupsizes(struct ts_groupsizes **in, struct param *par){
+	int i, j, listsize = par->npop+1;
 	FILE *outfile = fopen( "out-popsize.txt", "w");
 	if(outfile==NULL){
 		fprintf(stderr, "\n[in: inout.c->write_popsize]\nUnable to open file 'out-popsize.txt'.\n");
 		exit(1);
 	}
 
-	fprintf(outfile, "step\tnsus\tnexp\tninf\tnrec\tnexpcum\n");
-	for(i=0;i<in->length;i++)
-		fprintf(outfile, "%d\t%d\t%d\t%d\t%d\t%d\n", i+1, in->nsus[i], in->nexp[i], in->ninf[i], in->nrec[i], in->nexpcum[i]);
+	fprintf(outfile, "patch\tstep\tnsus\tnexp\tninf\tnrec\tnexpcum\n");
+	for(j=0;j<listsize;j++){
+		for(i=0;i<in[j]->length;i++)
+			fprintf(outfile, "%d\t%d\t%d\t%d\t%d\t%d\t%d\n", j, i+1, in[j]->nsus[i], in[j]->nexp[i], in[j]->ninf[i], in[j]->nrec[i], in[j]->nexpcum[i]);
+	}
 	fclose(outfile);
 }
 

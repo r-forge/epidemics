@@ -77,7 +77,7 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	/* print_network(cn, TRUE); */
 
 	/* group sizes */
-	struct ts_groupsizes * grpsizes = create_ts_groupsizes(par);
+	struct ts_groupsizes ** grpsizes = create_list_ts_groupsizes(par);
 
 	/* initiate population */
 	struct metapopulation * metapop;
@@ -112,7 +112,7 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 			samplist[counter_sample++] = draw_sample(metapop, tabdates->times[tabidx], par);
 		}
 
-		fill_ts_groupsizes(grpsizes, metapop, nstep);
+		fill_list_ts_groupsizes(grpsizes, metapop, nstep);
 
 	}
 
@@ -138,7 +138,7 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 
 	/* write group sizes to file */
 	printf("\n\nPrinting group sizes to file 'out-popsize.txt'\n");
-	write_ts_groupsizes(grpsizes);
+	write_list_ts_groupsizes(grpsizes, par);
 
 
 	/* free memory */
@@ -148,7 +148,7 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	free(samplist);
 	free_table_int(tabdates);
 	free_network(cn);
-	free_ts_groupsizes(grpsizes);
+	free_list_ts_groupsizes(grpsizes, par);
 }
 
 
@@ -203,7 +203,7 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 	/* print_network(cn, TRUE); */
 
 	/* group sizes */
-	struct ts_groupsizes * grpsizes = create_ts_groupsizes(par);
+	struct ts_groupsizes ** grpsizes = create_list_ts_groupsizes(par);
 	struct ts_sumstat * sumstats = create_ts_sumstat(par);
 
 	/* initiate population */
@@ -241,12 +241,12 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 		if(get_total_ninf(metapop)> *minSize) fill_ts_sumstat(sumstats, samp, nstep, par);
 
 		/* get group sizes */
-		fill_ts_groupsizes(grpsizes, metapop, nstep);
+		fill_list_ts_groupsizes(grpsizes, metapop, nstep);
 	}
 
 	/* write group sizes to file */
 	printf("\n\nWriting results to file...");
-	write_ts_groupsizes(grpsizes);
+	write_list_ts_groupsizes(grpsizes, par);
 	write_ts_sumstat(sumstats);
 	printf("done.\n\n");
 
@@ -255,7 +255,7 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 	free_metapopulation(metapop);
 	free_param(par);
 	free_network(cn);
-	free_ts_groupsizes(grpsizes);
+	free_list_ts_groupsizes(grpsizes, par);
 	free_ts_sumstat(sumstats);
 }
 
@@ -321,7 +321,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	struct network *cn = create_network(par);
 
 	/* group sizes */
-	struct ts_groupsizes * grpsizes = create_ts_groupsizes(par);
+	struct ts_groupsizes ** grpsizes = create_list_ts_groupsizes(par);
 
 
 	/* initiate population */
@@ -367,14 +367,14 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 		nstep++;
 
 
-#pragma omp parallel for schedule(static,1)
-	for(j=0;j<get_npop(metapop);j++){
-		//testpop1(get_populations(metapop)[j], 5e7, rng); /* WORKS! */
-		//testpop2(get_populations(metapop)[j], 5e7, rng, par); /* WORKS! */
-		//testpop3(get_populations(metapop)[j], 5e7, rng, metapop, par); /* WORKS! */
-		//testpop4(get_populations(metapop)[j], 5e5, rng, metapop, par); /* WORKS! */
-		testpop5(get_populations(metapop)[j], 5e5, rng, metapop, par); /* DOES NOT WORK! */
-	}
+/* #pragma omp parallel for schedule(static,1) */
+/* 	for(j=0;j<get_npop(metapop);j++){ */
+/* 		//testpop1(get_populations(metapop)[j], 5e7, rng); /\* WORKS! *\/ */
+/* 		//testpop2(get_populations(metapop)[j], 5e7, rng, par); /\* WORKS! *\/ */
+/* 		//testpop3(get_populations(metapop)[j], 5e7, rng, metapop, par); /\* WORKS! *\/ */
+/* 		//testpop4(get_populations(metapop)[j], 5e5, rng, metapop, par); /\* WORKS! *\/ */
+/* 		testpop5(get_populations(metapop)[j], 5e5, rng, metapop, par); /\* DOES NOT WORK! *\/ */
+/* 	} */
 
 		/* age metapopulation */
 		age_metapopulation(metapop, par);
@@ -394,7 +394,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 			samplist[counter_sample++] = draw_sample(metapop, tabdates->times[tabidx], par);
 		}
 
-		fill_ts_groupsizes(grpsizes, metapop, nstep);
+		fill_list_ts_groupsizes(grpsizes, metapop, nstep);
 
 	}
 
@@ -483,7 +483,7 @@ void test_epidemics(int seqLength, double mutRate, int npop, int *nHostPerPop, d
 	free(samplist);
 	free_table_int(tabdates);
 	free_network(cn);
-	free_ts_groupsizes(grpsizes);
+	free_list_ts_groupsizes(grpsizes, par);
 }
 
 

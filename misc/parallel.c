@@ -214,7 +214,12 @@ int main(int argc, char *argv[]){
 	for(i=0;i<30;i++){
 		printf("%d\n",gsl_rng_uniform_int(rng,100));
 	}
-	
+
 
 	return 0;
 }
+
+
+
+
+/* gcc -o parallel parallel.c -03 -lgsl -lgslcblas -fopenmp */
