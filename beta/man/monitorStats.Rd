@@ -73,10 +73,11 @@ head(res$popdyn)
 head(res$sumstat)
 
 ## visualize each plot separately ##
+popdyn <- res$popdyn[res$popdyn$patch==0,]
 par(mfrow=c(1,1))
 myCol <- colorRampPalette(c("blue","red"))(ncol(res$sumstat)-1)
 for(i in 2:ncol(res$sumstat)){
-plot(res$popdyn$step, res$popdyn$ninf, type="l",lwd=5, col=grey(.7),yaxt="n",ylab="", xlab="")
+plot(popdyn$step, popdyn$ninf, type="l",lwd=5, col=grey(.7),yaxt="n",ylab="", xlab="")
 par(new=TRUE)
 plot(res$sumstat$step,res$sumstat[,i],col=myCol[i-1],type="b",lwd=2, pch=20, main=names(res$sumstat)[i])
 }

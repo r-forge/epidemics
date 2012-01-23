@@ -65,16 +65,13 @@ epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
     ## PLOT ##
     if(plot){
         dat <- read.table("out-popsize.txt", header=TRUE)
-        patch <- dat$patch
-        dat <- dat[,items]
-        dat <- cbind.data.frame(patch, dat)
-        plot.dat <- dat[dat$patch==0, ] # keep only metapop info
-        if(any(apply(plot.dat, 1, function(e) all(e<1)))){
-            plot.dat <- plot.dat[1:(min(which(apply(plot.dat, 1, function(e) all(e<1))))-1), ]
+        ##dat <- dat[dat$patch==0, -1] # keep only metapop info
+        if(any(apply(dat[,-c(1,2)], 1, function(e) all(e<1)))){
+            dat <- dat[1:(min(which(apply(dat[,-c(1,2)], 1, function(e) all(e<1))))-1), ]
         }
 
         ## call to matplot
-        matplot(plot.dat, type="b", xlab="time step", ylab="size (number of individuals)", lty=lty, col=col, pch=pch)
+        matplot(dat[dat$patch==0,items], type="b", xlab="time step", ylab="size (number of individuals)", lty=lty, col=col, pch=pch)
         legend("topright", lty=lty, col=col, pch=pch, legend=items)
     }
 
@@ -178,16 +175,18 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
     ## RETRIEVE OUTPUT ##
     ## rename files ##
     sumstat <- read.table("out-sumstat.txt", header=TRUE)
-    grpsizes <- read.table("out-popsize.txt", header=TRUE)[,1:4]
-    grpsizes <- grpsizes[grpsizes$patch==0,]
+    grpsizes <- read.table("out-popsize.txt", header=TRUE)
+    grpsizes.toPlot <- grpsizes[grpsizes$patch==0,]
     file.rename("out-popsize.txt", file.sizes)
     file.rename("out-sumstat.txt", file.sumstat)
 
     if(any(apply(grpsizes, 1, function(e) all(e<1)))){
-        grpsizes <- grpsizes[1:(min(which(apply(grpsizes, 1, function(e) all(e<1))))-1), ]
+        grpsizes <- grpsizes[1:(min(which(apply(grpsizes[,-c(1,2)], 1, function(e) all(e<1))))-1), ]
     }
 
-    grpsizes <- grpsizes[min(sumstat$step):max(sumstat$step),]
+    toKeep <- match(sumstat$step, grpsizes.toPlot$step)
+    grpsizes <- grpsizes[toKeep,]
+    grpsizes.toPlot <- grpsizes.toPlot[toKeep,c("step","nsus","ninf","nrec")]
 
 
     ## PLOT ##
@@ -197,7 +196,7 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
         if(length(items)>6) par(mfrow = c(3,3))
         for(item in items){
             par(mar=c(5,4,3,4))
-            matplot(grpsizes$step, grpsizes[,-1], type="l", xlab="time step", col=c("blue", "red", grey(.3)), lty=c(2,1,3), pch=c(2,20,1), yaxt="n", ylab="")
+            matplot(grpsizes.toPlot$step, grpsizes.toPlot[, c("nsus","ninf","nrec")], type="l", xlab="time step", col=c("blue", "red", grey(.3)), lty=c(2,1,3), pch=c(2,20,1), yaxt="n", ylab="")
             axis(side=4)
             ##mtext(side=4, "size (number of individuals)", line=2)
             par(new=TRUE)

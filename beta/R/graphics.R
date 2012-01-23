@@ -53,7 +53,7 @@ plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5
     xy <- x$xy
     cn <- x$cn
 
-    col <- seq(col, length=x$n.pop)
+    col <- rep(col, length=x$n.pop)
 
     ## PLOT STUFF ##
     ## empty plot
@@ -101,6 +101,8 @@ plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5
 
 
 
+
+
 ##############
 ## mapPopDyn
 ##############
@@ -115,7 +117,7 @@ mapPopDyn <- function(metapop, popdyn, max.lwd=3, max.cir=0.3, arr=TRUE, annot=F
     splitStep <- split(popdyn, popdyn$step)
 
     for(i in 1:length(splitStep)){
-        pinf <- 
+        pinf <-
         myCol <-
         plot(metapop, col=myCol)
     }
