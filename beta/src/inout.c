@@ -55,17 +55,19 @@ void write_list_ts_groupsizes(struct ts_groupsizes **in, struct param *par){
 
 
 /* write summary statistics */
-void write_ts_sumstat(struct ts_sumstat *in){
-	int i;
+void write_list_ts_sumstat(struct ts_sumstat **in, struct param *par){
+	int i, j, listsize = par->npop+1;
 	FILE *outfile = fopen( "out-sumstat.txt", "w");
 	if(outfile==NULL){
 		fprintf(stderr, "\n[in: inout.c->write_ts_sumstat]\nUnable to open file 'out-sumstat.txt'.\n");
 		exit(1);
 	}
 
-	fprintf(outfile, "step\tnbSnps\tHs\tmeanNbSnps\tvarNbSnps\tmeanPairwiseDist\tvarPairwiseDist\tmeanPairwiseDistStd\tvarPairwiseDistStd\tFst\n");
-	for(i=0;i<in->length;i++){
-		fprintf(outfile, "%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n", in->steps[i], in->nbSnps[i], in->Hs[i], in->meanNbSnps[i], in->varNbSnps[i], in->meanPairwiseDist[i], in->varPairwiseDist[i], in->meanPairwiseDistStd[i], in->varPairwiseDistStd[i], in->Fst[i]);
+	fprintf(outfile, "patch\tstep\tnbSnps\tHs\tmeanNbSnps\tvarNbSnps\tmeanPairwiseDist\tvarPairwiseDist\tmeanPairwiseDistStd\tvarPairwiseDistStd\tFst\n");
+	for(j=0;j<listsize;j++){
+		for(i=0;i<in[j]->length;i++){
+			fprintf(outfile, "%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n", j, in[j]->steps[i], in[j]->nbSnps[i], in[j]->Hs[i], in[j]->meanNbSnps[i], in[j]->varNbSnps[i], in[j]->meanPairwiseDist[i], in[j]->varPairwiseDist[i], in[j]->meanPairwiseDistStd[i], in[j]->varPairwiseDistStd[i], in[j]->Fst[i]);
+		}
 	}
 	fclose(outfile);
 }

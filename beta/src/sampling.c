@@ -68,7 +68,7 @@ int get_npop_samp(struct sample *in){
 struct sample * create_sample(int n){
 	struct sample *out = calloc(1, sizeof(struct sample));
 	if(out == NULL){
-		fprintf(stderr, "\n[in: population.c->create_sample]\nNo memory left to sample the metapopulation. Exiting.\n");
+		fprintf(stderr, "\n[in: sampling.c->create_sample]\nNo memory left to sample the metapopulation. Exiting.\n");
 		exit(1);
 	}
 
@@ -89,6 +89,24 @@ struct sample * create_sample(int n){
 	out->n = n;
 	return out;
 
+}
+
+
+
+/* CREATE A LIST A SAMPLE, EACH OF SIZE N */
+struct sample ** create_list_sample(struct param *par){
+	int i, nsamp=par->npop+1, n=par->n_sample;
+	struct sample **out = (struct sample **) calloc(nsamp, sizeof(struct sample *));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: sampling.c->create_sample]\nNo memory left to sample the metapopulation. Exiting.\n");
+		exit(1);
+	}
+
+	for(i=0;i<nsamp;i++){
+		out[i] = create_sample(n);
+	}
+
+	return out;
 }
 
 
@@ -114,6 +132,16 @@ void free_sample(struct sample *in){
 
 
 
+
+
+/* Free list of sample*/
+void free_list_sample(struct sample **in, struct param *par){
+	int i, listsize = par->npop+1;
+	for(i=0;i<listsize;i++){
+		free_sample(in[i]);
+	}
+	free(in);
+}
 
 
 
@@ -160,8 +188,9 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 	struct sample *out=create_sample(n);
 
 	/* escape if no isolate available */
-	if(get_total_ninf(in) + get_total_nexp(in) < 1){
-		printf("\nMetapopulation without infections - sample will be empty.\n");
+	/* if(get_total_ninf(in) + get_total_nexp(in) < 1){ */
+	if(get_total_ninf(in) + get_total_nexp(in) < par->samp_min_size){
+		/* printf("\nMetapopulation without infections - sample will be empty.\n"); */
 		out->n = 0;
 		out->pathogens = NULL;
 		out->popid = NULL;
@@ -202,6 +231,41 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 	/* free local pointers */
 	free(nAvailPerPop);
 	free(nIsolatesPerPop);
+
+	return out;
+} /* end draw_sample */
+
+
+
+
+
+
+/* GET SAMPLE OF ISOLATES FROM ONLY ONE POPULATION */
+/* Isolates are COPIED, so that any modification of the sample does not alter */
+/* the metapopulation. */
+struct sample * draw_sample_onepop(struct population *in, int n, struct param *par){
+	int i;
+	struct pathogen *ppat;
+
+	/* create pointer to pathogens */
+	struct sample *out=create_sample(n);
+
+	/* escape if no isolate available */
+	if(get_ninf(in) + get_nexp(in) < par->samp_min_size){
+		/* printf("\nMetapopulation without infections - sample will be empty.\n"); */
+		out->n = 0;
+		out->pathogens = NULL;
+		out->popid = NULL;
+		return out;
+	}
+
+
+	/* fill in the sample pathogens */
+	for(i=0;i<n;i++){
+		ppat = select_random_pathogen(in, par);
+		out->pathogens[i] = reconstruct_genome(ppat);
+		out->popid[i] = in->popid+1;
+	}
 
 	return out;
 } /* end draw_sample */

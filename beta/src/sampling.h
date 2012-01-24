@@ -34,6 +34,7 @@ int get_npop_samp(struct sample *in);
 
 struct sample * create_sample(int n);
 
+struct sample ** create_list_sample(struct param * par);
 
 
 /*
@@ -44,7 +45,7 @@ struct sample * create_sample(int n);
 
 void free_sample(struct sample *in);
 
-
+void free_list_sample(struct sample **in, struct param *par);
 
 
 /*
@@ -63,9 +64,11 @@ void print_sample(struct sample *in, bool showGen);
    ==========================
 */
 
-/* draw sample from a population */
+/* draw sample from a metapopulation */
 struct sample * draw_sample(struct metapopulation *in, int n, struct param *par);
 
+/* draw sample from a population */
+struct sample * draw_sample_onepop(struct population *in, int n, struct param *par);
 
 /* merge several samples together */
 struct sample *merge_samples(struct sample **in, int n, struct param *par);

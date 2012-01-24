@@ -22,6 +22,8 @@
    ==========================
 */
 
+void write_sample(struct sample *in);
+
 void write_list_ts_groupsizes(struct ts_groupsizes **in, struct param *par);
 
-void write_sample(struct sample *in);
+void write_list_ts_sumstat(struct ts_sumstat **in, struct param *par);

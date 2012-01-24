@@ -91,9 +91,10 @@ struct ts_sumstat * create_ts_sumstat(struct param *par){
 		fprintf(stderr, "\n[in: sumstat.c->create_ts_sumstat]\nNo memory left for storing summary statistics. Exiting.\n");
 		exit(1);
 	}
-	
-	out->maxlength=par->duration;
+
+	out->maxlength=nsteps;
 	out->length=0;
+	out->popid=0;
 	return out;
 }
 
@@ -101,6 +102,24 @@ struct ts_sumstat * create_ts_sumstat(struct param *par){
 
 
 
+/* Create list_ts_sumstat */
+struct ts_sumstat ** create_list_ts_sumstat(struct param * par){
+	int i, listsize = par->npop + 1;
+	struct ts_sumstat ** out = (struct ts_sumstat **) malloc(listsize * sizeof(struct ts_sumstat *));
+	if(out == NULL){
+		fprintf(stderr, "\n[in: sumstat.c->create_list_ts_sumstat]\nNo memory left for storing group sizes. Exiting.\n");
+		exit(1);
+	}
+
+	/* create each item in the list */
+	for(i=0;i<listsize;i++){
+		out[i] = create_ts_sumstat(par);
+		out[i]->popid = i;
+	}
+
+	/* return output */
+	return out;
+}
 
 
 
@@ -135,6 +154,22 @@ void free_ts_sumstat(struct ts_sumstat *in){
 	}
 	free(in);
 }
+
+
+
+
+/* Free list_ts_sumstat */
+void free_list_ts_sumstat(struct ts_sumstat **in, struct param *par){
+	int i;
+	if(in!=NULL){
+		for(i=0;i<(par->npop+1);i++){
+			free_ts_sumstat(in[i]);
+		}
+	}
+	free(in);
+}
+
+
 
 
 
@@ -219,7 +254,6 @@ void print_allfreq(struct allfreq *in){
 	for(i=0;i<in->length;i++) printf("%.2f ",in->freq[i]);
 	printf("\n");
 }
-
 
 
 
@@ -461,7 +495,7 @@ double fst(struct sample *in, struct param *par){
 
 
 
-void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step, struct param *par){
+void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step, int popid, struct param *par){
 	int idx = in->length;
 
 	if(idx > in->maxlength){
@@ -469,23 +503,43 @@ void fill_ts_sumstat(struct ts_sumstat *in, struct sample *samp, int step, struc
 		exit(1);
 	}
 
-	in->steps[idx] = step;
-	in->nbSnps[idx] = nb_snps(samp, par);
-	in->Hs[idx] = hs(samp, par);
-	in->meanNbSnps[idx] = mean_nb_snps(samp);
-	in->varNbSnps[idx] = var_nb_snps(samp);
-	in->meanPairwiseDist[idx] = mean_pairwise_dist(samp, par);
-	in->varPairwiseDist[idx] = var_pairwise_dist(samp, par);
-	in->meanPairwiseDistStd[idx] = mean_pairwise_dist_std(samp, par);
-	in->varPairwiseDistStd[idx] = var_pairwise_dist_std(samp, par);
-	in->Fst[idx] = fst(samp, par);
-	in->length = in->length + 1;
+	if(samp->n < 1){ /* if sample is of size 0 (by default, what happens if pop is less than minsize*/
+		in->steps[idx] = step;
+		in->nbSnps[idx] = -1;
+		in->Hs[idx] = -1.0;
+		in->meanNbSnps[idx] = -1.0;
+		in->varNbSnps[idx] = -1.0;
+		in->meanPairwiseDist[idx] = -1.0;
+		in->varPairwiseDist[idx] = -1.0;
+		in->meanPairwiseDistStd[idx] = -1.0;
+		in->varPairwiseDistStd[idx] = -1.0;
+		in->Fst[idx] = -1.0;
+		in->length = in->length + 1;
+		in->popid = popid;
+	} else {
+		in->steps[idx] = step;
+		in->nbSnps[idx] = nb_snps(samp, par);
+		in->Hs[idx] = hs(samp, par);
+		in->meanNbSnps[idx] = mean_nb_snps(samp);
+		in->varNbSnps[idx] = var_nb_snps(samp);
+		in->meanPairwiseDist[idx] = mean_pairwise_dist(samp, par);
+		in->varPairwiseDist[idx] = var_pairwise_dist(samp, par);
+		in->meanPairwiseDistStd[idx] = mean_pairwise_dist_std(samp, par);
+		in->varPairwiseDistStd[idx] = var_pairwise_dist_std(samp, par);
+		in->Fst[idx] = fst(samp, par);
+		in->length = in->length + 1;
+		in->popid = popid;
+	}
 }
 
 
+void fill_list_ts_sumstat(struct ts_sumstat **in, struct sample **listsamp, int step, struct param *par){
+	int i, listsize = par->npop + 1;
 
-
-
+	for(i=0;i<listsize;i++){
+		fill_ts_sumstat(in[i], listsamp[i], step, i, par);
+	}
+}
 
 
 /*

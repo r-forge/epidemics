@@ -204,20 +204,14 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 
 	/* group sizes */
 	struct ts_groupsizes ** grpsizes = create_list_ts_groupsizes(par);
-	struct ts_sumstat * sumstats = create_ts_sumstat(par);
+	struct ts_sumstat ** sumstats = create_list_ts_sumstat(par);
 
 	/* initiate population */
 	struct metapopulation * metapop;
 	metapop = create_metapopulation(par);
 
-	/* get sampling schemes (timestep+effectives) */
-	translate_dates(par);
-	struct table_int *tabdates = get_table_int(par->t_sample, par->n_sample);
-	printf("\n\nsampling at timesteps:");
-	print_table_int(tabdates);
-
 	/* create sample */
-	struct sample *samp;
+	struct sample **samples = create_list_sample(par);
 
 
 	/* MAKE METAPOPULATION EVOLVE */
@@ -234,11 +228,14 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 		}
 
 
-		/* draw sample */
-		samp = draw_sample(metapop, par->n_sample, par);
+		/* draw samples */
+		samples[0] = draw_sample(metapop, par->n_sample, par); /* sample from the metapop */
+		for(j=0;j<(get_npop(metapop)+1);j++){
+			samples[j+1] = draw_sample_onepop(get_populations(metapop)[j],par->n_sample, par);
+		}
 
 		/* compute statistics */
-		if(get_total_ninf(metapop)> *minSize) fill_ts_sumstat(sumstats, samp, nstep, par);
+		fill_list_ts_sumstat(sumstats, samples, nstep, par);
 
 		/* get group sizes */
 		fill_list_ts_groupsizes(grpsizes, metapop, nstep);
@@ -247,17 +244,17 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 	/* write group sizes to file */
 	printf("\n\nWriting results to file...");
 	write_list_ts_groupsizes(grpsizes, par);
-	write_ts_sumstat(sumstats);
+	write_list_ts_sumstat(sumstats,par);
 	printf("done.\n\n");
 
 	/* free memory */
-	free_sample(samp);
 	free_metapopulation(metapop);
-	free_param(par);
 	free_network(cn);
+	free_list_sample(samples, par);
 	free_list_ts_groupsizes(grpsizes, par);
-	free_ts_sumstat(sumstats);
-}
+	free_list_ts_sumstat(sumstats,par);
+	free_param(par);
+} /* end R_monitor_epidemics */
 
 
 

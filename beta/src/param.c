@@ -108,6 +108,12 @@ void check_param(struct param *in){
 		exit(1);
 	}
 
+	/* /\* minimum sample size *\/ */
+	/* if(in->samp_min_size < 1){ */
+	/* 	fprintf(stderr, "\n[in: param.c->check_param]\nParameter error: minimum sample size < 1.\n"); */
+	/* 	exit(1); */
+	/* } */
+
 }
 
 

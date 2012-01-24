@@ -45,7 +45,8 @@ plot.isolates <- function(x, y=NULL, ..., plot=TRUE, show.pop=TRUE, col.pal=rain
 ####################
 ## plot.metaPopInfo
 ####################
-plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5, arr=TRUE, annot=TRUE){
+plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5, arr=TRUE, annot=TRUE,
+                             network.front=FALSE, no.margin=FALSE){
     ## CHECK OBJECT ##
     .check.metaPopInfo(x, stopOnError=FALSE)
     if(x$n.pop==1) return(invisible())
@@ -61,10 +62,19 @@ plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5
     ry <- abs(diff(range(xy[,2])))
     xlim <- range(xy[,1]) + c(-0.1, 0.1)*rx
     ylim <- range(xy[,2]) + c(-0.1, 0.1)*ry
-    plot(xy, , xlab="x",ylab="y", type="n", xlim=xlim, ylim=ylim)
+    if(no.margin){
+        omar <- par("mar")
+        on.exit(par(omar))
+        par(mar=rep(.1,4))
+        plot(xy, , xlab="",ylab="", type="n", xlim=xlim, ylim=ylim, xaxt="n", yaxt="n")
+
+    }else{
+        plot(xy, , xlab="x",ylab="y", type="n", xlim=xlim, ylim=ylim)
+    }
 
     ## add pop sizes
-    symbols(xy, circ=sqrt(x$pop.sizes), xlab="x",ylab="y", inche=max.cir, bg=col, add=TRUE)
+    if(network.front)
+    symbols(xy, circ=sqrt(x$pop.sizes), xlab="x",ylab="y", inche=max.cir, bg=col, add=TRUE,...)
 
     ## add arrows
     f1 <- function(i){ # find arrow parameters
@@ -84,6 +94,9 @@ plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5
     } else {
         segments(temp$startx, temp$starty, temp$endx, temp$endy, lwd=arr.w)
     }
+
+    if(!network.front)
+    symbols(xy, circ=sqrt(x$pop.sizes), xlab="x",ylab="y", inche=max.cir, bg=col, add=TRUE,...)
 
     ## add labels
     if(annot){
@@ -106,21 +119,74 @@ plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5
 ##############
 ## mapPopDyn
 ##############
-mapPopDyn <- function(metapop, popdyn, max.lwd=3, max.cir=0.3, arr=TRUE, annot=FALSE){
+mapPopDyn <- function(popdyn, metapop, max.lwd=3, max.cir=0.3, arr=FALSE, annot=FALSE,
+                      output.file=NULL, ask=TRUE,...){
     ## CHECK/PROCESS ARGUMENTS ##
     ## METAPOP PARAMETERS
     .check.metaPopInfo(metapop)
 
 
     ## GET PARAMETERS TO PLOT ##
+    ## xy coords and popsizes ##
     xy <- metapop$xy
-    splitStep <- split(popdyn, popdyn$step)
+    ##temp <- popdyn[,c("nsus","ninf","nrec")]
+    temp <- popdyn[popdyn$patch>0,c("nsus","nrec")]
+    temp <- prop.table(as.matrix(temp),1)
+    inf <- popdyn$ninf[popdyn$patch>0]/max(popdyn$ninf[popdyn$patch>0])
+    x <- cbind.data.frame(step=popdyn$step[popdyn$patch>0], patch=popdyn$patch[popdyn$patch>0], inf=inf, temp)
+    x.bystep <- split(x, x$step)
 
-    for(i in 1:length(splitStep)){
-        pinf <-
-        myCol <-
-        plot(metapop, col=myCol)
+    ## define color palette ##
+    myPal <- colorRampPalette(c("white","red"))(100)
+
+    ## general dynamics ##
+    metadyn <- popdyn[popdyn$patch==0,c("step","nsus","ninf","nrec")]
+
+
+    ## MAKE SERIES OF PLOTS ##
+    par(ask=ask)
+    layout(matrix(c(1,2),ncol=1), heights=c(.7,.3))
+    if(!is.null(output.file)) dir.create(output.file)
+
+    for(i in 1:length(x.bystep)){
+        #### OUTPUT TO SCREEN ####
+        ## SYMBOLS ##
+        myCirc <- rgb(rep(0,nrow(x.bystep[[i]])), x.bystep[[i]][,"nrec"], x.bystep[[i]][,"nsus"])
+        ##myCol <- rgb(1,0,0,x.bystep[[i]][,"inf"])
+        temp <- floor(100*x.bystep[[i]][,"inf"])
+        temp[temp<1] <- 1
+        myCol <- myPal[temp]
+        plot(metapop, col=myCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
+             network.front=FALSE, no.margin=TRUE)
+
+        ## global dynamics ##
+        par(mar=c(2,2,.1,.1))
+        matplot(metadyn[,"step"], metadyn[,-1], type="n",ylab="Number of individuals", xlab="Time")
+        matplot(metadyn[1:i,"step"], metadyn[1:i,-1], col=c("blue","red","green"),lty=1, type="l",lwd=2, add=TRUE)
+
+        #### OUTPUT TO FILE ####
+        if(!is.null(output.file)){
+
+            png(paste(output.file, "/", output.file,"-",i,".png",sep=""))
+
+            myCirc <- rgb(rep(0,nrow(x.bystep[[i]])), x.bystep[[i]][,"nrec"], x.bystep[[i]][,"nsus"])
+            ##myCol <- rgb(1,0,0,x.bystep[[i]][,"inf"])
+            temp <- floor(100*x.bystep[[i]][,"inf"])
+            temp[temp<1] <- 1
+            myCol <- myPal[temp]
+            plot(metapop, col=myCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
+                 network.front=FALSE, no.margin=TRUE)
+
+            ## global dynamics ##
+            par(mar=c(2,2,.1,.1))
+            matplot(metadyn[,"step"], metadyn[,-1], type="n",ylab="Number of individuals", xlab="Time")
+            matplot(metadyn[1:i,"step"], metadyn[1:i,-1], col=c("blue","red","green"),lty=1, type="l",lwd=2, add=TRUE)
+
+            dev.off()
+        }
     }
+
+
 
 
 }
