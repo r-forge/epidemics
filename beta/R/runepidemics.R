@@ -62,16 +62,17 @@ epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
     ## call run_epidemics ##
     .C("R_epidemics", seq.length, mut.rate, n.pop, pop.size, beta, n.ini.inf, t.infectious, t.recover, n.sample, t.sample, duration, cninfo$nbnb, cninfo$listnb, cninfo$weights, PACKAGE="epidemics")
 
+    dat <- read.table("out-popsize.txt", header=TRUE)
+
     ## PLOT ##
     if(plot){
-        dat <- read.table("out-popsize.txt", header=TRUE)
-        ##dat <- dat[dat$patch==0, -1] # keep only metapop info
-        if(any(apply(dat[,-c(1,2)], 1, function(e) all(e<1)))){
-            dat <- dat[1:(min(which(apply(dat[,-c(1,2)], 1, function(e) all(e<1))))-1), ]
+        dat.plot <- dat[dat$patch==0,] # keep only metapop info
+        if(any(apply(dat.plot[,-c(1,2)], 1, function(e) all(e<1)))){
+            dat.plot <- dat.plot[1:(min(which(apply(dat.plot[,-c(1,2)], 1, function(e) all(e<1))))-1), ]
         }
 
         ## call to matplot
-        matplot(dat[dat$patch==0,items], type="b", xlab="time step", ylab="size (number of individuals)", lty=lty, col=col, pch=pch)
+        matplot(dat.plot[dat.plot$patch==0,items], type="b", xlab="time step", ylab="size (number of individuals)", lty=lty, col=col, pch=pch)
         legend("topright", lty=lty, col=col, pch=pch, legend=items)
     }
 
@@ -111,9 +112,10 @@ epidemics <- function(n.sample, duration, beta, metaPopInfo, t.sample=NULL,
 #####################
 ## monitor.epidemics
 #####################
-monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=1e4, mut.rate=1e-5,
-                              n.ini.inf=10, t.infectious=1, t.recover=2, min.samp.size=100, plot=TRUE,
-                              items=c("nbSnps","Hs","meanNbSnps","varNbSnps","meanPairwiseDist","varPairwiseDist","meanPairwiseDistStd","varPairwiseDistStd","Fst"),
+monitor.epidemics <- function(duration, beta, metaPopInfo, n.sample=200, seq.length=1e4, mut.rate=1e-5,
+                              n.ini.inf=10, t.infectious=1, t.recover=2, min.samp.size=n.sample, plot=TRUE,
+                              items=c("nbSnps","Hs","meanNbSnps","varNbSnps","meanPairwiseDist","varPairwiseDist",
+                              "meanPairwiseDistStd","varPairwiseDistStd","Fst"),
                               file.sizes="out-popsize.txt", file.sumstat="out-sumstat.txt"){
 
     ## CHECK/PROCESS ARGUMENTS ##
@@ -210,9 +212,10 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
     }
 
     ## BUILD OUTPUT / RETURN RESULT ##
-    toKeep <- !apply(sumstat[,-(1:2)],1, function(e) any(is.na(e)))
-    sumstat <- sumstat[toKeep,]
+    ## toKeep <- !apply(sumstat[,-(1:2)],1, function(e) any(is.na(e)))
+    ## sumstat <- sumstat[toKeep,]
     rownames(sumstat) <- paste(sumstat$patch,sumstat$step,sep="-")
+    rownames(grpsizes) <- paste(grpsizes$patch,grpsizes$step,sep="-")
     res <- cbind.data.frame(grpsizes[rownames(sumstat),], sumstat[,-(1:2)])
 
     return(res)

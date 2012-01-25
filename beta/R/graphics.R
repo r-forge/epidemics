@@ -117,38 +117,51 @@ plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5
 
 
 ##############
-## mapPopDyn
+## epiMap
 ##############
-mapPopDyn <- function(popdyn, metapop, max.lwd=3, max.cir=0.2, arr=FALSE, annot=FALSE,
-                      out.dir=NULL, ask=TRUE, plot=TRUE,...){
+epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, max.lwd=3, max.cir=0.2, arr=FALSE, annot=FALSE,
+                      out.dir=NULL, ask=TRUE, plot=TRUE, interval=0.05, title="Epidemics simulation",...){
     ## CHECK/PROCESS ARGUMENTS ##
     ## METAPOP PARAMETERS
     .check.metaPopInfo(metapop)
 
     if(!is.null(out.dir) && !require(animation)) stop("animation package is required - install it or set 'animate' to FALSE.")
-
+    addStat <- !is.null(sumstat)
+    if(!all(groups %in% colnames(dat))) stop("some of the requested groups are not in dat")
+    if(addStat && !sumstat %in% colnames(dat)) stop("requested summary statistics is not in dat")
 
     ## GET PARAMETERS TO PLOT ##
     ## xy coords and popsizes ##
     xy <- metapop$xy
-    ##temp <- popdyn[,c("nsus","ninf","nrec")]
-    temp <- popdyn[popdyn$patch>0,c("nsus","nrec")]
+    ##temp <- dat[,c("nsus","ninf","nrec")]
+    temp <- dat[dat$patch>0,c("nsus","nrec")]
     temp <- prop.table(as.matrix(temp),1)
-    inf <- popdyn$ninf[popdyn$patch>0]/max(popdyn$ninf[popdyn$patch>0])
-    x <- cbind.data.frame(step=popdyn$step[popdyn$patch>0], patch=popdyn$patch[popdyn$patch>0], inf=inf, temp)
+    inf <- dat$ninf[dat$patch>0]/max(dat$ninf[dat$patch>0])
+    if(addStat){
+        sumstat.name <- sumstat
+        sumstat <- dat[dat$patch>0,sumstat]
+        x <- cbind.data.frame(step=dat$step[dat$patch>0], patch=dat$patch[dat$patch>0], inf=inf, temp, sumstat)
+        colnames(x)[ncol(x)] <- sumstat.name
+    } else {
+        x <- cbind.data.frame(step=dat$step[dat$patch>0], patch=dat$patch[dat$patch>0], inf=inf, temp)
+        sumstat.name <- NULL
+    }
     x.bystep <- split(x, x$step)
 
     ## define color palette ##
     myPal <- colorRampPalette(c("white","red"))(100)
 
     ## general dynamics ##
-    metadyn <- popdyn[popdyn$patch==0,c("step","nsus","ninf","nrec")]
+    globalDat <- dat[dat$patch==0,c("step",groups,sumstat.name)]
 
 
     ## MAKE SERIES OF PLOTS ##
     par(ask=ask)
     layout(matrix(c(1,2),ncol=1), heights=c(.65,.35))
     if(!is.null(out.dir)) dir.create(out.dir)
+    myCol <- c("blue","red","green")
+    names(myCol) <- c("nsus","ninf","nrec")
+    myCol <- myCol[groups]
 
     ## OUTPUT TO SCREEN ##
     if(plot){
@@ -158,17 +171,25 @@ mapPopDyn <- function(popdyn, metapop, max.lwd=3, max.cir=0.2, arr=FALSE, annot=
             ##myCol <- rgb(1,0,0,x.bystep[[i]][,"inf"])
             temp <- floor(100*x.bystep[[i]][,"inf"])
             temp[temp<1] <- 1
-            myCol <- myPal[temp]
-            plot(metapop, col=myCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
+            cirCol <- myPal[temp]
+            plot(metapop, col=cirCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
                  network.front=FALSE, no.margin=TRUE)
 
             ## GLOBAL DYNAMICS ##
-            par(mar=c(2,2,.1,.1))
-            matplot(metadyn[,"step"], metadyn[,-1], type="n",ylab="Number of individuals", xlab="Time")
-            matplot(metadyn[1:i,"step"], metadyn[1:i,-1], col=c("blue","red","green"),lty=1, type="l",lwd=2, add=TRUE)
+            par(mar=c(4,3,.1,3))
+            matplot(globalDat[,"step"], globalDat[,groups], type="n",ylab="Number of individuals", xlab="Time")
+            matplot(globalDat[1:i,"step"], globalDat[1:i,groups], col=myCol,lty=1, type="l",lwd=2, add=TRUE)
+
+            ## SUMMARY STATISTICS ##
+            if(addStat){
+                par(new=TRUE)
+                plot(globalDat[,"step"], globalDat[,sumstat.name], xaxt="n",yaxt="n",xlab="",ylab="",type="n")
+                points(globalDat[1:i,"step"], globalDat[1:i,sumstat.name], lty=1, type="b",lwd=2)
+                axis(side=4)
+            }
 
             ## WAIT IF NEEDED ##
-            if(!ask) Sys.sleep(.1)
+            if(!ask) Sys.sleep(interval)
         }
     }
 
@@ -178,8 +199,12 @@ mapPopDyn <- function(popdyn, metapop, max.lwd=3, max.cir=0.2, arr=FALSE, annot=
 
         ## SET ANIMATION PARAMETERS ##
         dir.create(out.dir)
-        ani.options(nmax=length(x.bystep),outdir=out.dir)
+        oani <- ani.options()
+        on.exit(ani.options(oani))
+        ani.options(nmax=length(x.bystep),outdir=out.dir,interval=0.1,title=title)
         ani.start()
+
+        max.cir <- max.cir/2.5
 
         for(i in 1:length(x.bystep)){
 
@@ -190,14 +215,24 @@ mapPopDyn <- function(popdyn, metapop, max.lwd=3, max.cir=0.2, arr=FALSE, annot=
             ##myCol <- rgb(1,0,0,x.bystep[[i]][,"inf"])
             temp <- floor(100*x.bystep[[i]][,"inf"])
             temp[temp<1] <- 1
-            myCol <- myPal[temp]
-            plot(metapop, col=myCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
+            cirCol <- myPal[temp]
+            plot(metapop, col=cirCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
                  network.front=FALSE, no.margin=TRUE)
 
             ## GLOBAL DYNAMICS ##
-            par(mar=c(2,2,.1,.1))
-            matplot(metadyn[,"step"], metadyn[,-1], type="n",ylab="Number of individuals", xlab="Time")
-            matplot(metadyn[1:i,"step"], metadyn[1:i,-1], col=c("blue","red","green"),lty=1, type="l",lwd=2, add=TRUE)
+            par(mar=c(4,3,.1,3))
+            matplot(globalDat[,"step"], globalDat[,groups], type="n",ylab="Number of individuals", xlab="Time")
+            matplot(globalDat[1:i,"step"], globalDat[1:i,groups], col=myCol,lty=1, type="l",lwd=2, add=TRUE)
+
+            ## SUMMARY STATISTICS ##
+            if(addStat){
+                par(new=TRUE)
+                plot(globalDat[,"step"], globalDat[,sumstat.name], xaxt="n",yaxt="n",xlab="",ylab="",type="n")
+                points(globalDat[1:i,"step"], globalDat[1:i,sumstat.name], lty=1, type="b",lwd=2)
+                axis(side=4)
+            }
+
+
         }
 
         ani.stop()

@@ -256,6 +256,8 @@ setMetaPop <- function(n.pop, metapop.size, args.pop.size=list(), args.spatial=l
     res$call <- match.call()
     class(res) <- "metaPopInfo"
 
+    ## adjust metapop size
+    res$metapop.size <- sum(res$pop.sizes)
 
     ## CHECK AND RETURN RESULT ##
     .check.metaPopInfo(res, stopOnError=check.fail.error)
@@ -273,45 +275,50 @@ setMetaPop <- function(n.pop, metapop.size, args.pop.size=list(), args.spatial=l
 ## setPopSizes
 ###############
 setPopSizes <- function(n.pop, metapop.size, distrib=c("equal","runif","rpois","rgamma"),
-                        lambda=NULL, shape=NULL, rate=NULL){
+                        lambda=NULL, shape=NULL, rate=NULL, min.pop.size=10){
     ## CHECKS ##
     distrib <- match.arg(distrib)
 
 
     ## GET POPULATION SIZES ##
-    idx <- sample(1:n.pop, 1) # population used for total size adjustment
+
+    ## FORCE MINIMUM SAMPLE SIZE ##
+    base <- rep(min.pop.size,n.pop)
+    left <- max(metapop.size - sum(base), 0)
 
     ## EQUAL SIZES
     if(distrib=="equal"){
-        res <- rep(floor(metapop.size/n.pop),n.pop)
-        res[idx] <- res[idx] + metapop.size-sum(res)
+        temp <- rep(floor(left/n.pop),n.pop)
+        res <- base + temp
     }
 
     ## UNIFORMLY DISTRIBUTED
     if(distrib=="runif"){
-        res <- runif(n.pop,0,1e5)
-        res <- round(metapop.size*res/sum(res))
-        res[idx] <- res[idx] + metapop.size-sum(res)
+        temp <- runif(n.pop,0,1e5)
+        temp <- round(left*temp/sum(temp))
+        res <- base + temp
     }
 
     ## POISSON DISTRIBUTED
     if(distrib=="rpois"){
         if(is.null(lambda)) stop("lambda is needed for Poisson-distributed population sizes")
-        res <- rpois(n.pop, lambda=lambda)
-        res <- round(metapop.size*res/sum(res))
-        res[idx] <- res[idx] + metapop.size-sum(res)
+        temp <- rpois(n.pop, lambda=lambda)
+        temp <- round(left*temp/sum(temp))
+        res <- base + temp
     }
 
     ## GAMMA DISTRIBUTED
     if(distrib=="rgamma"){
         if(is.null(shape) | is.null(rate)) stop("shape and rate are needed for gamma-distributed population sizes")
-        res <- rgamma(n.pop, shape=shape, rate=rate)
-        res <- round(metapop.size*res/sum(res))
-        res[idx] <- res[idx] + metapop.size-sum(res)
+        temp <- rgamma(n.pop, shape=shape, rate=rate)
+        temp <- round(left*temp/sum(temp))
+        res <- base + temp
     }
 
 
     ## RETURN RESULT ##
+    idx <- sample(1:n.pop) # randomize ordering of the populations
+    res <- res[idx]
     if(sum(res)!=metapop.size) warning("final metapopulation size is not the requested size")
     if(any(res<1)) warning("some population sizes are 0 and will likely cause simulation issues")
     return(res)
