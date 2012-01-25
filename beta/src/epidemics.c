@@ -66,6 +66,7 @@ void R_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostPerPop, d
 	par->cn_nb_nb = nbnb;
 	par->cn_list_nb = listnb;
 	par->cn_weights = pdisp;
+	par->samp_min_size = -1; /* no minimum sample size */
 
 	/* check/print parameters */
 	check_param(par);
@@ -192,6 +193,7 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 	par->cn_nb_nb = nbnb;
 	par->cn_list_nb = listnb;
 	par->cn_weights = pdisp;
+	par->samp_min_size = *minSize;
 
 	/* check/print parameters */
 	check_param(par);
@@ -230,7 +232,7 @@ void R_monitor_epidemics(int *seqLength, double *mutRate, int *npop, int *nHostP
 
 		/* draw samples */
 		samples[0] = draw_sample(metapop, par->n_sample, par); /* sample from the metapop */
-		for(j=0;j<(get_npop(metapop)+1);j++){
+		for(j=0;j<get_npop(metapop);j++){
 			samples[j+1] = draw_sample_onepop(get_populations(metapop)[j],par->n_sample, par);
 		}
 

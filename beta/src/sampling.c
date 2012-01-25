@@ -189,7 +189,7 @@ struct sample * draw_sample(struct metapopulation *in, int n, struct param *par)
 
 	/* escape if no isolate available */
 	/* if(get_total_ninf(in) + get_total_nexp(in) < 1){ */
-	if(get_total_ninf(in) + get_total_nexp(in) < par->samp_min_size){
+	if(par->samp_min_size>0 && (get_total_ninf(in) + get_total_nexp(in) < par->samp_min_size)){
 		/* printf("\nMetapopulation without infections - sample will be empty.\n"); */
 		out->n = 0;
 		out->pathogens = NULL;
