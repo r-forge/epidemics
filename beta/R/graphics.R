@@ -119,11 +119,13 @@ plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5
 ##############
 ## mapPopDyn
 ##############
-mapPopDyn <- function(popdyn, metapop, max.lwd=3, max.cir=0.3, arr=FALSE, annot=FALSE,
-                      output.file=NULL, ask=TRUE,...){
+mapPopDyn <- function(popdyn, metapop, max.lwd=3, max.cir=0.2, arr=FALSE, annot=FALSE,
+                      out.dir=NULL, ask=TRUE, plot=TRUE,...){
     ## CHECK/PROCESS ARGUMENTS ##
     ## METAPOP PARAMETERS
     .check.metaPopInfo(metapop)
+
+    if(!is.null(out.dir) && !require(animation)) stop("animation package is required - install it or set 'animate' to FALSE.")
 
 
     ## GET PARAMETERS TO PLOT ##
@@ -145,30 +147,13 @@ mapPopDyn <- function(popdyn, metapop, max.lwd=3, max.cir=0.3, arr=FALSE, annot=
 
     ## MAKE SERIES OF PLOTS ##
     par(ask=ask)
-    layout(matrix(c(1,2),ncol=1), heights=c(.7,.3))
-    if(!is.null(output.file)) dir.create(output.file)
+    layout(matrix(c(1,2),ncol=1), heights=c(.65,.35))
+    if(!is.null(out.dir)) dir.create(out.dir)
 
-    for(i in 1:length(x.bystep)){
-        #### OUTPUT TO SCREEN ####
-        ## SYMBOLS ##
-        myCirc <- rgb(rep(0,nrow(x.bystep[[i]])), x.bystep[[i]][,"nrec"], x.bystep[[i]][,"nsus"])
-        ##myCol <- rgb(1,0,0,x.bystep[[i]][,"inf"])
-        temp <- floor(100*x.bystep[[i]][,"inf"])
-        temp[temp<1] <- 1
-        myCol <- myPal[temp]
-        plot(metapop, col=myCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
-             network.front=FALSE, no.margin=TRUE)
-
-        ## global dynamics ##
-        par(mar=c(2,2,.1,.1))
-        matplot(metadyn[,"step"], metadyn[,-1], type="n",ylab="Number of individuals", xlab="Time")
-        matplot(metadyn[1:i,"step"], metadyn[1:i,-1], col=c("blue","red","green"),lty=1, type="l",lwd=2, add=TRUE)
-
-        #### OUTPUT TO FILE ####
-        if(!is.null(output.file)){
-
-            png(paste(output.file, "/", output.file,"-",i,".png",sep=""))
-
+    ## OUTPUT TO SCREEN ##
+    if(plot){
+        for(i in 1:length(x.bystep)){
+            ## SYMBOLS ##
             myCirc <- rgb(rep(0,nrow(x.bystep[[i]])), x.bystep[[i]][,"nrec"], x.bystep[[i]][,"nsus"])
             ##myCol <- rgb(1,0,0,x.bystep[[i]][,"inf"])
             temp <- floor(100*x.bystep[[i]][,"inf"])
@@ -177,16 +162,46 @@ mapPopDyn <- function(popdyn, metapop, max.lwd=3, max.cir=0.3, arr=FALSE, annot=
             plot(metapop, col=myCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
                  network.front=FALSE, no.margin=TRUE)
 
-            ## global dynamics ##
+            ## GLOBAL DYNAMICS ##
             par(mar=c(2,2,.1,.1))
             matplot(metadyn[,"step"], metadyn[,-1], type="n",ylab="Number of individuals", xlab="Time")
             matplot(metadyn[1:i,"step"], metadyn[1:i,-1], col=c("blue","red","green"),lty=1, type="l",lwd=2, add=TRUE)
 
-            dev.off()
+            ## WAIT IF NEEDED ##
+            if(!ask) Sys.sleep(.1)
         }
     }
 
 
+    ## OUTPUT TO FILE ##
+    if(!is.null(out.dir)){
 
+        ## SET ANIMATION PARAMETERS ##
+        dir.create(out.dir)
+        ani.options(nmax=length(x.bystep),outdir=out.dir)
+        ani.start()
+
+        for(i in 1:length(x.bystep)){
+
+            layout(matrix(c(1,2),ncol=1), heights=c(.65,.35))
+
+            ## SYMBOLS ##
+            myCirc <- rgb(rep(0,nrow(x.bystep[[i]])), x.bystep[[i]][,"nrec"], x.bystep[[i]][,"nsus"])
+            ##myCol <- rgb(1,0,0,x.bystep[[i]][,"inf"])
+            temp <- floor(100*x.bystep[[i]][,"inf"])
+            temp[temp<1] <- 1
+            myCol <- myPal[temp]
+            plot(metapop, col=myCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
+                 network.front=FALSE, no.margin=TRUE)
+
+            ## GLOBAL DYNAMICS ##
+            par(mar=c(2,2,.1,.1))
+            matplot(metadyn[,"step"], metadyn[,-1], type="n",ylab="Number of individuals", xlab="Time")
+            matplot(metadyn[1:i,"step"], metadyn[1:i,-1], col=c("blue","red","green"),lty=1, type="l",lwd=2, add=TRUE)
+        }
+
+        ani.stop()
+
+    }
 
 }
