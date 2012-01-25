@@ -176,18 +176,23 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
     ## rename files ##
     sumstat <- read.table("out-sumstat.txt", header=TRUE)
     grpsizes <- read.table("out-popsize.txt", header=TRUE)
-    grpsizes.toPlot <- grpsizes[grpsizes$patch==0,]
     file.rename("out-popsize.txt", file.sizes)
     file.rename("out-sumstat.txt", file.sumstat)
 
-    if(any(apply(grpsizes, 1, function(e) all(e<1)))){
-        grpsizes <- grpsizes[1:(min(which(apply(grpsizes[,-c(1,2)], 1, function(e) all(e<1))))-1), ]
+    ## sort sumstat data ##
+    sumstat[sumstat < 0] <- NA
+    sumstat.toPlot <- sumstat[sumstat$patch==0,]
+    toKeep <- !apply(sumstat.toPlot[,-(1:2)],1, function(e) any(is.na(e)))
+    sumstat.toPlot <- sumstat.toPlot[toKeep,]
+
+    ## sort groupsize data ##
+    grpsizes.toPlot <- grpsizes[grpsizes$patch==0,]
+    if(any(apply(grpsizes.toPlot, 1, function(e) all(e<1)))){
+        grpsizes.toPlot <- grpsizes.toPlot[1:(min(which(apply(grpsizes.toPlot[,-c(1,2)], 1, function(e) all(e<1))))-1), ]
     }
 
-    toKeep <- match(sumstat$step, grpsizes.toPlot$step)
-    grpsizes <- grpsizes[toKeep,]
+    toKeep <- match(sumstat.toPlot$step, grpsizes.toPlot$step)
     grpsizes.toPlot <- grpsizes.toPlot[toKeep,c("step","nsus","ninf","nrec")]
-
 
     ## PLOT ##
     if(plot){
@@ -200,12 +205,16 @@ monitor.epidemics <- function(n.sample, duration, beta, metaPopInfo, seq.length=
             axis(side=4)
             ##mtext(side=4, "size (number of individuals)", line=2)
             par(new=TRUE)
-            plot(sumstat$step, sumstat[,item], ylab=item, xlab="", main=item, type="b", lwd=2)
+            plot(sumstat.toPlot$step, sumstat.toPlot[,item], ylab=item, xlab="", main=item, type="b", lwd=2)
         }
     }
 
-    ## RETURN RESULT ##
-    res <- list(popdyn=grpsizes, sumstat=sumstat)
+    ## BUILD OUTPUT / RETURN RESULT ##
+    toKeep <- !apply(sumstat[,-(1:2)],1, function(e) any(is.na(e)))
+    sumstat <- sumstat[toKeep,]
+    rownames(sumstat) <- paste(sumstat$patch,sumstat$step,sep="-")
+    res <- cbind.data.frame(grpsizes[rownames(sumstat),], sumstat[,-(1:2)])
+
     return(res)
 } # end monitor.epidemics
 

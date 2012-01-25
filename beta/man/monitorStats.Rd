@@ -67,19 +67,20 @@ plot(metapop)
 ## run simulation
 res <- monitor.epidemics(300, beta=2, duration=100,min.samp.size=1e3,metaPop=metapop, n.ini=10)
 
-## check output
+## CHECK OUTPUT
+class(res)
 names(res)
-head(res$popdyn)
-head(res$sumstat)
+head(res)
 
-## visualize each plot separately ##
-popdyn <- res$popdyn[res$popdyn$patch==0,]
+
+## VISUALIZE GLOBAL PATTERNS SEPARATELY ##
+resGlob <- res[res$patch==0,]
 par(mfrow=c(1,1))
-myCol <- colorRampPalette(c("blue","red"))(ncol(res$sumstat)-1)
-for(i in 2:ncol(res$sumstat)){
-plot(popdyn$step, popdyn$ninf, type="l",lwd=5, col=grey(.7),yaxt="n",ylab="", xlab="")
+
+for(i in 8:ncol(resGlob)){
+plot(resGlob$step, resGlob$ninf, type="l",lwd=5, col=grey(.7),yaxt="n",ylab="", xlab="")
 par(new=TRUE)
-plot(res$sumstat$step,res$sumstat[,i],col=myCol[i-1],type="b",lwd=2, pch=20, main=names(res$sumstat)[i])
+plot(resGlob$step, resGlob[,i],col="blue",type="b",lwd=2, pch=20, main=names(resGlob)[i])
 }
 
 }

@@ -46,7 +46,7 @@ plot.isolates <- function(x, y=NULL, ..., plot=TRUE, show.pop=TRUE, col.pal=rain
 ## plot.metaPopInfo
 ####################
 plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5, arr=TRUE, annot=TRUE,
-                             network.front=FALSE, no.margin=FALSE){
+                             network.front=TRUE, no.margin=FALSE){
     ## CHECK OBJECT ##
     .check.metaPopInfo(x, stopOnError=FALSE)
     if(x$n.pop==1) return(invisible())
