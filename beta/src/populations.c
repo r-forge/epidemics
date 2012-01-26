@@ -259,7 +259,8 @@ struct ts_groupsizes * create_ts_groupsizes(struct param * par){
 	out->ninf = (int *) calloc(nsteps, sizeof(int));
 	out->nrec = (int *) calloc(nsteps, sizeof(int));
 	out->nexpcum = (int *) calloc(nsteps, sizeof(int));
-	out->length = nsteps;
+	out->length = 0;
+	out->maxlength = par->duration;
 	out->popid = 0; /* 0 refers to the metapop */
 
 	if(out->nsus==NULL || out->nexp==NULL || out->ninf==NULL || out->nrec==NULL || out->nexpcum==NULL){
@@ -511,7 +512,7 @@ void age_metapopulation2(struct metapopulation * in, int t1, int t2){
 
 /* KEEP TRACK OF GROUP SIZES - METAPOP OR ONE PATCH */
 void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop, int step, int popid){
-	if(step>in->length){
+	if(step>in->maxlength){
 		fprintf(stderr, "\n[in: population.c->fill_ts_groupsizes]\n. ts_groupsizes object is not long enough to store output of step %d. Exiting.\n", step);
 		exit(1);
 	}
@@ -530,6 +531,7 @@ void fill_ts_groupsizes(struct ts_groupsizes *in, struct metapopulation *metapop
 		in->nexpcum[step-1] = get_nexpcum(get_populations(metapop)[popid-1]);
 	}
 
+	in->length = in->length + 1;
 	in->popid = popid;
 }
 
@@ -542,7 +544,7 @@ void fill_list_ts_groupsizes(struct ts_groupsizes **in, struct metapopulation *m
 	int i, listsize=get_npop(metapop)+1;
 
 	for(i=0;i<listsize;i++){
-		if(step>in[i]->length){
+		if(step>in[i]->maxlength){
 			fprintf(stderr, "\n[in: population.c->fill_ts_groupsizes]\n. ts_groupsizes object is not long enough to store output of step %d. Exiting.\n", step);
 			exit(1);
 		}

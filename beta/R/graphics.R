@@ -129,6 +129,7 @@ epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, m
     addStat <- !is.null(sumstat)
     if(!all(groups %in% colnames(dat))) stop("some of the requested groups are not in dat")
     if(addStat && !sumstat %in% colnames(dat)) stop("requested summary statistics is not in dat")
+    if(!plot) ask <- FALSE
 
     ## GET PARAMETERS TO PLOT ##
     ## xy coords and popsizes ##
