@@ -119,8 +119,9 @@ plot.metaPopInfo <- function(x, y=NULL, ..., col="blue", max.lwd=10, max.cir=0.5
 ##############
 ## epiMap
 ##############
-epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, max.lwd=3, max.cir=0.2, arr=FALSE, annot=FALSE,
-                      out.dir=NULL, ask=TRUE, plot=TRUE, interval=0.05, title="Epidemics simulation",...){
+epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, max.lwd=3, max.cir=0.2,
+                   sumstat.symbol=2, max.symbol.size=5, arr=FALSE, annot=FALSE,
+                   out.dir=NULL, ask=TRUE, plot=TRUE, interval=0.05, title="Epidemics simulation",...){
     ## CHECK/PROCESS ARGUMENTS ##
     ## METAPOP PARAMETERS
     .check.metaPopInfo(metapop)
@@ -141,6 +142,8 @@ epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, m
     if(addStat){
         sumstat.name <- sumstat
         sumstat <- dat[dat$patch>0,sumstat]
+        sumstat.min <- min(sumstat, na.rm=TRUE)
+        sumstat.max <- max(sumstat, na.rm=TRUE)
         x <- cbind.data.frame(step=dat$step[dat$patch>0], patch=dat$patch[dat$patch>0], inf=inf, temp, sumstat)
         colnames(x)[ncol(x)] <- sumstat.name
     } else {
@@ -155,6 +158,20 @@ epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, m
     ## general dynamics ##
     globalDat <- dat[dat$patch==0,c("step",groups,sumstat.name)]
 
+    ## define a function for overlaying symbols for sumstat ##
+    if(addStat){
+        myScale <- seq(0.5,max.symbol.size,length=100)
+        plotSumStat <- function(patches,values){ # xy are treated as global variables
+            if(all(is.na(values))) return()
+            patches <- patches[!is.na(values)]
+            values <- values[!is.na(values)]
+            myXy <- xy[patches,,drop=FALSE]
+            values <- floor(100*(values-sumstat.min)/sumstat.max) # convert values on 0-100 scale
+            values[values<1] <- 1 # 1-100 scale
+            myCex <- myScale[values]
+            points(myXy[,1], myXy[,2], pch=sumstat.symbol, cex=myCex, lwd=myCex, col=rgb(0,0,0,.3))
+        }
+    }
 
     ## MAKE SERIES OF PLOTS ##
     par(ask=ask)
@@ -163,6 +180,7 @@ epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, m
     myCol <- c("blue","red","green")
     names(myCol) <- c("nsus","ninf","nrec")
     myCol <- myCol[groups]
+
 
     ## OUTPUT TO SCREEN ##
     if(plot){
@@ -176,6 +194,11 @@ epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, m
             plot(metapop, col=cirCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
                  network.front=FALSE, no.margin=TRUE)
 
+            ## overlay symbols for sumstat
+            if(addStat){
+                plotSumStat(x.bystep[[i]][,"patch"], x.bystep[[i]][,sumstat.name])
+            }
+
             ## GLOBAL DYNAMICS ##
             par(mar=c(4,3,.1,3))
             matplot(globalDat[,"step"], globalDat[,groups], type="n",ylab="Number of individuals", xlab="Time")
@@ -185,7 +208,7 @@ epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, m
             if(addStat){
                 par(new=TRUE)
                 plot(globalDat[,"step"], globalDat[,sumstat.name], xaxt="n",yaxt="n",xlab="",ylab="",type="n")
-                points(globalDat[1:i,"step"], globalDat[1:i,sumstat.name], lty=1, type="b",lwd=2)
+                points(globalDat[1:i,"step"], globalDat[1:i,sumstat.name], lty=1, type="o",lwd=2)
                 axis(side=4)
             }
 
@@ -229,7 +252,7 @@ epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, m
             if(addStat){
                 par(new=TRUE)
                 plot(globalDat[,"step"], globalDat[,sumstat.name], xaxt="n",yaxt="n",xlab="",ylab="",type="n")
-                points(globalDat[1:i,"step"], globalDat[1:i,sumstat.name], lty=1, type="b",lwd=2)
+                points(globalDat[1:i,"step"], globalDat[1:i,sumstat.name], lty=1, type="o",lwd=2)
                 axis(side=4)
             }
 

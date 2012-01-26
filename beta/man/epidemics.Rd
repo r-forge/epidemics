@@ -74,7 +74,9 @@ sampTime <- rep(c(0,20,50,100,150), each=10)
 x <- epidemics(n.sample=50, beta=2, duration=200,meta=metapop,t.sample=sampTime, n.ini=10)
 
 ## examine and plot result
-x
+class(x)
+names(x)
+lapply(x,head)
 plot(x$sample)
 plot(x$sample,  type="fan", y=fastme.ols)
 
