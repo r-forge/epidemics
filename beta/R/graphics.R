@@ -153,7 +153,7 @@ epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, m
     x.bystep <- split(x, x$step)
 
     ## define color palette ##
-    myPal <- colorRampPalette(c("white","red"))(100)
+    inf.pal <- colorRampPalette(c("white","red"))(100)
 
     ## general dynamics ##
     globalDat <- dat[dat$patch==0,c("step",groups,sumstat.name)]
@@ -190,7 +190,7 @@ epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, m
             ##myCol <- rgb(1,0,0,x.bystep[[i]][,"inf"])
             temp <- floor(100*x.bystep[[i]][,"inf"])
             temp[temp<1] <- 1
-            cirCol <- myPal[temp]
+            cirCol <- inf.pal[temp]
             plot(metapop, col=cirCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
                  network.front=FALSE, no.margin=TRUE)
 
@@ -239,7 +239,7 @@ epiMap <- function(dat, metapop, groups=c("nsus","ninf","nrec"), sumstat=NULL, m
             ##myCol <- rgb(1,0,0,x.bystep[[i]][,"inf"])
             temp <- floor(100*x.bystep[[i]][,"inf"])
             temp[temp<1] <- 1
-            cirCol <- myPal[temp]
+            cirCol <- inf.pal[temp]
             plot(metapop, col=cirCol, max.lwd=max.lwd, max.cir=max.cir, arr=arr, annot=annot, fg=myCirc, lwd=2,
                  network.front=FALSE, no.margin=TRUE)
 
